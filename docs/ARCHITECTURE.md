@@ -603,8 +603,8 @@ volumes:
 | 1     | 1–2    | Python          | 24K XSS payload dataset built + labeled        | ✅ DONE  |
 | 2     | 3      | Python          | DistilBERT model setup + tokenizer configured  | ✅ DONE  |
 | 3     | 4–5    | Python          | AI context classifier trained + evaluated      | ✅ DONE  |
-| 4     | 6–7    | NestJS          | Core scaffold: scan pipeline, queue, WebSocket | 🔄 NEXT  |
-| 5     | 8–9    | TypeScript      | Crawler: spider, param discovery, WAF detect   | ⬜        |
+| 4     | 6–7    | NestJS          | Core scaffold: scan pipeline, queue, WebSocket | ✅ DONE  |
+| 5     | 8–9    | TypeScript      | Crawler: spider, param discovery, WAF detect   | 🔄 NEXT  |
 | 6     | 10–11  | Python          | Context Module: probe, reflect, AI classify    | ⬜        |
 | 7     | 12–13  | Python          | Payload-Gen Module: select, mutate, obfuscate  | ⬜        |
 | 8     | 14–15  | Python          | Fuzzer Module: send, reflect-check, browser    | ⬜        |
