@@ -1,0 +1,54 @@
+# development overrides — run with:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# changes:
+#   - core runs in watch mode with source mount
+#   - python modules mount source for live reload
+#   - exposes debug ports
+#   - relaxed health check timings
+
+version: "3.8"
+
+services:
+
+  context:
+    volumes:
+      - ./modules/context-module:/app
+      - ./modules/shared:/app/shared
+    command: uvicorn app:app --host 0.0.0.0 --port 5001 --reload
+    healthcheck:
+      start_period: 10s
+
+  payload-gen:
+    volumes:
+      - ./modules/payload-gen-module:/app
+      - ./modules/shared:/app/shared
+      - ./dataset/splits:/app/dataset/splits:ro
+    command: uvicorn app:app --host 0.0.0.0 --port 5002 --reload
+    healthcheck:
+      start_period: 10s
+
+  fuzzer:
+    volumes:
+      - ./modules/fuzzer-module:/app
+      - ./modules/shared:/app/shared
+    command: uvicorn app:app --host 0.0.0.0 --port 5003 --reload
+    healthcheck:
+      start_period: 10s
+
+  core:
+    build:
+      target: builder
+    command: npm run start:dev
+    volumes:
+      - ./core/src:/app/src
+      - ./core/nest-cli.json:/app/nest-cli.json
+      - ./core/tsconfig.json:/app/tsconfig.json
+      - ./core/tsconfig.build.json:/app/tsconfig.build.json
+    environment:
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    healthcheck:
+      start_period: 30s
