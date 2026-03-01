@@ -1,0 +1,141 @@
+version: "3.8"
+
+services:
+
+  # ── infrastructure ──────────────────────────────────────────
+
+  redis:
+    image: redis:7-alpine
+    container_name: redsentinel-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: redsentinel-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-rs}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rs}
+      POSTGRES_DB: ${POSTGRES_DB:-redsentinel}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rs}"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # ── python microservices ────────────────────────────────────
+
+  context:
+    build:
+      context: ./modules
+      dockerfile: context-module/Dockerfile
+    container_name: redsentinel-context
+    ports:
+      - "5001:5001"
+    environment:
+      PORT: 5001
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  payload-gen:
+    build:
+      context: ./modules
+      dockerfile: payload-gen-module/Dockerfile
+    container_name: redsentinel-payload-gen
+    ports:
+      - "5002:5002"
+    environment:
+      PORT: 5002
+      DATASET_DIR: /app/dataset/splits
+    volumes:
+      - ./dataset/splits:/app/dataset/splits:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5002/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  fuzzer:
+    build:
+      context: ./modules
+      dockerfile: fuzzer-module/Dockerfile
+    container_name: redsentinel-fuzzer
+    ports:
+      - "5003:5003"
+    environment:
+      PORT: 5003
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5003/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # ── nestjs core ─────────────────────────────────────────────
+
+  core:
+    build:
+      context: ./core
+      dockerfile: Dockerfile
+    container_name: redsentinel-core
+    ports:
+      - "3000:3000"
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      context:
+        condition: service_healthy
+      payload-gen:
+        condition: service_healthy
+      fuzzer:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      CONTEXT_URL: http://context:5001
+      PAYLOAD_GEN_URL: http://payload-gen:5002
+      FUZZER_URL: http://fuzzer:5003
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DATABASE_URL: postgresql://${POSTGRES_USER:-rs}:${POSTGRES_PASSWORD:-rs}@postgres:5432/${POSTGRES_DB:-redsentinel}
+      API_KEY_SECRET: ${API_KEY_SECRET:-change-me-before-deploy}
+      DEFAULT_SCAN_DEPTH: ${DEFAULT_SCAN_DEPTH:-3}
+      DEFAULT_MAX_PAYLOADS: ${DEFAULT_MAX_PAYLOADS:-50}
+      DEFAULT_TIMEOUT_MS: ${DEFAULT_TIMEOUT_MS:-60000}
+      HTTP_TIMEOUT: ${HTTP_TIMEOUT:-30000}
+      PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
+    volumes:
+      - reports:/app/reports
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  reports:
