@@ -605,8 +605,8 @@ volumes:
 | 3     | 4–5    | Python          | AI context classifier trained + evaluated      | ✅ DONE  |
 | 4     | 6–7    | NestJS          | Core scaffold: scan pipeline, queue, WebSocket | ✅ DONE  |
 | 5     | 8–9    | TypeScript      | Crawler: spider, param discovery, WAF detect   | ✅ DONE  |
-| 6     | 10–11  | Python          | Context Module: probe, reflect, AI classify    | 🔄 NEXT  |
-| 7     | 12–13  | Python          | Payload-Gen Module: select, mutate, obfuscate  | ⬜        |
+| 6     | 10–11  | Python          | Context Module: probe, reflect, AI classify    | ✅ DONE  |
+| 7     | 12–13  | Python          | Payload-Gen Module: select, mutate, obfuscate  | 🔄 NEXT  |
 | 8     | 14–15  | Python          | Fuzzer Module: send, reflect-check, browser    | ⬜        |
 | 9     | 16     | TypeScript      | Report engine: HTML / PDF / JSON output        | ⬜        |
 | 10    | 17–18  | Docker Compose  | Full integration + end-to-end test             | ⬜        |
