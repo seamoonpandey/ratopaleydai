@@ -1,0 +1,9 @@
+# deps
+node_modules
+.next
+out
+.env*
+.git
+*.md
+.dockerignore
+Dockerfile
