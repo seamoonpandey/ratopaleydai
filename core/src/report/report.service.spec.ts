@@ -102,7 +102,7 @@ describe('ReportService', () => {
       url: 'https://target.com',
       status: ScanStatus.DONE,
       progress: 100,
-      options: { depth: 3, maxParams: 100, verifyExecution: true, wafBypass: true, maxPayloadsPerParam: 50, timeout: 60000, reportFormat: ['json'] },
+      options: { depth: 3, maxParams: 100, verifyExecution: true, wafBypass: true, maxPayloadsPerParam: 50, timeout: 60000, reportFormat: ['json'] as ('html' | 'json' | 'pdf')[] },
       createdAt: new Date('2025-01-01'),
       updatedAt: new Date('2025-01-01'),
       completedAt: new Date('2025-01-01T00:05:00'),
