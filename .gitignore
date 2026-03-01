@@ -1,0 +1,60 @@
+# ─── Python ───────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# ─── Virtual environment ──────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ─── Model weights (too large for git — use git-lfs or store separately) ─────
+model/checkpoints/*.pt
+ai/model/checkpoints/*.pt
+
+# ─── Training logs ────────────────────────────────────────
+model/checkpoints/logs/
+ai/model/checkpoints/logs/
+
+# keep checkpoint metrics and test results
+!model/checkpoints/metrics.json
+!model/checkpoints/test_results.json
+
+# ─── Raw dataset repos (cloned third-party repos) ─────────
+# Processed/split CSVs are tracked instead
+dataset/raw/
+
+# ─── Generated inference outputs ──────────────────────────
+outputs/preds.csv
+
+# ─── Environment / secrets ────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─── Editor / OS ──────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+*.bak.*
+.DS_Store
+Thumbs.db
+
+# ─── Jupyter ──────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ─── Node (for when NestJS/Next.js phases begin) ──────────
+node_modules/
+.next/
+dist/
