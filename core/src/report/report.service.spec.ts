@@ -24,15 +24,15 @@ describe('ReportService', () => {
     it('maps FuzzResult to Vuln with correct fields', () => {
       const result = {
         payload: '<script>alert(1)</script>',
-        targetParam: 'q',
+        target_param: 'q',
         reflected: true,
         executed: true,
         vuln: true,
         type: 'reflected_xss',
         evidence: {
-          responseCode: 200,
-          reflectionPosition: 'body',
-          browserAlertTriggered: true,
+          response_code: 200,
+          reflection_position: 'body',
+          browser_alert_triggered: true,
         },
       };
       const vuln = service.buildVuln('scan-1', 'https://t.com', result);
@@ -48,15 +48,15 @@ describe('ReportService', () => {
     it('assigns HIGH severity when browser alert triggered', () => {
       const result = {
         payload: '<img onerror=alert(1)>',
-        targetParam: 'p',
+        target_param: 'p',
         reflected: true,
         executed: true,
         vuln: true,
         type: 'reflected_xss',
         evidence: {
-          responseCode: 200,
-          reflectionPosition: 'body',
-          browserAlertTriggered: true,
+          response_code: 200,
+          reflection_position: 'body',
+          browser_alert_triggered: true,
         },
       };
       expect(service.buildVuln('s1', 'https://t.com', result).severity)
@@ -66,15 +66,15 @@ describe('ReportService', () => {
     it('assigns MEDIUM severity when browser alert not triggered', () => {
       const result = {
         payload: '<img src=x>',
-        targetParam: 'p',
+        target_param: 'p',
         reflected: true,
         executed: false,
         vuln: false,
         type: 'reflected_xss',
         evidence: {
-          responseCode: 200,
-          reflectionPosition: 'body',
-          browserAlertTriggered: false,
+          response_code: 200,
+          reflection_position: 'body',
+          browser_alert_triggered: false,
         },
       };
       expect(service.buildVuln('s1', 'https://t.com', result).severity)

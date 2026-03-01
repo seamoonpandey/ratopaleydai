@@ -56,7 +56,7 @@ describe('ContextClientService', () => {
 
 describe('PayloadClientService', () => {
   it('calls POST /generate and returns payloads', async () => {
-    const resp = { payloads: [{ payload: '<img src=x>', targetParam: 'q', context: 'html_text', confidence: 0.8, wafBypass: false }] };
+    const resp = { payloads: [{ payload: '<img src=x>', target_param: 'q', context: 'html_text', confidence: 0.8, waf_bypass: false }] };
     const http = mockHttp(resp);
     const svc = new PayloadClientService(http, mockConfig());
     const result = await svc.generate({ contexts: {}, waf: 'none', maxPayloads: 10 });
@@ -88,7 +88,7 @@ describe('PayloadClientService', () => {
 
 describe('FuzzerClientService', () => {
   it('calls POST /test and returns results', async () => {
-    const resp = { results: [{ payload: '<script>', targetParam: 'q', reflected: true, executed: false, vuln: false, type: '', evidence: {} }] };
+    const resp = { results: [{ payload: '<script>', target_param: 'q', reflected: true, executed: false, vuln: false, type: '', evidence: {} }] };
     const http = mockHttp(resp);
     const svc = new FuzzerClientService(http, mockConfig());
     const result = await svc.test({ url: 'https://t.com', payloads: [], verifyExecution: true, timeout: 5000 });

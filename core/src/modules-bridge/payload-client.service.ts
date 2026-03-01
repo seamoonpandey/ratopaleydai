@@ -13,10 +13,10 @@ export interface GenerateRequest {
 
 export interface GeneratedPayload {
   payload: string;
-  targetParam: string;
+  target_param: string;
   context: string;
   confidence: number;
-  wafBypass: boolean;
+  waf_bypass: boolean;
 }
 
 export interface GenerateResponse {

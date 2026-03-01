@@ -15,6 +15,7 @@ services:
     volumes:
       - ./modules/context-module:/app
       - ./modules/shared:/app/shared
+      - ./model:/app/model:ro
     command: uvicorn app:app --host 0.0.0.0 --port 5001 --reload
     healthcheck:
       start_period: 10s
@@ -63,6 +64,6 @@ services:
       - /app/.next
     environment:
       NEXT_PUBLIC_API_URL: http://core:3000
-      NEXT_PUBLIC_WS_URL: ws://core:3000
+      # NEXT_PUBLIC_WS_URL derived from window.location at runtime (browser)
     healthcheck:
       start_period: 15s

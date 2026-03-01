@@ -161,9 +161,9 @@ describe('scan processor pipeline (integration)', () => {
         vuln: true,
         type: 'reflected_xss',
         evidence: {
-          responseCode: 200,
-          reflectionPosition: 'body',
-          browserAlertTriggered: true,
+          response_code: 200,
+          reflection_position: 'body',
+          browser_alert_triggered: true,
         },
       },
       {
@@ -174,9 +174,9 @@ describe('scan processor pipeline (integration)', () => {
         vuln: false,
         type: 'reflected_xss',
         evidence: {
-          responseCode: 200,
-          reflectionPosition: 'body',
-          browserAlertTriggered: false,
+          response_code: 200,
+          reflection_position: 'body',
+          browser_alert_triggered: false,
         },
       },
     ];
@@ -353,9 +353,9 @@ describe('scan processor pipeline (integration)', () => {
           vuln: false,
           type: 'reflected_xss',
           evidence: {
-            responseCode: 200,
-            reflectionPosition: '',
-            browserAlertTriggered: false,
+            response_code: 200,
+            reflection_position: '',
+            browser_alert_triggered: false,
           },
         },
       ],

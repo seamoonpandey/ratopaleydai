@@ -14,15 +14,15 @@ export interface TestRequest {
 
 export interface FuzzResult {
   payload: string;
-  targetParam: string;
+  target_param: string;
   reflected: boolean;
   executed: boolean;
   vuln: boolean;
   type: string;
   evidence: {
-    responseCode: number;
-    reflectionPosition: string;
-    browserAlertTriggered: boolean;
+    response_code: number;
+    reflection_position: string;
+    browser_alert_triggered: boolean;
   };
 }
 

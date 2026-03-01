@@ -79,18 +79,18 @@ export class ReportService implements OnModuleDestroy {
       id: uuidv4(),
       scanId,
       url,
-      param: result.targetParam,
+      param: result.target_param,
       payload: result.payload,
       type: this.mapType(result.type),
-      severity: result.evidence.browserAlertTriggered
+      severity: result.evidence.browser_alert_triggered
         ? VulnSeverity.HIGH
         : VulnSeverity.MEDIUM,
       reflected: result.reflected,
       executed: result.executed,
       evidence: {
-        responseCode: result.evidence.responseCode,
-        reflectionPosition: result.evidence.reflectionPosition,
-        browserAlertTriggered: result.evidence.browserAlertTriggered,
+        responseCode: result.evidence.response_code,
+        reflectionPosition: result.evidence.reflection_position,
+        browserAlertTriggered: result.evidence.browser_alert_triggered,
       },
       discoveredAt: new Date(),
     };
