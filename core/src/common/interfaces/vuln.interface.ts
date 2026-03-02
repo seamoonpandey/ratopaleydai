@@ -16,6 +16,7 @@ export interface VulnEvidence {
   responseCode: number;
   reflectionPosition: string;
   browserAlertTriggered: boolean;
+  exactMatch?: boolean;
   screenshot?: string;
   /* DOM-XSS specific fields */
   sink?: string;

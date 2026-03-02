@@ -61,14 +61,14 @@ export class CrawlerService implements OnModuleDestroy {
 
     // hard caps to prevent runaway crawls on large sites
     const maxUrls = Math.max(
-      this.config.get<number>('CRAWLER_MAX_URLS', 50),
+      this.config.get<number>('CRAWLER_MAX_URLS', 80),
       10,
     );
     const crawlTimeoutMs = this.config.get<number>(
       'CRAWLER_TIMEOUT_MS',
-      30000,
+      60000,
     );
-    const visitedPatterns = new Set<string>();
+    const visitedPatterns = new Map<string, number>();
 
     const browser = await this.getBrowser();
     const context = await browser.newContext({
@@ -100,9 +100,13 @@ export class CrawlerService implements OnModuleDestroy {
         if (visited.has(normalized)) continue;
 
         // deduplicate URL patterns (e.g. /user/view/X — only crawl a few per pattern)
+        // Allow up to MAX_PER_PATTERN pages per pattern so different challenge
+        // pages (e.g. /missions/basic/1/ vs /missions/basic/2/) are not skipped.
+        const MAX_PER_PATTERN = 5;
         const pattern = this.urlToPattern(item.url);
-        if (visitedPatterns.has(pattern) && item.currentDepth > 0) continue;
-        visitedPatterns.add(pattern);
+        const patternCount = visitedPatterns.get(pattern) ?? 0;
+        if (patternCount >= MAX_PER_PATTERN && item.currentDepth > 0) continue;
+        visitedPatterns.set(pattern, patternCount + 1);
 
         visited.add(normalized);
 

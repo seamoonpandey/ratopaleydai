@@ -23,6 +23,7 @@ export interface FuzzResult {
     response_code: number;
     reflection_position: string;
     browser_alert_triggered: boolean;
+    exact_match?: boolean;
     /* DOM-XSS specific fields */
     sink?: string;
     source?: string;

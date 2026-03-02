@@ -110,17 +110,25 @@ async def test(request: FuzzRequest):
     reflected = check_reflection_batch(send_dicts)
     reflected_only = [r for r in reflected if r.get("reflected")]
 
+    # Split reflections: only exact (unencoded) matches are worth browser-testing.
+    # Decoded-only matches (HTML-encoded e.g. &lt;script&gt;) can never execute
+    # in a browser — sending them to Playwright wastes ~5s each for nothing.
+    exact_reflected = [r for r in reflected_only if r.get("exact_match")]
+    decoded_only = [r for r in reflected_only if not r.get("exact_match")]
+
     logger.info(
-        f"reflection: {len(reflected_only)}/{len(reflected)} payloads reflected"
+        f"reflection: {len(reflected_only)}/{len(reflected)} payloads reflected "
+        f"({len(exact_reflected)} exact, {len(decoded_only)} decoded-only)"
     )
 
     # step 3: verify js execution in headless browser (if enabled)
+    # Only test exact-match reflections — decoded-only will never execute.
     verified_map: dict[str, dict] = {}
     verify_unavailable = False
-    if verify_execution and reflected_only:
+    if verify_execution and exact_reflected:
         verify_results = await verify_payloads(
             url=url,
-            reflected_results=reflected_only,
+            reflected_results=exact_reflected,
             timeout_ms=timeout_ms,
             concurrency=3,
         )
@@ -157,8 +165,20 @@ async def test(request: FuzzRequest):
             dom_results.extend(dom_findings)
 
     # step 5: assemble final results
+    # — Dangerous positions where unencoded reflection = exploitable XSS
+    DANGEROUS_POSITIONS = {"html_body", "script", "attribute", "style"}
     final_results: list[FuzzResult] = []
     seen_payloads: set[str] = set()
+
+    # Sort so reflected (especially exact) results come first.
+    # Without this, a non-reflected POST duplicate can mask a reflected
+    # GET result during dedup, silently dropping real findings.
+    reflected.sort(
+        key=lambda r: (
+            not r.get("reflected", False),      # reflected first
+            not r.get("exact_match", False),     # exact before decoded
+        )
+    )
 
     for r in reflected:
         payload = r["payload"]
@@ -170,16 +190,37 @@ async def test(request: FuzzRequest):
         seen_payloads.add(key)
 
         is_reflected = r.get("reflected", False)
+        is_exact = r.get("exact_match", False)
+        position = r.get("reflection_position", "none")
         verify_info = verified_map.get(key, {})
         is_executed = verify_info.get("executed", False)
-        is_vuln = is_reflected and is_executed
-
-        # also mark as vuln if reflected and we're not verifying (or cannot verify)
-        if (not verify_execution or verify_unavailable) and is_reflected:
-            is_vuln = True
-
+        is_vuln = False
         vuln_type = ""
-        if is_vuln:
+
+        # Tier 1 (HIGH confidence): browser-confirmed execution
+        if is_reflected and is_executed:
+            is_vuln = True
+            vuln_type = "reflected_xss"
+
+        # Tier 2 (MEDIUM confidence): exact unencoded reflection in a dangerous
+        # HTML position. This IS exploitable even if the browser didn't fire an
+        # alert (CSP, timing, non-alert payloads). Real scanners (Burp, ZAP)
+        # report this as reflected XSS.
+        if not is_vuln and is_reflected and is_exact and position in DANGEROUS_POSITIONS:
+            is_vuln = True
+            vuln_type = "reflected_xss"
+
+        # Tier 3 (LOW confidence): decoded-only reflection in dangerous position.
+        # The server reflects input but HTML-encodes it. This encoding may be
+        # incomplete/bypassable with alternative payloads. Real scanners report
+        # this as an informational / low-severity reflected input finding.
+        if not is_vuln and is_reflected and not is_exact and position in DANGEROUS_POSITIONS:
+            is_vuln = True
+            vuln_type = "reflected_xss"
+
+        # Tier 4: verification disabled or unavailable — any reflection counts
+        if not is_vuln and (not verify_execution or verify_unavailable) and is_reflected:
+            is_vuln = True
             vuln_type = "reflected_xss"
 
         final_results.append(FuzzResult(
@@ -191,10 +232,11 @@ async def test(request: FuzzRequest):
             type=vuln_type,
             evidence={
                 "response_code": r.get("status_code", 0),
-                "reflection_position": r.get("reflection_position", "none"),
+                "reflection_position": position,
                 "browser_alert_triggered": verify_info.get(
                     "dialog_triggered", False
                 ),
+                "exact_match": is_exact,
                 "context_snippet": r.get("context_snippet", ""),
                 "browser_verification_error": verify_info.get("error"),
             },

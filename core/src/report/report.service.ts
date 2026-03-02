@@ -96,13 +96,20 @@ export class ReportService implements OnModuleDestroy {
       type: this.mapType(result.type),
       severity: result.evidence.browser_alert_triggered
         ? VulnSeverity.HIGH
-        : VulnSeverity.MEDIUM,
+        : result.executed
+          ? VulnSeverity.HIGH
+          : result.reflected && result.evidence.exact_match
+            ? VulnSeverity.MEDIUM
+            : result.reflected
+              ? VulnSeverity.LOW
+              : VulnSeverity.LOW,
       reflected: result.reflected,
       executed: result.executed,
       evidence: {
         responseCode: result.evidence.response_code,
         reflectionPosition: result.evidence.reflection_position,
         browserAlertTriggered: result.evidence.browser_alert_triggered,
+        exactMatch: result.evidence.exact_match ?? false,
         ...(result.evidence.sink !== undefined && { sink: result.evidence.sink }),
         ...(result.evidence.source !== undefined && { source: result.evidence.source }),
         ...(result.evidence.line !== undefined && { line: result.evidence.line }),

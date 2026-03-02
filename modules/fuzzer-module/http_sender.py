@@ -64,7 +64,7 @@ async def send_payloads(
     injects each payload into its target_param via get and post.
     returns batch of results with response bodies for reflection checking.
     """
-    methods = methods or ["GET"]
+    methods = methods or ["GET", "POST"]
     batch = SendBatch()
     semaphore = asyncio.Semaphore(concurrency)
     timeout_s = timeout_ms / 1000
