@@ -126,6 +126,27 @@ export class ScanProcessor extends WorkerHost {
           }
         }
 
+        // Include params discovered from HTML forms (e.g. search bars)
+        // that aren't already captured via URL query strings or form actions
+        for (const param of crawlResult.params) {
+          if (param.source === 'form' && param.formAction) {
+            const { url: canonicalUrl, params: existingUrlParams } =
+              canonicalizeTargetUrl(param.formAction, scan.url);
+            const existing = urlParamsMap.get(canonicalUrl) ?? [];
+            urlParamsMap.set(canonicalUrl, [
+              ...new Set([...existing, ...existingUrlParams, param.name]),
+            ]);
+          } else if (param.source === 'form' && !param.formAction) {
+            // form with no explicit action targets the page it's on;
+            // associate with the base scan URL
+            const { url: canonicalUrl } = canonicalizeTargetUrl(scan.url);
+            const existing = urlParamsMap.get(canonicalUrl) ?? [];
+            urlParamsMap.set(canonicalUrl, [
+              ...new Set([...existing, param.name]),
+            ]);
+          }
+        }
+
         // Ensure the original scan URL is included if it has params
         try {
           const { url: canonicalRoot, params: rootParams } =

@@ -54,8 +54,10 @@ export class CrawlerService implements OnModuleDestroy {
       { url, currentDepth: 0 },
     ];
     const allParams: DiscoveredParam[] = [];
+    const allForms: import('../common/interfaces/crawler.interface').DiscoveredForm[] = [];
     const allScripts: string[] = [];
     const paramNames = new Set<string>();
+    const formKeys = new Set<string>();
 
     // hard caps to prevent runaway crawls on large sites
     const maxUrls = Math.max(
@@ -140,6 +142,16 @@ export class CrawlerService implements OnModuleDestroy {
             }
           }
 
+          // extract forms from this page
+          const pageForms = this.domAnalyzer.extractForms(html, item.url);
+          for (const form of pageForms) {
+            const formKey = `${form.action}|${form.method}|${form.fields.sort().join(',')}`;
+            if (!formKeys.has(formKey)) {
+              formKeys.add(formKey);
+              allForms.push(form);
+            }
+          }
+
           // extract inline scripts for dom sink analysis
           const scripts = await page.evaluate(() => {
             const els = document.querySelectorAll('script:not([src])');
@@ -208,7 +220,7 @@ export class CrawlerService implements OnModuleDestroy {
         baseUrl: url,
         urls: Array.from(visited),
         params: allParams,
-        forms: [],
+        forms: allForms,
         domSinks,
         waf: wafResult,
         durationMs,
