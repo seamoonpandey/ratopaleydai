@@ -68,3 +68,7 @@ htmlcov/
 *.lcov
 core/coverage/
 core/coverage-e2e/
+
+
+# reports
+reports/

