@@ -88,6 +88,7 @@ async def test(request: FuzzRequest):
 
     # step 3: verify js execution in headless browser (if enabled)
     verified_map: dict[str, dict] = {}
+    verify_unavailable = False
     if verify_execution and reflected_only:
         verify_results = await verify_payloads(
             url=url,
@@ -101,7 +102,17 @@ async def test(request: FuzzRequest):
                 "executed": vr.executed,
                 "dialog_triggered": vr.dialog_triggered,
                 "dialog_message": vr.dialog_message,
+                "error": vr.error,
             }
+
+        # If playwright is missing / browser can't launch, we can end up with
+        # every payload showing executed=false. In that case, avoid reporting
+        # a misleading "0 vulns" by falling back to reflection-based marking.
+        if verify_results and all((r.error is not None) for r in verify_results):
+            verify_unavailable = True
+            logger.warning(
+                "browser verification unavailable; falling back to reflected-only vuln marking"
+            )
 
     # step 4: scan response bodies for dom-based xss
     dom_results: list[dict] = []
@@ -135,8 +146,8 @@ async def test(request: FuzzRequest):
         is_executed = verify_info.get("executed", False)
         is_vuln = is_reflected and is_executed
 
-        # also mark as vuln if reflected and we're not verifying
-        if not verify_execution and is_reflected:
+        # also mark as vuln if reflected and we're not verifying (or cannot verify)
+        if (not verify_execution or verify_unavailable) and is_reflected:
             is_vuln = True
 
         vuln_type = ""
@@ -157,6 +168,7 @@ async def test(request: FuzzRequest):
                     "dialog_triggered", False
                 ),
                 "context_snippet": r.get("context_snippet", ""),
+                "browser_verification_error": verify_info.get("error"),
             },
         ))
 

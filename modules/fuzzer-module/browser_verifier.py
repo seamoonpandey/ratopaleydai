@@ -20,6 +20,17 @@ except ImportError:
     logger.warning("playwright not available, browser verification disabled")
 
 
+DEFAULT_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/120.0.0.0 Safari/537.36"
+)
+DEFAULT_HEADERS = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+}
+
+
 @dataclass
 class VerifyResult:
     """result of browser-based execution verification"""
@@ -61,32 +72,60 @@ async def verify_payloads(
     results: list[VerifyResult] = []
     semaphore = asyncio.Semaphore(concurrency)
 
-    async with async_playwright() as pw:
-        browser = await pw.chromium.launch(
-            headless=True,
-            args=[
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-gpu",
-                "--disable-extensions",
-            ],
-        )
+    try:
+        async with async_playwright() as pw:
+            try:
+                browser = await pw.chromium.launch(
+                    headless=True,
+                    args=[
+                        "--no-sandbox",
+                        "--disable-setuid-sandbox",
+                        "--disable-dev-shm-usage",
+                        "--disable-gpu",
+                        "--disable-extensions",
+                    ],
+                )
+            except Exception as e:
+                logger.warning(f"playwright launch failed: {e}")
+                return [
+                    VerifyResult(
+                        payload=r.get("payload", ""),
+                        target_param=r.get("target_param", ""),
+                        executed=False,
+                        dialog_triggered=False,
+                        dialog_message="",
+                        error=f"playwright launch failed: {e}",
+                    )
+                    for r in reflected_results
+                ]
 
-        try:
-            tasks = [
-                _verify_one(browser, semaphore, url, entry, timeout_ms)
-                for entry in reflected_results
-            ]
-            raw = await asyncio.gather(*tasks, return_exceptions=True)
+            try:
+                tasks = [
+                    _verify_one(browser, semaphore, url, entry, timeout_ms)
+                    for entry in reflected_results
+                ]
+                raw = await asyncio.gather(*tasks, return_exceptions=True)
 
-            for r in raw:
-                if isinstance(r, VerifyResult):
-                    results.append(r)
-                elif isinstance(r, Exception):
-                    logger.warning(f"verify error: {r}")
-        finally:
-            await browser.close()
+                for r in raw:
+                    if isinstance(r, VerifyResult):
+                        results.append(r)
+                    elif isinstance(r, Exception):
+                        logger.warning(f"verify error: {r}")
+            finally:
+                await browser.close()
+    except Exception as e:
+        logger.warning(f"playwright init failed: {e}")
+        return [
+            VerifyResult(
+                payload=r.get("payload", ""),
+                target_param=r.get("target_param", ""),
+                executed=False,
+                dialog_triggered=False,
+                dialog_message="",
+                error=f"playwright init failed: {e}",
+            )
+            for r in reflected_results
+        ]
 
     executed_count = sum(1 for r in results if r.executed)
     logger.info(f"browser verify: {executed_count}/{len(results)} executed")
@@ -109,11 +148,14 @@ async def _verify_one(
         context = await browser.new_context(
             ignore_https_errors=True,
             java_script_enabled=True,
+            user_agent=DEFAULT_USER_AGENT,
+            extra_http_headers=DEFAULT_HEADERS,
         )
 
         page = await context.new_page()
         dialog_info: dict = {"triggered": False, "message": ""}
         console_errors: list[str] = []
+        nav_error: str | None = None
 
         try:
             # listen for dialogs (alert, confirm, prompt)
@@ -133,19 +175,27 @@ async def _verify_one(
             # build the injected url
             injected_url = _inject_param(base_url, param, payload)
 
-            # navigate and wait for network idle
+            # navigate (networkidle is brittle on modern pages; DOMContentLoaded is safer)
             try:
                 await page.goto(
                     injected_url,
-                    wait_until="networkidle",
+                    wait_until="domcontentloaded",
                     timeout=timeout_ms,
                 )
-            except Exception:
+            except Exception as e:
                 # even on timeout/nav error, dialog may have fired
-                pass
+                nav_error = f"goto failed: {e}"
+
+            # optionally wait for network to settle (best-effort)
+            try:
+                await page.wait_for_load_state("networkidle", timeout=timeout_ms)
+            except Exception as e:
+                # network idle often never happens; keep best-effort info
+                if nav_error is None:
+                    nav_error = f"load_state failed: {e}"
 
             # brief wait for any delayed js execution
-            await page.wait_for_timeout(500)
+            await page.wait_for_timeout(1200)
 
             # check for dom mutations that indicate script injection
             dom_mutations = await _count_injected_elements(page, payload)
@@ -162,6 +212,7 @@ async def _verify_one(
                 console_errors=console_errors,
                 dom_mutations=dom_mutations,
                 elapsed_ms=round(elapsed, 2),
+                error=nav_error,
             )
 
         except Exception as e:
