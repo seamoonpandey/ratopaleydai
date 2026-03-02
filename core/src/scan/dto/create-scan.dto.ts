@@ -58,7 +58,7 @@ export class ScanOptionsDto {
 
 export class CreateScanDto {
   @ApiProperty({ example: 'https://target.com' })
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   url!: string;
 
   @ApiPropertyOptional()
