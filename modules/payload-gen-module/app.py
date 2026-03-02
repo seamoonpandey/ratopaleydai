@@ -96,9 +96,10 @@ async def generate(request: GenerateRequest):
         # step 1: select base payloads from bank
         selected = select_payloads(
             bank=bank,
-            context=context_type,
+            param=param_name,
+            reflects_in=context_type,
             allowed_chars=allowed_chars,
-            limit=per_param,
+            max_payloads=per_param,
         )
 
         if not selected:
