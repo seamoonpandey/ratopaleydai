@@ -136,17 +136,28 @@ export class ScanService {
     seen.add(key);
     this.vulnKeys.set(scanId, seen);
 
+    // PostgreSQL rejects null bytes (\x00) in text columns.
+    // XSS payloads legitimately contain them (e.g. <\x00a …>) so strip
+    // before persisting rather than letting the INSERT fail.
+    const stripNullBytes = (s: string | undefined): string | undefined =>
+      s == null ? s : s.replace(/\x00/g, '');
+
+    const sanitizedEvidence =
+      vuln.evidence != null
+        ? JSON.parse(JSON.stringify(vuln.evidence).replace(/\\u0000/g, '').replace(/\x00/g, ''))
+        : vuln.evidence;
+
     const entity = this.vulnRepo.create({
       id: vuln.id ?? uuidv4(),
       scanId,
-      url: vuln.url,
-      param: vuln.param,
-      payload: vuln.payload,
+      url: stripNullBytes(vuln.url) ?? vuln.url,
+      param: stripNullBytes(vuln.param),
+      payload: stripNullBytes(vuln.payload) ?? vuln.payload,
       type: vuln.type,
       severity: vuln.severity,
       reflected: vuln.reflected,
       executed: vuln.executed,
-      evidence: vuln.evidence,
+      evidence: sanitizedEvidence,
       discoveredAt: vuln.discoveredAt ?? new Date(),
     });
     await this.vulnRepo.save(entity);

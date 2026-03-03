@@ -135,6 +135,38 @@ describe('ScanService', () => {
       expect(vulns[0].param).toBe('q');
     });
 
+    it('strips null bytes from payload and evidence before persisting', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
+      const vuln = {
+        id: 'v-null',
+        scanId: scan.id,
+        url: 'https://example.com/reflected/body?q=',
+        param: 'q',
+        payload: '<\x00a href="javascript:alert(1)">XSS</a>',
+        type: 'REFLECTED_XSS' as any,
+        severity: 'CRITICAL' as any,
+        reflected: true,
+        executed: false,
+        evidence: {
+          responseCode: 200,
+          reflectionPosition: 'html_body',
+          browserAlertTriggered: false,
+          exactMatch: true,
+          sink: 'innerHTML',
+          source: 'url_param',
+          snippet: 'has\x00null',
+        },
+        discoveredAt: new Date(),
+      };
+      expect(await service.addVuln(scan.id, vuln)).toBe(true);
+      const vulns = await service.getVulns(scan.id);
+      expect(vulns).toHaveLength(1);
+      // null byte should be stripped
+      expect(vulns[0].payload).toBe('<a href="javascript:alert(1)">XSS</a>');
+      expect(vulns[0].evidence).toBeDefined();
+      expect((vulns[0].evidence as any).snippet).toBe('hasnull');
+    });
+
     it('dedupes identical vulns (same page::source::sink)', async () => {
       const scan = await service.create({ url: 'https://example.com' });
       const vuln = {
