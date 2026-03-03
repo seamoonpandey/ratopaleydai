@@ -23,8 +23,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger("generate_ranker_data")
 
-DATASET_DIR = Path(__file__).parent / "dataset" / "splits"
-OUTPUT_DIR = Path(__file__).parent / "dataset" / "ranker_training"
+DATASET_DIR = Path(__file__).resolve().parent.parent.parent / "dataset" / "splits"
+OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent / "dataset" / "ranker_training"
 OUTPUT_FILE = OUTPUT_DIR / "ranker_training_samples.jsonl"
 
 # sample payloads representing different categories
@@ -111,7 +111,7 @@ WAF_BLOCKS = {
     "cloudflare": ["<script>", "onerror=", "javascript:"],
     "modsecurity": ["<script", "alert(", "document."],
     "aws_waf": ["<script>", "eval(", "onerror"],
-    "akamai": ["<script", "on\\w+=", "javascript:"],
+    "akamai": ["<script", "onerror=", "javascript:"],
     "imperva": ["<script", "alert", "onerror"],
     "wordfence": ["<script>", "</script>", "onerror"],
     "sucuri": ["<script", "alert(", "onerror="],
@@ -132,10 +132,10 @@ CONTEXT_SUCCESS_RATES = {
 
 
 def _is_blocked_by_waf(payload: str, waf: str) -> bool:
-    """Simulate WAF blocking based on pattern matching."""
+    """Simulate WAF blocking based on simple substring matching."""
     patterns = WAF_BLOCKS.get(waf, [])
     for pattern in patterns:
-        if re.search(pattern, payload, re.IGNORECASE):
+        if pattern.lower() in payload.lower():
             return True
     return False
 

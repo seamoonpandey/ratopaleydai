@@ -22,7 +22,7 @@ from sklearn.metrics import (
 
 # add payload-gen-module to path for feature extraction
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "modules" / "payload-gen-module"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "modules" / "payload-gen-module"))
 
 from feature_extractor import extract_features, get_feature_names
 
@@ -33,8 +33,8 @@ logging.basicConfig(
 logger = logging.getLogger("train_ranker")
 
 # paths
-TRAINING_DATA_FILE = Path(__file__).parent.parent / "dataset" / "ranker_training" / "ranker_training_samples.jsonl"
-MODEL_OUTPUT_DIR = Path(__file__).parent.parent / "model" / "ranker"
+TRAINING_DATA_FILE = Path(__file__).resolve().parent.parent.parent / "dataset" / "ranker_training" / "ranker_training_samples.jsonl"
+MODEL_OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent / "model" / "ranker"
 MODEL_OUTPUT_PATH = MODEL_OUTPUT_DIR / "xgboost_ranker.json"
 METRICS_OUTPUT_PATH = MODEL_OUTPUT_DIR / "ranker_metrics.json"
 
