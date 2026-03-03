@@ -22,6 +22,9 @@ COPY fuzzer-module/ .
 # copy shared schemas (sibling directory in build context)
 COPY shared/ /app/shared/
 
+# training data directory is mounted as volume at /app/training_data
+ENV TRAINING_DATA_DIR=/app/training_data
+
 EXPOSE 5003
 
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5003"]

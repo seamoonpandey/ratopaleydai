@@ -586,6 +586,8 @@ export class ScanProcessor extends WorkerHost {
               storedMode: true,
               displayUrl,
               formFields: defaultFields,
+              context: 'html_body',  // stored XSS always targets html_body
+              waf,
             });
 
             const storedVulns = fuzzResp.results.filter((r) => r.vuln);

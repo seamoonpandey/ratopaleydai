@@ -18,7 +18,8 @@ from bank import PayloadBank
 from selector import select_payloads
 from mutator import mutate_payloads
 from obfuscator import obfuscate_payloads
-from xgboost_ranker import rank_payloads
+from xgboost_ranker import rank_payloads, load_model as load_ranker_model, get_feature_importance
+from xgboost_ranker import _model as ranker_model
 
 logging.basicConfig(
     level=logging.INFO,
@@ -48,14 +49,39 @@ async def load_bank():
     else:
         logger.warning("payload bank is empty — check DATA_DIR / dataset paths")
 
+    # load XGBoost ranker model (already attempted at import, retry if failed)
+    from xgboost_ranker import _model
+    if _model is not None:
+        logger.info("XGBoost ranker model loaded — ML-powered ranking active")
+    else:
+        loaded = load_ranker_model()
+        if loaded:
+            logger.info("XGBoost ranker model loaded on startup — ML-powered ranking active")
+        else:
+            logger.warning("XGBoost ranker model unavailable — using heuristic ranking")
+
 
 @app.get("/health")
 async def health():
+    from xgboost_ranker import _model
     return {
         "status": "ok",
         "service": "payload-gen",
         "bank_loaded": bank is not None,
         "bank_size": bank.size if bank else 0,
+        "ranker": "xgboost" if _model is not None else "heuristic",
+    }
+
+
+@app.get("/ranker/info")
+async def ranker_info():
+    """Return XGBoost ranker model info and feature importance."""
+    from xgboost_ranker import _model
+    importance = get_feature_importance()
+    return {
+        "model_loaded": _model is not None,
+        "ranker_type": "xgboost" if _model is not None else "heuristic",
+        "feature_importance": importance,
     }
 
 
@@ -134,13 +160,16 @@ async def generate(request: GenerateRequest):
 
         # convert to response format
         for entry in ranked:
-            is_bypass = entry.get("technique", "").startswith("obfuscated:")
+            technique = entry.get("technique", "original")
+            is_bypass = technique.startswith("obfuscated:")
             all_generated.append(GeneratedPayload(
                 payload=entry["payload"],
                 target_param=param_name,
                 context=context_type,
                 confidence=entry.get("score", confidence),
                 waf_bypass=is_bypass,
+                technique=technique,
+                severity=entry.get("severity", "medium"),
             ))
 
     # final limit

@@ -39,6 +39,8 @@ class GeneratedPayload(BaseModel):
     context: str
     confidence: float
     waf_bypass: bool = False
+    technique: str = "original"   # original | mutated | obfuscated:*
+    severity: str = "medium"      # high | medium | low
 
 
 class GenerateResponse(BaseModel):
@@ -51,6 +53,9 @@ class FuzzPayload(BaseModel):
     payload: str
     target_param: str
     confidence: float = 0.0
+    technique: str = "original"   # original | mutated | obfuscated:*
+    severity: str = "medium"      # high | medium | low
+    context: str = "generic"      # context label for training
 
 
 class FuzzRequest(BaseModel):

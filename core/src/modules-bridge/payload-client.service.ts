@@ -17,6 +17,8 @@ export interface GeneratedPayload {
   context: string;
   confidence: number;
   waf_bypass: boolean;
+  technique?: string;   // original | mutated | obfuscated:*
+  severity?: string;    // high | medium | low
 }
 
 export interface GenerateResponse {

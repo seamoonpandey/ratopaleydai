@@ -5,14 +5,18 @@ logs successful/failed payloads to build training dataset
 
 import json
 import logging
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# training data directory
-TRAINING_DIR = Path(__file__).parent.parent.parent / "dataset" / "ranker_training"
+# training data directory — env-configurable for Docker
+TRAINING_DIR = Path(os.environ.get(
+    "TRAINING_DATA_DIR",
+    str(Path(__file__).parent.parent.parent / "dataset" / "ranker_training"),
+))
 TRAINING_DIR.mkdir(parents=True, exist_ok=True)
 
 # training data file (append mode)
@@ -118,10 +122,12 @@ def collect_batch_training_samples(
         target_param = result.get("target_param", "")
         key = f"{payload_text}:{target_param}"
         
-        # get payload metadata
+        # get payload metadata — payloads now carry technique/severity/context
         payload_meta = payload_map.get(key, {})
         technique = payload_meta.get("technique", "original")
         severity = payload_meta.get("severity", "medium")
+        # use per-payload context if available, else fall back to request-level
+        sample_context = payload_meta.get("context", context)
         
         # get execution results
         executed = result.get("executed", False)
@@ -137,7 +143,7 @@ def collect_batch_training_samples(
             collect_training_sample(
                 payload=payload_text,
                 target_param=target_param,
-                context=context,
+                context=sample_context,
                 waf=waf,
                 technique=technique,
                 severity=severity,

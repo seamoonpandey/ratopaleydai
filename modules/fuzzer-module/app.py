@@ -18,7 +18,7 @@ from http_sender import send_payloads, send_stored_payloads, fetch_url
 from reflection_checker import check_reflection_batch
 from browser_verifier import verify_payloads
 from dom_xss_scanner import scan_response_body, findings_to_results
-from training_collector import collect_batch_training_samples
+from training_collector import collect_batch_training_samples, get_training_stats
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,7 +37,19 @@ app = FastAPI(
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "fuzzer"}
+    stats = get_training_stats()
+    return {
+        "status": "ok",
+        "service": "fuzzer",
+        "training_samples": stats["total_samples"],
+        "training_success_rate": round(stats["success_rate"], 3),
+    }
+
+
+@app.get("/training/stats")
+async def training_stats():
+    """Return detailed training data collection statistics."""
+    return get_training_stats()
 
 
 @app.post("/test", response_model=FuzzResponse)

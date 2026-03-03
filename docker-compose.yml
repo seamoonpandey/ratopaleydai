@@ -66,8 +66,10 @@ services:
     environment:
       PORT: 5002
       DATASET_DIR: /app/dataset/splits
+      RANKER_MODEL_DIR: /app/model/ranker
     volumes:
       - ./dataset/splits:/app/dataset/splits:ro
+      - ./model/ranker:/app/model/ranker:ro
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5002/health')"]
       interval: 15s
@@ -85,6 +87,9 @@ services:
       - "5003:5003"
     environment:
       PORT: 5003
+      TRAINING_DATA_DIR: /app/training_data
+    volumes:
+      - training_data:/app/training_data
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5003/health')"]
       interval: 15s
@@ -166,3 +171,4 @@ services:
 volumes:
   pgdata:
   reports:
+  training_data:
