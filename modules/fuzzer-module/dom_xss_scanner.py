@@ -112,6 +112,8 @@ TAINTED_SOURCES = [
     r"localStorage\.",
     r"sessionStorage\.",
     r"postMessage",
+    r"\be\.data\b",           # message event data (postMessage receiver)
+    r"\bevent\.data\b",       # message event data (named 'event')
 ]
 
 TAINTED_PATTERN = re.compile("|".join(TAINTED_SOURCES), re.IGNORECASE)
@@ -255,6 +257,82 @@ def _is_comment_line(line: str) -> bool:
     return bool(_COMMENT_LINE.match(line))
 
 
+def _extract_var_from_line(line: str) -> str | None:
+    """extract the variable name being assigned on this line, if any."""
+    m = re.match(r"\s*(?:var|let|const)\s+(\w+)\s*=", line)
+    if m:
+        return m.group(1)
+    # plain assignment (but not comparison: ==, ===, !=)
+    m = re.match(r"\s*(\w+)\s*=[^=]", line)
+    if m:
+        return m.group(1)
+    return None
+
+
+def _line_uses_var(line: str, var_name: str) -> bool:
+    """check if var_name is used (not just assigned) on this line, outside strings."""
+    cleaned = re.sub(r"""(['"`])(?:(?!\1).)*\1""", '""', line)
+    pat = re.compile(r"\b" + re.escape(var_name) + r"\b")
+    return bool(pat.search(cleaned))
+
+
+def _build_taint_set(lines: list[str]) -> tuple[set[str], str]:
+    """
+    multi-hop taint propagation across all lines of a script.
+    starts from known tainted sources and propagates through assignments.
+
+    returns (set of tainted variable names, original source name)
+    """
+    tainted: set[str] = set()
+    original_source = ""
+
+    # pass 1: seed taint from lines that directly contain a tainted source
+    for i, line in enumerate(lines):
+        if _is_comment_line(line):
+            continue
+        src = TAINTED_PATTERN.search(line)
+        if not src:
+            continue
+        if _is_source_in_string_context(line):
+            continue
+        if not original_source:
+            original_source = src.group(0)
+        var = _extract_var_from_line(line)
+        if var:
+            tainted.add(var)
+
+    # pass 2: propagate taint through variable assignments (up to 3 hops)
+    # e.g. params = URLSearchParams → name = params.get() → ...
+    for _ in range(3):
+        new_tainted: set[str] = set()
+        for i, line in enumerate(lines):
+            if _is_comment_line(line):
+                continue
+            var = _extract_var_from_line(line)
+            if not var or var in tainted:
+                continue
+            # check if any already-tainted variable is used on the RHS
+            # get the RHS (everything after the first =)
+            eq_pos = line.find("=")
+            if eq_pos < 0:
+                continue
+            rhs = line[eq_pos + 1:]
+            # skip if it's == or ===
+            if rhs.startswith("="):
+                continue
+            cleaned_rhs = re.sub(r"""(['"`])(?:(?!\1).)*\1""", '""', rhs)
+            for tv in tainted:
+                pat = re.compile(r"\b" + re.escape(tv) + r"\b")
+                if pat.search(cleaned_rhs):
+                    new_tainted.add(var)
+                    break
+        if not new_tainted:
+            break
+        tainted |= new_tainted
+
+    return tainted, original_source
+
+
 def _trace_data_flow(
     lines: list[str],
     sink_line_idx: int,
@@ -262,11 +340,11 @@ def _trace_data_flow(
 ) -> tuple[bool, str, str]:
     """
     lightweight data-flow analysis to check if a tainted source can
-    reach the sink. checks:
-      1. same line — source directly in the sink argument
-      2. variable tracing — source assigned to a variable within ±15 lines,
-         and that variable appears in the sink line
-      3. proximity fallback — source within ±5 lines (low confidence)
+    reach the sink. uses multi-hop taint propagation:
+      1. same line — source directly in the sink argument (high confidence)
+      2. taint propagation — source flows through variable assignments into
+         any variable that appears on the sink line (medium confidence)
+      3. proximity — logged for debugging only, never reported
 
     returns (has_tainted_source, source_name, confidence)
     """
@@ -280,56 +358,19 @@ def _trace_data_flow(
         if not _is_source_in_string_context(sink_line):
             return True, source_name, "high"
 
-    # --- level 2: variable tracing —
-    # look for  var/let/const x = <tainted_source>  within ±15 lines
-    # then check if x appears in the sink line
-    trace_start = max(0, sink_line_idx - 15)
-    trace_end = min(len(lines), sink_line_idx + 16)
+    # --- level 2: multi-hop taint propagation ---
+    tainted_vars, original_source = _build_taint_set(lines)
 
-    tainted_vars: list[str] = []
-    found_source_name = ""
-
-    for i in range(trace_start, trace_end):
-        if i == sink_line_idx:
-            continue
-        check_line = lines[i]
-        if _is_comment_line(check_line):
-            continue
-
-        src = TAINTED_PATTERN.search(check_line)
-        if not src:
-            continue
-        if _is_source_in_string_context(check_line):
-            continue
-
-        # extract the variable name from assignment patterns:
-        # var x = location.hash  |  let data = localStorage.getItem(...)  |  x = document.URL
-        var_match = re.search(
-            r"(?:var|let|const)\s+(\w+)\s*=.*" + re.escape(src.group(0)),
-            check_line,
-        )
-        if not var_match:
-            # plain assignment: x = <source>
-            var_match = re.search(
-                r"(\w+)\s*=\s*.*" + re.escape(src.group(0)),
-                check_line,
-            )
-        if var_match:
-            tainted_vars.append(var_match.group(1))
-            found_source_name = src.group(0)
-
-    # check if any tainted variable appears in the sink line
-    for var_name in tainted_vars:
-        # must appear as a word (not inside a string literal)
-        var_pattern = re.compile(r"\b" + re.escape(var_name) + r"\b")
-        if var_pattern.search(sink_line):
-            # verify it's not inside a string on the sink line
-            cleaned_sink = re.sub(r"""(['"`])(?:(?!\1).)*\1""", '""', sink_line)
+    if tainted_vars and original_source:
+        # check if any tainted variable appears on the sink line (outside strings)
+        cleaned_sink = re.sub(r"""(['"`])(?:(?!\1).)*\1""", '""', sink_line)
+        for var_name in tainted_vars:
+            var_pattern = re.compile(r"\b" + re.escape(var_name) + r"\b")
             if var_pattern.search(cleaned_sink):
-                return True, found_source_name, "medium"
+                return True, original_source, "medium"
 
     # --- level 3: proximity fallback (±3 lines, strict) ---
-    # only if there's a tainted source VERY close and NOT in a string/comment
+    # only log for debugging, never report (too high FP rate)
     prox_start = max(0, sink_line_idx - 3)
     prox_end = min(len(lines), sink_line_idx + 4)
 
@@ -344,9 +385,6 @@ def _trace_data_flow(
             continue
         if _is_source_in_string_context(check_line):
             continue
-        # proximity source found but no proven data flow — low confidence
-        # we do NOT report this as a finding (too high FP rate)
-        # only log it for debugging
         logger.debug(
             f"proximity source {src.group(0)} near sink {sink_name} "
             f"at line {sink_line_idx + 1}, but no data-flow link — skipping"
