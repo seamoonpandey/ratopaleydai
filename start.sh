@@ -26,6 +26,18 @@ for cmd in tmux node python3; do
   fi
 done
 
+# ── Ensure PostgreSQL & Redis are running ─────────────────────
+if ! pg_isready -h localhost -q 2>/dev/null; then
+  echo "  … Starting PostgreSQL..."
+  sudo pg_ctlcluster 14 main start 2>/dev/null \
+    || sudo systemctl start postgresql 2>/dev/null \
+    || echo "  ! Could not start PostgreSQL — start it manually"
+fi
+if ! redis-cli ping &>/dev/null 2>&1; then
+  echo "  … Starting Redis..."
+  redis-server --daemonize yes 2>/dev/null || true
+fi
+
 # ── Kill previous session ────────────────────────────────────
 tmux kill-session -t "$SESSION" 2>/dev/null || true
 sleep 0.3

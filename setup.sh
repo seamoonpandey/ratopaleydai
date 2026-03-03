@@ -191,6 +191,26 @@ cd "$ROOT/core" && npx nest build >> "$LOG" 2>&1
 ok "core built (dist/)"
 
 # ══════════════════════════════════════════════════════════════
+#  12. Run database migrations
+# ══════════════════════════════════════════════════════════════
+info "Running database migrations..."
+
+# Ensure Postgres is ready before running migrations
+for i in $(seq 1 10); do
+  pg_isready -h localhost -q 2>/dev/null && break
+  sleep 1
+done
+
+if pg_isready -h localhost -q 2>/dev/null; then
+  cd "$ROOT/core"
+  DATABASE_URL="postgresql://rs:rs@localhost:5432/redsentinel" \
+    npm run migration:run >> "$LOG" 2>&1
+  ok "Migrations applied"
+else
+  warn "PostgreSQL not reachable — migrations will run on first app start (migrationsRun: true)"
+fi
+
+# ══════════════════════════════════════════════════════════════
 #  Done
 # ══════════════════════════════════════════════════════════════
 echo ""

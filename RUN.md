@@ -118,6 +118,26 @@ npx nest build
 cd ..
 ```
 
+### 8b. Run database migrations
+
+Migrations apply the schema to the PostgreSQL database. This step is
+idempotent — safe to run multiple times.
+
+```bash
+cd core
+DATABASE_URL=postgresql://rs:rs@localhost:5432/redsentinel npm run migration:run
+cd ..
+```
+
+To see which migrations have been applied:
+```bash
+cd core && DATABASE_URL=postgresql://rs:rs@localhost:5432/redsentinel npm run migration:show
+```
+
+> **Note:** The NestJS app is configured with `migrationsRun: true`, so
+> pending migrations also run automatically when the server starts.
+> Running them manually here catches any SQL errors before the first boot.
+
 ### 9. Environment variables
 
 ```bash
@@ -335,7 +355,11 @@ sudo -u postgres psql -c "CREATE DATABASE redsentinel OWNER rs;"
 
 | Script | Description |
 |--------|-------------|
-| `./setup.sh` | One-time install of all packages, deps, databases, browsers |
+| `./setup.sh` | One-time install of all packages, deps, databases, browsers, migrations |
 | `./start.sh` | Launch everything in a tmux session (`rs`) |
 | `./start.sh --detach` | Same but don't attach to tmux |
 | `./stop.sh` | Kill the tmux session and orphaned processes |
+| `cd core && npm run migration:run` | Apply pending database migrations |
+| `cd core && npm run migration:revert` | Roll back the last migration |
+| `cd core && npm run migration:show` | List all migrations and their status |
+| `cd core && npm run migration:generate -- src/migrations/Name` | Auto-generate a migration from entity changes |
