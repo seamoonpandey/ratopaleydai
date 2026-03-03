@@ -39,7 +39,7 @@ export class ScanEntity {
   @UpdateDateColumn()
   updatedAt!: Date;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ nullable: true })
   completedAt?: Date;
 
   @OneToMany(() => VulnEntity, (v) => v.scan, { cascade: true })
