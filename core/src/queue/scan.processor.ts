@@ -619,9 +619,16 @@ export class ScanProcessor extends WorkerHost {
         90,
       );
       const vulns = await this.scanService.getVulns(scanId);
+
+      // Stamp completedAt on the local scan object so the report shows the
+      // correct completion time and duration. (updateStatus(DONE) sets it in
+      // the DB but runs *after* generate, so scan.completedAt would be null.)
+      const completedAt = new Date();
+      const scanForReport = { ...scan, completedAt };
+
       const reportUrl = await this.reportService.generate(
         scanId,
-        scan,
+        scanForReport,
         vulns,
         scan.options.reportFormat ?? ['html', 'json', 'pdf'],
       );
