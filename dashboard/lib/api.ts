@@ -78,3 +78,13 @@ export function getReportDownloadUrl(
 ): string {
   return `${BASE}/reports/${scanId}/download?format=${format}`;
 }
+
+export async function regenerateReport(
+  scanId: string,
+  formats: string[] = ['html', 'json', 'pdf'],
+): Promise<ReportFormats> {
+  const fmtParam = formats.join(',');
+  // Trigger backend regeneration then re-fetch the updated formats list
+  await request<unknown>(`/reports/${scanId}/regenerate?formats=${fmtParam}`);
+  return request<ReportFormats>(`/reports/${scanId}`);
+}

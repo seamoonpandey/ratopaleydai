@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { getScan, cancelScan, getReportFormats, getReportDownloadUrl } from "@/lib/api";
+import { getScan, cancelScan, getReportFormats, getReportDownloadUrl, regenerateReport } from "@/lib/api";
 import type {
   Scan,
   Vuln,
@@ -25,6 +25,7 @@ import {
   Clock,
   Wifi,
   Bug,
+  RefreshCw,
 } from "lucide-react";
 
 function formatDuration(ms: number) {
@@ -44,6 +45,8 @@ export default function ScanDetailPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [regenerating, setRegenerating] = useState(false);
+  const [regenMsg, setRegenMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const fetchScan = useCallback(async () => {
     try {
@@ -123,6 +126,20 @@ export default function ScanDetailPage() {
       );
     } catch {
       /* ignore */
+    }
+  };
+
+  const handleRegenerate = async () => {
+    setRegenerating(true);
+    setRegenMsg(null);
+    try {
+      const updated = await regenerateReport(scanId);
+      setReports(updated);
+      setRegenMsg({ ok: true, text: `Reports regenerated — ${updated.formats.join(", ").toUpperCase()}` });
+    } catch (err: unknown) {
+      setRegenMsg({ ok: false, text: err instanceof Error ? err.message : "Regeneration failed" });
+    } finally {
+      setRegenerating(false);
     }
   };
 
@@ -231,23 +248,81 @@ export default function ScanDetailPage() {
       </div>
 
       {/* ── reports ─────────────────────────────────── */}
-      {reports && reports.formats.length > 0 && (
+      {scan.status === ScanStatus.DONE && (
         <Card>
-          <h2 className="mb-3 text-lg font-semibold text-zinc-100">Reports</h2>
-          <div className="flex flex-wrap gap-3">
-            {reports.formats.map((fmt) => (
-              <a
-                key={fmt}
-                href={getReportDownloadUrl(scanId, fmt)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 transition-colors hover:border-emerald-600 hover:text-emerald-400"
-              >
-                <Download size={14} />
-                {fmt.toUpperCase()}
-              </a>
-            ))}
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-zinc-100">Reports</h2>
+
+            {/* Regenerate button — amber when something is broken/missing, muted otherwise */}
+            {(() => {
+              const hasBroken =
+                reports === null ||
+                reports.formats.length === 0 ||
+                (reports.broken && reports.broken.length > 0) ||
+                !reports.formats.includes("html") ||
+                !reports.formats.includes("pdf");
+              return (
+                <button
+                  onClick={handleRegenerate}
+                  disabled={regenerating}
+                  className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                    hasBroken
+                      ? "border-amber-700 text-amber-400 hover:bg-amber-900/30"
+                      : "border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
+                  }`}
+                >
+                  <RefreshCw size={12} className={regenerating ? "animate-spin" : ""} />
+                  {regenerating ? "Regenerating…" : "Regenerate Reports"}
+                </button>
+              );
+            })()}
           </div>
+
+          {/* Feedback banner */}
+          {regenMsg && (
+            <p className={`mb-3 rounded-md px-3 py-2 text-xs ${
+              regenMsg.ok
+                ? "bg-emerald-900/30 text-emerald-400"
+                : "bg-red-900/30 text-red-400"
+            }`}>
+              {regenMsg.text}
+            </p>
+          )}
+
+          {reports && reports.formats.length > 0 ? (
+            <div className="flex flex-wrap gap-3">
+              {reports.formats.map((fmt) => {
+                const isBroken = reports.broken?.includes(fmt);
+                return isBroken ? (
+                  <div
+                    key={fmt}
+                    className="flex items-center gap-2 rounded-lg border border-red-800/60 px-4 py-2 text-sm text-red-500"
+                    title="This report file is empty or corrupt — click Regenerate Reports"
+                  >
+                    <AlertTriangle size={14} />
+                    {fmt.toUpperCase()} (broken)
+                  </div>
+                ) : (
+                  <a
+                    key={fmt}
+                    href={getReportDownloadUrl(scanId, fmt)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 transition-colors hover:border-emerald-600 hover:text-emerald-400"
+                  >
+                    <Download size={14} />
+                    {fmt.toUpperCase()}
+                  </a>
+                );
+              })}
+            </div>
+          ) : (
+            !regenerating && (
+              <p className="text-sm text-zinc-500">
+                No reports found. Click <span className="text-amber-400">Regenerate Reports</span> to create them from the saved scan data.
+              </p>
+            )
+          )}
         </Card>
       )}
 

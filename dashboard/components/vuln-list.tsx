@@ -1,10 +1,11 @@
 "use client";
 
 import type { Vuln } from "@/lib/types";
+import { VulnType } from "@/lib/types";
 import { SeverityBadge } from "@/components/ui";
 
 const isDomXss = (v: Vuln) =>
-  v.type === "dom_xss" || v.type === "open_redirect";
+  v.type === VulnType.DOM_XSS || v.type === VulnType.OPEN_REDIRECT;
 
 export function VulnList({ vulns }: { vulns: Vuln[] }) {
   if (vulns.length === 0) {

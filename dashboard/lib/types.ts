@@ -51,6 +51,7 @@ export enum VulnType {
   REFLECTED_XSS = "reflected_xss",
   STORED_XSS = "stored_xss",
   DOM_XSS = "dom_xss",
+  OPEN_REDIRECT = "open_redirect",
 }
 
 export enum VulnSeverity {
@@ -139,5 +140,7 @@ export interface HealthReport {
 export interface ReportFormats {
   scanId: string;
   formats: string[];
+  /** Formats that exist on disk but have empty/corrupt content. */
+  broken: string[];
   links: Record<string, string>;
 }

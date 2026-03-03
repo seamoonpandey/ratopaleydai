@@ -218,6 +218,29 @@ export class ReportService implements OnModuleDestroy {
     return formats;
   }
 
+  /**
+   * Returns the subset of formats that exist on disk but have invalid/empty
+   * content (i.e. were written with the old fallback template or are corrupt).
+   */
+  getBrokenFormats(scanId: string): string[] {
+    const broken: string[] = [];
+    const FALLBACK = '<html><body><h1>Report</h1><pre></pre></body></html>';
+
+    const htmlPath = path.join(this.reportsDir, `${scanId}.html`);
+    if (fs.existsSync(htmlPath)) {
+      const content = fs.readFileSync(htmlPath, 'utf-8').trim();
+      if (content === FALLBACK || content.length < 500) broken.push('html');
+    }
+
+    const pdfPath = path.join(this.reportsDir, `${scanId}.pdf`);
+    if (fs.existsSync(pdfPath)) {
+      const { size } = fs.statSync(pdfPath);
+      if (size < 2000) broken.push('pdf');
+    }
+
+    return broken;
+  }
+
   private generateJson(
     reportBase: string,
     scanId: string,
