@@ -4,7 +4,8 @@ import Link from "next/link";
 import type { Scan } from "@/lib/types";
 import { ScanStatus } from "@/lib/types";
 import { StatusBadge, ProgressBar } from "@/components/ui";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Trash2 } from "lucide-react";
+import { deleteScan } from "@/lib/api";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString("en-US", {
@@ -15,7 +16,7 @@ function formatDate(iso: string) {
   });
 }
 
-export function ScanTable({ scans }: { scans: Scan[] }) {
+export function ScanTable({ scans, onDelete }: { scans: Scan[]; onDelete?: (id: string) => void }) {
   if (scans.length === 0) {
     return (
       <div className="py-16 text-center text-zinc-500">
@@ -71,12 +72,27 @@ export function ScanTable({ scans }: { scans: Scan[] }) {
                 {formatDate(scan.createdAt)}
               </td>
               <td className="px-4 py-3">
-                <Link
-                  href={`/scan/${scan.id}`}
-                  className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300"
-                >
-                  View <ExternalLink size={12} />
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/scan/${scan.id}`}
+                    className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300"
+                  >
+                    View <ExternalLink size={12} />
+                  </Link>
+                  <button
+                    onClick={async () => {
+                      if (!confirm("Delete this scan and its results?")) return;
+                      try {
+                        await deleteScan(scan.id);
+                        onDelete?.(scan.id);
+                      } catch { /* ignore */ }
+                    }}
+                    className="inline-flex items-center gap-1 text-xs text-red-400/60 hover:text-red-400 transition-colors"
+                    title="Delete scan"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
               </td>
             </tr>
           ))}

@@ -1,8 +1,8 @@
 /**
- * integration tests — scan lifecycle (create, read, list, cancel)
+ * integration tests — scan lifecycle (create, read, list, cancel, delete)
  * boots a real nestjs app with mocked heavy dependencies (bullmq, redis,
- * crawler, puppeteer). tests the full http request → controller → service
- * chain including validation, auth guard, and error handling.
+ * crawler, puppeteer). uses a real sqlite database via TypeORM so the
+ * full repository chain is exercised.
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
@@ -10,12 +10,15 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScanController } from '../src/scan/scan.controller';
 import { ScanService } from '../src/scan/scan.service';
 import { ScanGateway } from '../src/scan/scan.gateway';
 import { ScanQueueProducer } from '../src/queue/scan.producer';
 import { ApiKeyGuard } from '../src/auth/api-key.guard';
 import { ScanStatus } from '../src/common/interfaces/scan.interface';
+import { ScanEntity } from '../src/scan/entities/scan.entity';
+import { VulnEntity } from '../src/scan/entities/vuln.entity';
 
 describe('scan lifecycle (integration)', () => {
   let app: INestApplication<App>;
@@ -31,6 +34,13 @@ describe('scan lifecycle (integration)', () => {
           isGlobal: true,
           load: [() => ({ API_KEY_SECRET: API_KEY })],
         }),
+        TypeOrmModule.forRoot({
+          type: 'better-sqlite3',
+          database: ':memory:',
+          entities: [ScanEntity, VulnEntity],
+          synchronize: true,
+        }),
+        TypeOrmModule.forFeature([ScanEntity, VulnEntity]),
       ],
       controllers: [ScanController],
       providers: [
@@ -231,8 +241,8 @@ describe('scan lifecycle (integration)', () => {
       .send({ url: 'https://completed-test.com' });
 
     // manually transition to DONE
-    scanService.updateStatus(create.body.id, ScanStatus.CRAWLING);
-    scanService.updateStatus(create.body.id, ScanStatus.DONE);
+    await scanService.updateStatus(create.body.id, ScanStatus.CRAWLING);
+    await scanService.updateStatus(create.body.id, ScanStatus.DONE);
 
     const res = await request(app.getHttpServer())
       .delete(`/scan/${create.body.id}`)

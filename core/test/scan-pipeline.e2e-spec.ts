@@ -18,6 +18,9 @@ import { ReportService } from '../src/report/report.service';
 import { ScanStatus, ScanPhase } from '../src/common/interfaces/scan.interface';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScanEntity } from '../src/scan/entities/scan.entity';
+import { VulnEntity } from '../src/scan/entities/vuln.entity';
 
 describe('scan processor pipeline (integration)', () => {
   let processor: ScanProcessor;
@@ -58,6 +61,13 @@ describe('scan processor pipeline (integration)', () => {
             }),
           ],
         }),
+        TypeOrmModule.forRoot({
+          type: 'better-sqlite3',
+          database: ':memory:',
+          entities: [ScanEntity, VulnEntity],
+          synchronize: true,
+        }),
+        TypeOrmModule.forFeature([ScanEntity, VulnEntity]),
         HttpModule,
       ],
       providers: [
@@ -195,7 +205,7 @@ describe('scan processor pipeline (integration)', () => {
   }
 
   it('runs full pipeline: crawl → context → payloads → fuzz → report', async () => {
-    const scan = scanService.create({ url: 'https://target.com' });
+    const scan = await scanService.create({ url: 'https://target.com' });
     setupCrawlResult();
     const contextScope = setupContextMock();
     const payloadScope = setupPayloadGenMock();
@@ -230,14 +240,14 @@ describe('scan processor pipeline (integration)', () => {
     expect(mockCrawler.crawl).toHaveBeenCalledWith('https://target.com', 3, 100);
 
     // scan ended in DONE status
-    const final = scanService.findOne(scan.id);
+    const final = await scanService.findOne(scan.id);
     expect(final.status).toBe(ScanStatus.DONE);
     expect(final.phase).toBe(ScanPhase.REPORT);
     expect(final.progress).toBe(100);
     expect(final.completedAt).toBeDefined();
 
     // vulns were accumulated
-    const vulns = scanService.getVulns(scan.id);
+    const vulns = await scanService.getVulns(scan.id);
     expect(vulns.length).toBe(1);
     expect(vulns[0].param).toBe('q');
 
@@ -266,7 +276,7 @@ describe('scan processor pipeline (integration)', () => {
   });
 
   it('emits correct phase progression events', async () => {
-    const scan = scanService.create({ url: 'https://phase-test.com' });
+    const scan = await scanService.create({ url: 'https://phase-test.com' });
     setupCrawlResult();
     setupContextMock();
     setupPayloadGenMock();
@@ -292,14 +302,14 @@ describe('scan processor pipeline (integration)', () => {
   });
 
   it('marks scan as failed when context module errors', async () => {
-    const scan = scanService.create({ url: 'https://fail-test.com' });
+    const scan = await scanService.create({ url: 'https://fail-test.com' });
     setupCrawlResult();
 
     nock(CONTEXT_URL).post('/analyze').reply(500, { detail: 'ai model crashed' });
 
     await expect(processor.process(createMockJob(scan.id))).rejects.toThrow();
 
-    const failed = scanService.findOne(scan.id);
+    const failed = await scanService.findOne(scan.id);
     expect(failed.status).toBe(ScanStatus.FAILED);
     expect(failed.error).toBeDefined();
     expect(mockGateway.emitError).toHaveBeenCalledWith(
@@ -309,7 +319,7 @@ describe('scan processor pipeline (integration)', () => {
   });
 
   it('marks scan as failed when fuzzer module errors', async () => {
-    const scan = scanService.create({ url: 'https://fuzzer-fail.com' });
+    const scan = await scanService.create({ url: 'https://fuzzer-fail.com' });
     setupCrawlResult();
     setupContextMock();
     setupPayloadGenMock();
@@ -318,7 +328,7 @@ describe('scan processor pipeline (integration)', () => {
 
     await expect(processor.process(createMockJob(scan.id))).rejects.toThrow();
 
-    const failed = scanService.findOne(scan.id);
+    const failed = await scanService.findOne(scan.id);
     expect(failed.status).toBe(ScanStatus.FAILED);
     expect(mockGateway.emitError).toHaveBeenCalledWith(
       scan.id,
@@ -327,18 +337,18 @@ describe('scan processor pipeline (integration)', () => {
   });
 
   it('marks scan as failed when crawler errors', async () => {
-    const scan = scanService.create({ url: 'https://crawl-fail.com' });
+    const scan = await scanService.create({ url: 'https://crawl-fail.com' });
     mockCrawler.crawl.mockRejectedValue(new Error('chromium crashed'));
 
     await expect(processor.process(createMockJob(scan.id))).rejects.toThrow();
 
-    const failed = scanService.findOne(scan.id);
+    const failed = await scanService.findOne(scan.id);
     expect(failed.status).toBe(ScanStatus.FAILED);
     expect(failed.error).toContain('chromium crashed');
   });
 
   it('handles zero vulns — clean scan', async () => {
-    const scan = scanService.create({ url: 'https://safe-site.com' });
+    const scan = await scanService.create({ url: 'https://safe-site.com' });
     setupCrawlResult();
     setupContextMock();
     setupPayloadGenMock();
@@ -363,9 +373,9 @@ describe('scan processor pipeline (integration)', () => {
 
     await processor.process(createMockJob(scan.id));
 
-    const final = scanService.findOne(scan.id);
+    const final = await scanService.findOne(scan.id);
     expect(final.status).toBe(ScanStatus.DONE);
-    expect(scanService.getVulns(scan.id).length).toBe(0);
+    expect((await scanService.getVulns(scan.id)).length).toBe(0);
 
     // emitFinding should NOT have been called
     expect(mockGateway.emitFinding).not.toHaveBeenCalled();

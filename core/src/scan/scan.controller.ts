@@ -37,7 +37,7 @@ export class ScanController {
   @ApiOperation({ summary: 'start a new scan' })
   @ApiResponse({ status: 201, type: ScanResultDto })
   async createScan(@Body() dto: CreateScanDto): Promise<ScanResultDto> {
-    const scan = this.scanService.create(dto);
+    const scan = await this.scanService.create(dto);
     await this.scanQueue.enqueue(scan.id);
     return scan as unknown as ScanResultDto;
   }
@@ -45,42 +45,55 @@ export class ScanController {
   @Get('scan/:id')
   @ApiOperation({ summary: 'get scan status and results' })
   @ApiResponse({ status: 200, type: ScanResultDto })
-  getScan(@Param('id') id: string): ScanResultDto {
-    const scan = this.scanService.findOne(id);
-    const vulns = this.scanService.getVulns(id);
+  async getScan(@Param('id') id: string): Promise<ScanResultDto> {
+    const scan = await this.scanService.findOne(id);
+    const vulns = await this.scanService.getVulns(id);
     return { ...scan, vulns } as unknown as ScanResultDto;
   }
 
   @Delete('scan/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'cancel an active scan' })
-  cancelScan(@Param('id') id: string): void {
-    this.scanService.cancel(id);
+  async cancelScan(@Param('id') id: string): Promise<void> {
+    await this.scanService.cancel(id);
+  }
+
+  @Delete('scans/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'permanently delete a scan and its results' })
+  async deleteScan(@Param('id') id: string): Promise<void> {
+    await this.scanService.deleteScan(id);
+  }
+
+  @Delete('scans')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'delete all scans, results, and reports' })
+  async deleteAllScans(): Promise<{ deleted: number }> {
+    const count = await this.scanService.deleteAllScans();
+    return { deleted: count };
   }
 
   @Get('scans')
   @ApiOperation({ summary: 'list all scans paginated' })
-  listScans(
+  async listScans(
     @Query('page') page = 1,
     @Query('limit') limit = 20,
-  ): ScanResultDto[] {
-    const all = this.scanService.findAll();
+  ): Promise<ScanResultDto[]> {
+    const all = await this.scanService.findAll();
     const start = (Number(page) - 1) * Number(limit);
-    return all
-      .slice(start, start + Number(limit))
-      .map(
-        (s) =>
-          ({
-            ...s,
-            vulns: this.scanService.getVulns(s.id),
-          }) as unknown as ScanResultDto,
-      );
+    const paged = all.slice(start, start + Number(limit));
+    const results: ScanResultDto[] = [];
+    for (const s of paged) {
+      const vulns = await this.scanService.getVulns(s.id);
+      results.push({ ...s, vulns } as unknown as ScanResultDto);
+    }
+    return results;
   }
 
   @Get('scan/:id/report')
   @ApiOperation({ summary: 'get report for a completed scan' })
-  getReport(@Param('id') id: string): { reportUrl: string } {
-    this.scanService.findOne(id);
+  async getReport(@Param('id') id: string): Promise<{ reportUrl: string }> {
+    await this.scanService.findOne(id);
     return { reportUrl: `/reports/${id}.html` };
   }
 

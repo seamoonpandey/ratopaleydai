@@ -34,8 +34,8 @@ export class ReportController {
   @Get(':scanId')
   @ApiOperation({ summary: 'get available report formats for a scan' })
   @ApiResponse({ status: 200 })
-  getFormats(@Param('scanId') scanId: string) {
-    this.scanService.findOne(scanId);
+  async getFormats(@Param('scanId') scanId: string) {
+    await this.scanService.findOne(scanId);
     const formats = this.reportService.getAvailableFormats(scanId);
     return {
       scanId,
@@ -55,12 +55,12 @@ export class ReportController {
   @ApiQuery({ name: 'format', enum: ['html', 'json', 'pdf'], required: false })
   @ApiResponse({ status: 200, description: 'report file' })
   @ApiResponse({ status: 404, description: 'report not found' })
-  download(
+  async download(
     @Param('scanId') scanId: string,
     @Query('format') format: string = 'html',
     @Res() res: Response,
   ) {
-    this.scanService.findOne(scanId);
+    await this.scanService.findOne(scanId);
 
     const filePath = this.reportService.getReportPath(scanId, format);
     if (!filePath) {
@@ -95,8 +95,8 @@ export class ReportController {
     @Param('scanId') scanId: string,
     @Query('formats') formatsStr: string = 'html,json',
   ) {
-    const scan = this.scanService.findOne(scanId);
-    const vulns = this.scanService.getVulns(scanId);
+    const scan = await this.scanService.findOne(scanId);
+    const vulns = await this.scanService.getVulns(scanId);
     const formats = formatsStr.split(',').map((f) => f.trim());
 
     const reportUrl = await this.reportService.generate(

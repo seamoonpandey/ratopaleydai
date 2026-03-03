@@ -73,7 +73,7 @@ export class ScanProcessor extends WorkerHost {
     try {
       let scan: ScanRecord;
       try {
-        scan = this.scanService.findOne(scanId);
+        scan = await this.scanService.findOne(scanId);
       } catch (err) {
         const detail = err instanceof Error ? err.message : 'scan not found';
         this.logger.warn(
@@ -83,7 +83,7 @@ export class ScanProcessor extends WorkerHost {
       }
 
       // ── Phase 1: CRAWL ──────────────────────────────────────────────
-      this.scanService.updateStatus(
+      await this.scanService.updateStatus(
         scanId,
         ScanStatus.CRAWLING,
         ScanPhase.CRAWL,
@@ -191,7 +191,7 @@ export class ScanProcessor extends WorkerHost {
         this.logger.warn(
           `no parameterized URLs found for scanId=${scanId}, nothing to test`,
         );
-        this.scanService.updateStatus(
+        await this.scanService.updateStatus(
           scanId,
           ScanStatus.DONE,
           ScanPhase.REPORT,
@@ -211,7 +211,7 @@ export class ScanProcessor extends WorkerHost {
       }
 
       // ── Per-URL pipeline: CONTEXT → PAYLOAD-GEN → FUZZ ─────────────
-      this.scanService.updateStatus(
+      await this.scanService.updateStatus(
         scanId,
         ScanStatus.ANALYZING,
         ScanPhase.CONTEXT,
@@ -234,7 +234,7 @@ export class ScanProcessor extends WorkerHost {
         // If this URL has no params at all, skip context/payload generation and
         // do a DOM-only scan (fetch + inline script analysis).
         if (targetParams.length === 0) {
-          this.scanService.updateStatus(
+          await this.scanService.updateStatus(
             scanId,
             ScanStatus.FUZZING,
             ScanPhase.FUZZ,
@@ -257,7 +257,7 @@ export class ScanProcessor extends WorkerHost {
             const domVulns = domResp.results.filter((r) => r.vuln);
             for (const r of domVulns) {
               const vuln = this.reportService.buildVuln(scanId, targetUrl, r);
-              if (this.scanService.addVuln(scanId, vuln)) {
+              if (await this.scanService.addVuln(scanId, vuln)) {
                 this.gateway.emitFinding({ scanId, vuln });
               }
             }
@@ -313,7 +313,7 @@ export class ScanProcessor extends WorkerHost {
             `no reflections on ${targetUrl}, running dom-only scan`,
           );
 
-          this.scanService.updateStatus(
+          await this.scanService.updateStatus(
             scanId,
             ScanStatus.FUZZING,
             ScanPhase.FUZZ,
@@ -336,7 +336,7 @@ export class ScanProcessor extends WorkerHost {
             const domVulns = domResp.results.filter((r) => r.vuln);
             for (const r of domVulns) {
               const vuln = this.reportService.buildVuln(scanId, targetUrl, r);
-              if (this.scanService.addVuln(scanId, vuln)) {
+              if (await this.scanService.addVuln(scanId, vuln)) {
                 this.gateway.emitFinding({ scanId, vuln });
               }
             }
@@ -363,7 +363,7 @@ export class ScanProcessor extends WorkerHost {
         );
 
         // ── PAYLOAD-GEN for this URL ────────────────────────────────
-        this.scanService.updateStatus(
+        await this.scanService.updateStatus(
           scanId,
           ScanStatus.GENERATING,
           ScanPhase.PAYLOAD_GEN,
@@ -421,7 +421,7 @@ export class ScanProcessor extends WorkerHost {
         }
 
         // ── FUZZ for this URL ───────────────────────────────────────
-        this.scanService.updateStatus(
+        await this.scanService.updateStatus(
           scanId,
           ScanStatus.FUZZING,
           ScanPhase.FUZZ,
@@ -464,7 +464,7 @@ export class ScanProcessor extends WorkerHost {
         const confirmedVulns = results.filter((r) => r.vuln);
         for (const r of confirmedVulns) {
           const vuln = this.reportService.buildVuln(scanId, targetUrl, r);
-          if (this.scanService.addVuln(scanId, vuln)) {
+          if (await this.scanService.addVuln(scanId, vuln)) {
             this.gateway.emitFinding({ scanId, vuln });
           }
         }
@@ -593,7 +593,7 @@ export class ScanProcessor extends WorkerHost {
             const storedVulns = fuzzResp.results.filter((r) => r.vuln);
             for (const r of storedVulns) {
               const vuln = this.reportService.buildVuln(scanId, displayUrl, r);
-              if (this.scanService.addVuln(scanId, vuln)) {
+              if (await this.scanService.addVuln(scanId, vuln)) {
                 this.gateway.emitFinding({ scanId, vuln });
               }
             }
@@ -612,13 +612,13 @@ export class ScanProcessor extends WorkerHost {
       }
 
       // ── Phase 5: REPORT ─────────────────────────────────────────────
-      this.scanService.updateStatus(
+      await this.scanService.updateStatus(
         scanId,
         ScanStatus.REPORTING,
         ScanPhase.REPORT,
         90,
       );
-      const vulns = this.scanService.getVulns(scanId);
+      const vulns = await this.scanService.getVulns(scanId);
       const reportUrl = await this.reportService.generate(
         scanId,
         scan,
@@ -626,7 +626,7 @@ export class ScanProcessor extends WorkerHost {
         scan.options.reportFormat ?? ['html', 'json', 'pdf'],
       );
 
-      this.scanService.updateStatus(
+      await this.scanService.updateStatus(
         scanId,
         ScanStatus.DONE,
         ScanPhase.REPORT,
@@ -651,7 +651,7 @@ export class ScanProcessor extends WorkerHost {
     } catch (err: unknown) {
       const msg: string = err instanceof Error ? err.message : 'unknown error';
       this.logger.error(`scan failed scanId=${scanId} error=${msg}`);
-      this.scanService.markFailed(scanId, msg);
+      await this.scanService.markFailed(scanId, msg);
       this.gateway.emitError(scanId, msg);
       // don't re-throw — scan is already marked FAILED,
       // retrying would hit "already running" guard

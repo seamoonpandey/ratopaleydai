@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { listScans, getHealth } from "@/lib/api";
+import { listScans, getHealth, deleteAllScans } from "@/lib/api";
 import type { Scan, HealthReport, ProgressEvent, CompleteEvent, ErrorEvent } from "@/lib/types";
 import { ScanStatus } from "@/lib/types";
 import { NewScanForm } from "@/components/new-scan-form";
 import { ScanTable } from "@/components/scan-table";
 import { Card, StatCard } from "@/components/ui";
 import { useScanSocket } from "@/hooks/use-scan-socket";
-import { Activity, Shield, AlertTriangle, Wifi } from "lucide-react";
+import { Activity, Shield, AlertTriangle, Wifi, Trash2 } from "lucide-react";
 
 export default function DashboardPage() {
   const [scans, setScans] = useState<Scan[]>([]);
@@ -75,6 +75,16 @@ export default function DashboardPage() {
 
   const handleScanCreated = (scan: Scan) => {
     setScans((prev) => [scan, ...prev]);
+  };
+
+  const handleClearAll = async () => {
+    if (!confirm("Delete ALL scans, results, and reports? This cannot be undone.")) return;
+    try {
+      await deleteAllScans();
+      setScans([]);
+    } catch {
+      /* api may be unreachable */
+    }
   };
 
   const activeScans = scans.filter(
@@ -155,10 +165,21 @@ export default function DashboardPage() {
 
       {/* ── scan list ───────────────────────────────────── */}
       <Card>
-        <h2 className="mb-4 text-lg font-semibold text-zinc-100">
-          Recent Scans
-        </h2>
-        <ScanTable scans={scans} />
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-zinc-100">
+            Recent Scans
+          </h2>
+          {scans.length > 0 && (
+            <button
+              onClick={handleClearAll}
+              className="inline-flex items-center gap-1.5 rounded-md bg-red-600/20 px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-red-600/30"
+            >
+              <Trash2 size={13} />
+              Clear All
+            </button>
+          )}
+        </div>
+        <ScanTable scans={scans} onDelete={(id) => setScans((prev) => prev.filter((s) => s.id !== id))} />
       </Card>
     </div>
   );

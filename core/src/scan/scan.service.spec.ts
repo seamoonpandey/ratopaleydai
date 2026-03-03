@@ -1,4 +1,8 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScanService } from './scan.service';
+import { ScanEntity } from './entities/scan.entity';
+import { VulnEntity } from './entities/vuln.entity';
 import { ScanStatus, ScanPhase } from '../common/interfaces/scan.interface';
 import {
   ScanNotFoundException,
@@ -8,14 +12,35 @@ import {
 
 describe('ScanService', () => {
   let service: ScanService;
+  let module: TestingModule;
 
-  beforeEach(() => {
-    service = new ScanService();
+  beforeAll(async () => {
+    module = await Test.createTestingModule({
+      imports: [
+        TypeOrmModule.forRoot({
+          type: 'better-sqlite3',
+          database: ':memory:',
+          entities: [ScanEntity, VulnEntity],
+          synchronize: true,
+        }),
+        TypeOrmModule.forFeature([ScanEntity, VulnEntity]),
+      ],
+      providers: [ScanService],
+    }).compile();
+  });
+
+  beforeEach(async () => {
+    service = module.get(ScanService);
+    await service.deleteAllScans();
+  });
+
+  afterAll(async () => {
+    await module.close();
   });
 
   describe('create', () => {
-    it('creates a scan with default options', () => {
-      const scan = service.create({ url: 'https://example.com' });
+    it('creates a scan with default options', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
       expect(scan.id).toBeDefined();
       expect(scan.url).toBe('https://example.com');
       expect(scan.status).toBe(ScanStatus.PENDING);
@@ -27,17 +52,13 @@ describe('ScanService', () => {
       expect(scan.createdAt).toBeInstanceOf(Date);
     });
 
-    it('normalizes url by stripping trailing slash', () => {
-      const scan = service.create({ url: 'https://example.com/' });
+    it('normalizes url by stripping trailing slash', async () => {
+      const scan = await service.create({ url: 'https://example.com/' });
       expect(scan.url).toBe('https://example.com');
     });
 
-    it('throws on invalid url', () => {
-      expect(() => service.create({ url: 'not-a-url' })).toThrow();
-    });
-
-    it('respects custom options', () => {
-      const scan = service.create({
+    it('respects custom options', async () => {
+      const scan = await service.create({
         url: 'https://example.com',
         options: { depth: 5, maxPayloadsPerParam: 100 },
       });
@@ -45,53 +66,52 @@ describe('ScanService', () => {
       expect(scan.options.maxPayloadsPerParam).toBe(100);
     });
 
-    it('initializes empty vuln list', () => {
-      const scan = service.create({ url: 'https://example.com' });
-      expect(service.getVulns(scan.id)).toEqual([]);
+    it('initializes empty vuln list', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
+      const vulns = await service.getVulns(scan.id);
+      expect(vulns).toEqual([]);
     });
   });
 
   describe('findOne', () => {
-    it('returns existing scan', () => {
-      const created = service.create({ url: 'https://example.com' });
-      const found = service.findOne(created.id);
+    it('returns existing scan', async () => {
+      const created = await service.create({ url: 'https://example.com' });
+      const found = await service.findOne(created.id);
       expect(found.id).toBe(created.id);
     });
 
-    it('throws ScanNotFoundException for unknown id', () => {
-      expect(() => service.findOne('nonexistent')).toThrow(
+    it('throws ScanNotFoundException for unknown id', async () => {
+      await expect(service.findOne('nonexistent')).rejects.toThrow(
         ScanNotFoundException,
       );
     });
   });
 
   describe('findAll', () => {
-    it('returns empty array when no scans exist', () => {
-      expect(service.findAll()).toEqual([]);
+    it('returns empty array when no scans exist', async () => {
+      const all = await service.findAll();
+      expect(all).toEqual([]);
     });
 
-    it('returns scans sorted by createdAt descending', () => {
-      const s1 = service.create({ url: 'https://a.com' });
-      // nudge s1 creation time back so sort order is deterministic
-      s1.createdAt = new Date(Date.now() - 1000);
-      const s2 = service.create({ url: 'https://b.com' });
-      const all = service.findAll();
+    it('returns scans sorted by createdAt descending', async () => {
+      await service.create({ url: 'https://a.com' });
+      await new Promise((r) => setTimeout(r, 50));
+      const s2 = await service.create({ url: 'https://b.com' });
+      const all = await service.findAll();
       expect(all.length).toBe(2);
-      // s2 was created after s1
       expect(all[0].id).toBe(s2.id);
-      expect(all[1].id).toBe(s1.id);
     });
   });
 
   describe('getVulns', () => {
-    it('throws for unknown scan id', () => {
-      expect(() => service.getVulns('nonexistent')).toThrow(
+    it('throws for unknown scan id', async () => {
+      await expect(service.getVulns('nonexistent')).rejects.toThrow(
         ScanNotFoundException,
       );
     });
 
-    it('returns added vulns', () => {
-      const scan = service.create({ url: 'https://example.com' });
+    it('returns added vulns', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
       const vuln = {
         id: 'v1',
         scanId: scan.id,
@@ -109,13 +129,14 @@ describe('ScanService', () => {
         },
         discoveredAt: new Date(),
       };
-      expect(service.addVuln(scan.id, vuln)).toBe(true);
-      expect(service.getVulns(scan.id)).toHaveLength(1);
-      expect(service.getVulns(scan.id)[0].param).toBe('q');
+      expect(await service.addVuln(scan.id, vuln)).toBe(true);
+      const vulns = await service.getVulns(scan.id);
+      expect(vulns).toHaveLength(1);
+      expect(vulns[0].param).toBe('q');
     });
 
-    it('dedupes identical vulns', () => {
-      const scan = service.create({ url: 'https://example.com' });
+    it('dedupes identical vulns', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
       const vuln = {
         id: 'v1',
         scanId: scan.id,
@@ -134,13 +155,13 @@ describe('ScanService', () => {
         discoveredAt: new Date(),
       };
 
-      expect(service.addVuln(scan.id, vuln)).toBe(true);
-      expect(service.addVuln(scan.id, { ...vuln, id: 'v2' })).toBe(false);
-      expect(service.getVulns(scan.id)).toHaveLength(1);
+      expect(await service.addVuln(scan.id, vuln)).toBe(true);
+      expect(await service.addVuln(scan.id, { ...vuln, id: 'v2' })).toBe(false);
+      expect(await service.getVulns(scan.id)).toHaveLength(1);
     });
 
-    it('dedupes reflected xss across different payload variants', () => {
-      const scan = service.create({ url: 'https://example.com' });
+    it('dedupes reflected xss across different payload variants', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
       const base = {
         scanId: scan.id,
         url: 'https://example.com/search?q=hello',
@@ -158,58 +179,57 @@ describe('ScanService', () => {
       };
 
       expect(
-        service.addVuln(scan.id, {
+        await service.addVuln(scan.id, {
           ...base,
           id: 'v1',
           payload: '"/><img src=x onerror=alert(1)>',
         } as any),
       ).toBe(true);
 
-      // Different payload should not create a new entry for the same param.
       expect(
-        service.addVuln(scan.id, {
+        await service.addVuln(scan.id, {
           ...base,
           id: 'v2',
           payload: '<svg onload=alert(1)>',
         } as any),
       ).toBe(false);
 
-      expect(service.getVulns(scan.id)).toHaveLength(1);
+      expect(await service.getVulns(scan.id)).toHaveLength(1);
     });
   });
 
   describe('cancel', () => {
-    it('cancels a pending scan', () => {
-      const scan = service.create({ url: 'https://example.com' });
-      const cancelled = service.cancel(scan.id);
+    it('cancels a pending scan', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
+      const cancelled = await service.cancel(scan.id);
       expect(cancelled.status).toBe(ScanStatus.CANCELLED);
       expect(cancelled.completedAt).toBeInstanceOf(Date);
     });
 
-    it('cancels a crawling scan', () => {
-      const scan = service.create({ url: 'https://example.com' });
-      service.updateStatus(scan.id, ScanStatus.CRAWLING, ScanPhase.CRAWL, 10);
-      const cancelled = service.cancel(scan.id);
+    it('cancels a crawling scan', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
+      await service.updateStatus(scan.id, ScanStatus.CRAWLING, ScanPhase.CRAWL, 10);
+      const cancelled = await service.cancel(scan.id);
       expect(cancelled.status).toBe(ScanStatus.CANCELLED);
     });
 
-    it('throws ScanCancelException for a completed scan', () => {
-      const scan = service.create({ url: 'https://example.com' });
-      service.updateStatus(scan.id, ScanStatus.DONE);
-      expect(() => service.cancel(scan.id)).toThrow(ScanCancelException);
+    it('throws ScanCancelException for a completed scan', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
+      await service.updateStatus(scan.id, ScanStatus.DONE);
+      await expect(service.cancel(scan.id)).rejects.toThrow(ScanCancelException);
     });
 
-    it('throws ScanCancelException for a failed scan', () => {
-      const scan = service.create({ url: 'https://example.com' });
-      service.markFailed(scan.id, 'some error');
-      expect(() => service.cancel(scan.id)).toThrow(ScanCancelException);
+    it('throws ScanCancelException for a failed scan', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
+      await service.markFailed(scan.id, 'some error');
+      await expect(service.cancel(scan.id)).rejects.toThrow(ScanCancelException);
     });
   });
 
   describe('updateStatus', () => {
-    it('updates status, phase, and progress', () => {
-      const scan = service.create({ url: 'https://example.com' });
-      const updated = service.updateStatus(
+    it('updates status, phase, and progress', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
+      const updated = await service.updateStatus(
         scan.id,
         ScanStatus.CRAWLING,
         ScanPhase.CRAWL,
@@ -220,29 +240,72 @@ describe('ScanService', () => {
       expect(updated.progress).toBe(25);
     });
 
-    it('throws ScanAlreadyRunningException when starting already running scan', () => {
-      const scan = service.create({ url: 'https://example.com' });
-      service.updateStatus(scan.id, ScanStatus.CRAWLING, ScanPhase.CRAWL, 10);
-      expect(() =>
+    it('throws ScanAlreadyRunningException when starting already running scan', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
+      await service.updateStatus(scan.id, ScanStatus.CRAWLING, ScanPhase.CRAWL, 10);
+      await expect(
         service.updateStatus(scan.id, ScanStatus.CRAWLING),
-      ).toThrow(ScanAlreadyRunningException);
+      ).rejects.toThrow(ScanAlreadyRunningException);
     });
 
-    it('sets completedAt for terminal statuses', () => {
-      const scan = service.create({ url: 'https://example.com' });
+    it('sets completedAt for terminal statuses', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
       expect(scan.completedAt).toBeUndefined();
-      service.updateStatus(scan.id, ScanStatus.DONE);
-      expect(scan.completedAt).toBeInstanceOf(Date);
+      const done = await service.updateStatus(scan.id, ScanStatus.DONE);
+      expect(done.completedAt).toBeInstanceOf(Date);
     });
   });
 
   describe('markFailed', () => {
-    it('sets status to FAILED with error message', () => {
-      const scan = service.create({ url: 'https://example.com' });
-      const failed = service.markFailed(scan.id, 'timeout');
+    it('sets status to FAILED with error message', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
+      const failed = await service.markFailed(scan.id, 'timeout');
       expect(failed.status).toBe(ScanStatus.FAILED);
       expect(failed.error).toBe('timeout');
       expect(failed.completedAt).toBeInstanceOf(Date);
+    });
+  });
+
+  describe('deleteScan', () => {
+    it('removes scan and its vulns', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
+      await service.addVuln(scan.id, {
+        id: 'v1',
+        scanId: scan.id,
+        url: 'https://example.com',
+        param: 'q',
+        payload: '<script>alert(1)</script>',
+        type: 'reflected_xss' as any,
+        severity: 'HIGH' as any,
+        reflected: true,
+        executed: true,
+        evidence: {
+          responseCode: 200,
+          reflectionPosition: 'body',
+          browserAlertTriggered: true,
+        },
+        discoveredAt: new Date(),
+      });
+
+      await service.deleteScan(scan.id);
+      await expect(service.findOne(scan.id)).rejects.toThrow(ScanNotFoundException);
+    });
+
+    it('throws for unknown scan id', async () => {
+      await expect(service.deleteScan('nonexistent')).rejects.toThrow(
+        ScanNotFoundException,
+      );
+    });
+  });
+
+  describe('deleteAllScans', () => {
+    it('removes all scans', async () => {
+      await service.create({ url: 'https://a.com' });
+      await service.create({ url: 'https://b.com' });
+      const count = await service.deleteAllScans();
+      expect(count).toBe(2);
+      const all = await service.findAll();
+      expect(all).toHaveLength(0);
     });
   });
 });

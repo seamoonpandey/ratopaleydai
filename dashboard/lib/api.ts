@@ -52,6 +52,14 @@ export async function cancelScan(id: string): Promise<void> {
   await request<void>(`/scan/${id}`, { method: "DELETE" });
 }
 
+export async function deleteScan(id: string): Promise<void> {
+  await request<void>(`/scans/${id}`, { method: "DELETE" });
+}
+
+export async function deleteAllScans(): Promise<{ deleted: number }> {
+  return request<{ deleted: number }>("/scans", { method: "DELETE" });
+}
+
 /* ── health ─────────────────────────────────────────────────── */
 
 export async function getHealth(): Promise<HealthReport> {

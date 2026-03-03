@@ -1,4 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, In } from 'typeorm';
 import { randomUUID as uuidv4 } from 'crypto';
 import { CreateScanDto } from './dto/create-scan.dto';
 import {
@@ -13,18 +15,31 @@ import {
   ScanCancelException,
 } from '../common/exceptions/scan.exceptions';
 import { normalizeUrl } from '../common/utils/url.utils';
+import { ScanEntity } from './entities/scan.entity';
+import { VulnEntity } from './entities/vuln.entity';
 
 @Injectable()
 export class ScanService {
   private readonly logger = new Logger(ScanService.name);
-  private readonly scans = new Map<string, ScanRecord>();
-  private readonly vulns = new Map<string, Vuln[]>();
+
+  /**
+   * In-memory dedup sets survive only for the lifetime of the process.
+   * This is fine — dedup only matters during a single scan run; if the
+   * process restarts mid-scan, BullMQ will re-queue the job anyway.
+   */
   private readonly vulnKeys = new Map<string, Set<string>>();
 
-  create(dto: CreateScanDto): ScanRecord {
+  constructor(
+    @InjectRepository(ScanEntity)
+    private readonly scanRepo: Repository<ScanEntity>,
+    @InjectRepository(VulnEntity)
+    private readonly vulnRepo: Repository<VulnEntity>,
+  ) {}
+
+  async create(dto: CreateScanDto): Promise<ScanRecord> {
     const id = uuidv4();
     const now = new Date();
-    const record: ScanRecord = {
+    const entity = this.scanRepo.create({
       id,
       url: normalizeUrl(dto.url),
       status: ScanStatus.PENDING,
@@ -40,33 +55,37 @@ export class ScanService {
       },
       createdAt: now,
       updatedAt: now,
-    };
-    this.scans.set(id, record);
-    this.vulns.set(id, []);
+    });
+    const saved = await this.scanRepo.save(entity);
     this.vulnKeys.set(id, new Set());
-    this.logger.log(`scan created id=${id} url=${record.url}`);
-    return record;
+    this.logger.log(`scan created id=${id} url=${saved.url}`);
+    return this.toRecord(saved);
   }
 
-  findOne(id: string): ScanRecord {
-    const scan = this.scans.get(id);
+  async findOne(id: string): Promise<ScanRecord> {
+    const scan = await this.scanRepo.findOneBy({ id });
     if (!scan) throw new ScanNotFoundException(id);
-    return scan;
+    return this.toRecord(scan);
   }
 
-  findAll(): ScanRecord[] {
-    return Array.from(this.scans.values()).sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
-    );
+  async findAll(): Promise<ScanRecord[]> {
+    const scans = await this.scanRepo.find({
+      order: { createdAt: 'DESC' },
+    });
+    return scans.map((s) => this.toRecord(s));
   }
 
-  getVulns(id: string): Vuln[] {
-    this.findOne(id); // throws if not found
-    return this.vulns.get(id) ?? [];
+  async getVulns(id: string): Promise<Vuln[]> {
+    await this.findOne(id); // throws if not found
+    const entities = await this.vulnRepo.find({
+      where: { scanId: id },
+      order: { discoveredAt: 'ASC' },
+    });
+    return entities.map((e) => this.toVuln(e));
   }
 
-  cancel(id: string): ScanRecord {
-    const scan = this.findOne(id);
+  async cancel(id: string): Promise<ScanRecord> {
+    const scan = await this.findOne(id);
     const cancellable: ScanStatus[] = [
       ScanStatus.PENDING,
       ScanStatus.CRAWLING,
@@ -80,60 +99,124 @@ export class ScanService {
     return this.updateStatus(id, ScanStatus.CANCELLED);
   }
 
-  updateStatus(
+  async updateStatus(
     id: string,
     status: ScanStatus,
     phase?: ScanPhase,
     progress?: number,
-  ): ScanRecord {
-    const scan = this.findOne(id);
+  ): Promise<ScanRecord> {
+    const scan = await this.findOne(id);
     if (status === ScanStatus.CRAWLING && !this.isIdle(scan)) {
       throw new ScanAlreadyRunningException(id);
     }
-    scan.status = status;
-    scan.updatedAt = new Date();
-    if (phase !== undefined) scan.phase = phase;
-    if (progress !== undefined) scan.progress = progress;
+
+    const updates: Partial<ScanEntity> = {
+      status,
+      updatedAt: new Date(),
+    };
+    if (phase !== undefined) updates.phase = phase;
+    if (progress !== undefined) updates.progress = progress;
     if (
       status === ScanStatus.DONE ||
       status === ScanStatus.FAILED ||
       status === ScanStatus.CANCELLED
     ) {
-      scan.completedAt = new Date();
+      updates.completedAt = new Date();
     }
-    return scan;
+
+    await this.scanRepo.update(id, updates);
+    return this.findOne(id);
   }
 
-  addVuln(scanId: string, vuln: Vuln): boolean {
-    this.findOne(scanId);
+  async addVuln(scanId: string, vuln: Vuln): Promise<boolean> {
+    await this.findOne(scanId);
     const key = this.buildVulnKey(vuln);
     const seen = this.vulnKeys.get(scanId) ?? new Set<string>();
     if (seen.has(key)) return false;
     seen.add(key);
     this.vulnKeys.set(scanId, seen);
 
-    const list = this.vulns.get(scanId) ?? [];
-    list.push(vuln);
-    this.vulns.set(scanId, list);
+    const entity = this.vulnRepo.create({
+      id: vuln.id ?? uuidv4(),
+      scanId,
+      url: vuln.url,
+      param: vuln.param,
+      payload: vuln.payload,
+      type: vuln.type,
+      severity: vuln.severity,
+      reflected: vuln.reflected,
+      executed: vuln.executed,
+      evidence: vuln.evidence,
+      discoveredAt: vuln.discoveredAt ?? new Date(),
+    });
+    await this.vulnRepo.save(entity);
     return true;
   }
 
-  markFailed(id: string, error: string): ScanRecord {
-    const scan = this.findOne(id);
-    scan.status = ScanStatus.FAILED;
-    scan.error = error;
-    scan.updatedAt = new Date();
-    scan.completedAt = new Date();
-    return scan;
+  async markFailed(id: string, error: string): Promise<ScanRecord> {
+    await this.scanRepo.update(id, {
+      status: ScanStatus.FAILED,
+      error,
+      updatedAt: new Date(),
+      completedAt: new Date(),
+    });
+    return this.findOne(id);
+  }
+
+  // ── delete / clear operations ────────────────────────────────
+
+  async deleteScan(id: string): Promise<void> {
+    const scan = await this.scanRepo.findOneBy({ id });
+    if (!scan) throw new ScanNotFoundException(id);
+    // CASCADE delete removes vulns automatically
+    await this.scanRepo.remove(scan);
+    this.vulnKeys.delete(id);
+    this.logger.log(`scan deleted id=${id}`);
+  }
+
+  async deleteAllScans(): Promise<number> {
+    const count = await this.scanRepo.count();
+    await this.vulnRepo.clear();
+    await this.scanRepo.clear();
+    this.vulnKeys.clear();
+    this.logger.warn(`all scans deleted (${count} scans removed)`);
+    return count;
+  }
+
+  // ── private helpers ──────────────────────────────────────────
+
+  private toRecord(e: ScanEntity): ScanRecord {
+    return {
+      id: e.id,
+      url: e.url,
+      status: e.status,
+      phase: e.phase,
+      progress: e.progress,
+      options: e.options,
+      createdAt: e.createdAt,
+      updatedAt: e.updatedAt,
+      completedAt: e.completedAt ?? undefined,
+      error: e.error ?? undefined,
+    };
+  }
+
+  private toVuln(e: VulnEntity): Vuln {
+    return {
+      id: e.id,
+      scanId: e.scanId,
+      url: e.url,
+      param: e.param,
+      payload: e.payload,
+      type: e.type,
+      severity: e.severity,
+      reflected: e.reflected,
+      executed: e.executed,
+      evidence: e.evidence,
+      discoveredAt: e.discoveredAt,
+    };
   }
 
   private buildVulnKey(v: Vuln): string {
-    // A stable signature to prevent duplicate reporting/emitting.
-    // Intentionally excludes fields that vary per run (id, discoveredAt).
-    //
-    // IMPORTANT: For reflected/stored XSS, we only want one representative
-    // finding per (type, page, param). Otherwise, the same vuln can be
-    // confirmed by many payload variants and inflate the report.
     const type = String(v.type ?? '').trim();
     const url = this.normalizeUrlForDedup(String(v.url ?? '').trim());
     const param = String(v.param ?? '').trim();
@@ -144,8 +227,6 @@ export class ScanService {
     }
 
     if (type === VulnType.DOM_XSS) {
-      // DOM findings are already summarized by (sink <- source) in the payload.
-      // Dedupe on that per page.
       return `${type}|${url}|${payload}`;
     }
 
@@ -153,9 +234,6 @@ export class ScanService {
   }
 
   private normalizeUrlForDedup(rawUrl: string): string {
-    // Canonicalize query by parameter *names* only (ignore values + ordering).
-    // This prevents duplicates caused by crawling the same route with
-    // different query values.
     try {
       const u = new URL(rawUrl);
       const keys = [...new Set([...u.searchParams.keys()])].sort();
