@@ -14,6 +14,10 @@ export interface TestRequest {
   storedMode?: boolean;
   displayUrl?: string;          // page where stored content appears
   formFields?: Record<string, string>; // prefilled form fields
+  /** Metadata for ML training data collection */
+  context?: string;             // dominant context label
+  waf?: string;                 // detected WAF type
+  allowedChars?: string[];      // allowed special characters
 }
 
 export interface FuzzResult {
@@ -73,6 +77,9 @@ export class FuzzerClientService {
             stored_mode: req.storedMode ?? false,
             display_url: req.displayUrl ?? '',
             form_fields: req.formFields ?? {},
+            context: req.context ?? null,
+            waf: req.waf ?? null,
+            allowed_chars: req.allowedChars ?? null,
           },
           { timeout: axiosTimeoutMs },
         ),

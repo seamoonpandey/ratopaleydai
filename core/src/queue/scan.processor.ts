@@ -436,11 +436,19 @@ export class ScanProcessor extends WorkerHost {
 
         let results;
         try {
+          // Derive dominant context for training data collection
+          const contextEntries = Object.values(contexts) as Array<{ reflects_in: string; allowed_chars?: string[] }>;
+          const dominantContext = contextEntries.length > 0 ? contextEntries[0].reflects_in : undefined;
+          const dominantAllowedChars = contextEntries.length > 0 ? contextEntries[0].allowed_chars : undefined;
+
           const fuzzResp = await this.fuzzerClient.test({
             url: targetUrl,
             payloads: uniquePayloads,
             verifyExecution: scan.options.verifyExecution ?? true,
             timeout: scan.options.timeout ?? 60000,
+            context: dominantContext,
+            waf,
+            allowedChars: dominantAllowedChars,
           });
           results = fuzzResp.results;
         } catch (err) {
