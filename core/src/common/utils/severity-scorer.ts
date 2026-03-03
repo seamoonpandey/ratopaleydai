@@ -5,15 +5,15 @@ import { VulnSeverity } from '../interfaces/vuln.interface';
  *
  * Scoring matrix:
  *   Execution:    executed → 3, reflected → 2, dom-only → 1
- *   Shareability: URL param → 3, postMessage/e.data → 2, URLSearchParams/hash → 1
- *   Sink danger:  eval/document.write/location.assign/script → 3, innerHTML/html_body → 2, attribute → 1
+ *   Shareability: url_param → 3, postMessage/e.data → 2, URLSearchParams/hash/document.cookie → 1
+ *   Sink danger:  eval/document.write/location.assign/script → 3, innerHTML/html_body/comment/jQuery_html → 2, attribute → 1
  *   Payload:      document.cookie → 3, localStorage → 2, alert triggered → 1, % (WAF bypass) → 1
  *
  * Total → Severity: 8+ CRITICAL, 6-7 HIGH, 4-5 MEDIUM, 0-3 LOW
  *
  * Override rules applied after scoring:
  *   1. HASH_SOURCE_LOW_CAP:          source=location.hash → max LOW
- *   2. EVAL_SINK_MINIMUM_HIGH:       sink=eval/script     → min HIGH
+ *   2. EVAL_SINK_MINIMUM_HIGH:       sink=eval            → min HIGH
  *   3. CONFIRMED_SENSITIVE_EXEC:     executed + document.cookie → CRITICAL
  *   4. WAF_BYPASS_MEDIUM_MINIMUM:    reflected + % + exactMatch → min MEDIUM
  *   5. POSTMESSAGE_MEDIUM_MINIMUM:   source=e.data/postMessage → min MEDIUM
@@ -52,14 +52,21 @@ export function getExecutionScore(input: ScoringInput): number {
 export function getShareabilityScore(input: ScoringInput): number {
   const s = (input.source ?? '').toLowerCase();
 
-  // URL param (query string param reflected) = highest shareability
-  if (s === '' || s === 'url' || s === 'url param' || s === 'urlsearchparams') {
-    return 3;
-  }
+  // URL param (server-reflected query param) = highest shareability
+  if (s === 'url_param' || s === 'url param' || s === 'url' || s === '') return 3;
+  // postMessage / e.data = moderate shareability
   if (s === 'postmessage' || s === 'e.data') return 2;
-  if (s === 'location.hash' || s === 'hash') return 1;
-  // Default: treat unknown sources as URL param (most common case)
-  return 3;
+  // Client-side JS sources (DOM-based) = lower shareability
+  if (
+    s === 'urlsearchparams' ||
+    s === 'location.hash' ||
+    s === 'hash' ||
+    s === 'document.cookie'
+  ) {
+    return 1;
+  }
+  // Unknown sources → conservative
+  return 1;
 }
 
 export function getSinkDangerScore(input: ScoringInput): number {
@@ -68,11 +75,19 @@ export function getSinkDangerScore(input: ScoringInput): number {
     sk === 'eval' ||
     sk === 'script' ||
     sk === 'document.write' ||
-    sk === 'location.assign'
+    sk === 'location.assign' ||
+    sk === 'location_assign'
   ) {
     return 3;
   }
-  if (sk === 'innerhtml' || sk === 'html_body') return 2;
+  if (
+    sk === 'innerhtml' ||
+    sk === 'html_body' ||
+    sk === 'comment' ||
+    sk === 'jquery_html'
+  ) {
+    return 2;
+  }
   if (sk === 'attribute' || sk === 'href') return 1;
   // Default: attribute-level
   return 1;
@@ -80,6 +95,11 @@ export function getSinkDangerScore(input: ScoringInput): number {
 
 export function getPayloadScore(input: ScoringInput): number {
   const p = input.payload ?? '';
+
+  // DOM-XSS taint descriptions (e.g. "DOM-XSS: innerHTML <- document.cookie")
+  // are descriptive strings, not real payloads — skip scoring entirely.
+  if (p.startsWith('DOM-XSS:')) return 0;
+
   let score = 0;
   if (p.includes('document.cookie')) score += 3;
   if (p.includes('localStorage')) score += 2;
@@ -138,8 +158,8 @@ function applyOverrides(
     }
   }
 
-  // 2. EVAL_SINK_MINIMUM_HIGH: eval/script sink → min HIGH
-  if (sink === 'eval' || sink === 'script') {
+  // 2. EVAL_SINK_MINIMUM_HIGH: eval sink → min HIGH
+  if (sink === 'eval') {
     const raised = atLeast(s, VulnSeverity.HIGH);
     if (raised !== s) {
       applied.push('EVAL_SINK_MINIMUM_HIGH');
@@ -216,5 +236,5 @@ export function deriveSink(reflectionPosition: string, explicitSink?: string): s
  */
 export function deriveSource(explicitSource?: string): string {
   if (explicitSource) return explicitSource;
-  return 'URLSearchParams';
+  return 'url_param';
 }

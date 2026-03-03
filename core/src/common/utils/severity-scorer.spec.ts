@@ -15,7 +15,7 @@ function makeInput(overrides: Partial<ScoringInput> = {}): ScoringInput {
     reflected: true,
     executed: false,
     payload: '<script>alert(1)</script>',
-    source: 'URLSearchParams',
+    source: 'url_param',
     sink: 'attribute',
     exactMatch: true,
     browserAlertTriggered: false,
@@ -39,11 +39,14 @@ describe('severity-scorer', () => {
 
   // ── Shareability score ────────────────────────────────────
   describe('getShareabilityScore', () => {
-    it('returns 3 for URL param / URLSearchParams', () => {
-      expect(getShareabilityScore(makeInput({ source: 'URLSearchParams' }))).toBe(3);
+    it('returns 3 for url_param', () => {
+      expect(getShareabilityScore(makeInput({ source: 'url_param' }))).toBe(3);
     });
-    it('returns 3 for empty source (default = URL param)', () => {
+    it('returns 3 for empty source (default = url_param)', () => {
       expect(getShareabilityScore(makeInput({ source: '' }))).toBe(3);
+    });
+    it('returns 1 for URLSearchParams (client-side JS source)', () => {
+      expect(getShareabilityScore(makeInput({ source: 'URLSearchParams' }))).toBe(1);
     });
     it('returns 2 for postMessage', () => {
       expect(getShareabilityScore(makeInput({ source: 'postMessage' }))).toBe(2);
@@ -53,6 +56,12 @@ describe('severity-scorer', () => {
     });
     it('returns 1 for location.hash', () => {
       expect(getShareabilityScore(makeInput({ source: 'location.hash' }))).toBe(1);
+    });
+    it('returns 1 for document.cookie', () => {
+      expect(getShareabilityScore(makeInput({ source: 'document.cookie' }))).toBe(1);
+    });
+    it('returns 1 for unknown source (conservative)', () => {
+      expect(getShareabilityScore(makeInput({ source: 'window.name' }))).toBe(1);
     });
   });
 
@@ -67,11 +76,20 @@ describe('severity-scorer', () => {
     it('returns 3 for document.write', () => {
       expect(getSinkDangerScore(makeInput({ sink: 'document.write' }))).toBe(3);
     });
+    it('returns 3 for location_assign', () => {
+      expect(getSinkDangerScore(makeInput({ sink: 'location_assign' }))).toBe(3);
+    });
     it('returns 2 for innerHTML', () => {
       expect(getSinkDangerScore(makeInput({ sink: 'innerHTML' }))).toBe(2);
     });
     it('returns 2 for html_body', () => {
       expect(getSinkDangerScore(makeInput({ sink: 'html_body' }))).toBe(2);
+    });
+    it('returns 2 for comment', () => {
+      expect(getSinkDangerScore(makeInput({ sink: 'comment' }))).toBe(2);
+    });
+    it('returns 2 for jQuery_html', () => {
+      expect(getSinkDangerScore(makeInput({ sink: 'jQuery_html' }))).toBe(2);
     });
     it('returns 1 for attribute', () => {
       expect(getSinkDangerScore(makeInput({ sink: 'attribute' }))).toBe(1);
@@ -97,6 +115,16 @@ describe('severity-scorer', () => {
     });
     it('returns 0 for clean payload', () => {
       expect(getPayloadScore(makeInput({ payload: '<img src=x onerror=alert(1)>' }))).toBe(0);
+    });
+    it('returns 0 for DOM-XSS taint descriptions (not real payloads)', () => {
+      expect(getPayloadScore(makeInput({
+        payload: 'DOM-XSS: innerHTML <- document.cookie',
+      }))).toBe(0);
+    });
+    it('returns 0 for DOM-XSS taint with URLSearchParams', () => {
+      expect(getPayloadScore(makeInput({
+        payload: 'DOM-XSS: eval <- URLSearchParams',
+      }))).toBe(0);
     });
   });
 
@@ -153,14 +181,25 @@ describe('severity-scorer', () => {
 
   // ── Override rules ────────────────────────────────────────
   describe('override rules', () => {
-    it('HASH_SOURCE_LOW_CAP: caps hash source to LOW (but EVAL override raises back)', () => {
+    it('HASH_SOURCE_LOW_CAP: caps hash + script to LOW (EVAL override no longer fires for script)', () => {
       // hash + script: score=2+1+3+0=6 → HIGH base
       // Rule 1 (HASH_SOURCE_LOW_CAP) caps to LOW
-      // Rule 2 (EVAL_SINK_MINIMUM_HIGH) raises back to HIGH
-      // Per spec, eval always wins — this is correct behavior
+      // Rule 2 (EVAL_SINK_MINIMUM_HIGH) does NOT fire for script anymore (only eval)
       const r = scoreFinding(makeInput({
         source: 'location.hash',
         sink: 'script',
+      }));
+      expect(r.severity).toBe(VulnSeverity.LOW);
+      expect(r.appliedOverrides).toContain('HASH_SOURCE_LOW_CAP');
+      expect(r.appliedOverrides).not.toContain('EVAL_SINK_MINIMUM_HIGH');
+    });
+
+    it('HASH_SOURCE_LOW_CAP: hash + eval → LOW capped then EVAL raises to HIGH', () => {
+      // hash + eval: score=2+1+3+0=6 → HIGH base
+      // Rule 1 caps to LOW, Rule 2 raises back to HIGH
+      const r = scoreFinding(makeInput({
+        source: 'location.hash',
+        sink: 'eval',
       }));
       expect(r.severity).toBe(VulnSeverity.HIGH);
       expect(r.appliedOverrides).toContain('HASH_SOURCE_LOW_CAP');
@@ -180,8 +219,7 @@ describe('severity-scorer', () => {
     });
 
     it('EVAL_SINK_MINIMUM_HIGH: raises eval sink to min HIGH', () => {
-      // dom-only + hash + script → score=5 → MEDIUM, but eval override → HIGH
-      // But wait, hash caps to LOW first (rule 1)... so let's use different source
+      // dom-only + URLSearchParams + eval → score=1+1+3+0=5 → MEDIUM, override → HIGH
       const r = scoreFinding(makeInput({
         reflected: false,
         executed: false,
@@ -189,8 +227,13 @@ describe('severity-scorer', () => {
         sink: 'eval',
         payload: 'x',
       }));
-      // exec=1 + share=3 + sink=3 + payload=0 = 7 → HIGH already
-      // Let's also test when score would give MEDIUM
+      expect(r.score).toBe(5);
+      expect(r.severity).toBe(VulnSeverity.HIGH);
+      expect(r.appliedOverrides).toContain('EVAL_SINK_MINIMUM_HIGH');
+    });
+
+    it('EVAL_SINK_MINIMUM_HIGH: does NOT fire for script sink', () => {
+      // dom-only + e.data + script → score=1+2+3+0=6 → HIGH from score alone
       const r2 = scoreFinding(makeInput({
         reflected: false,
         executed: false,
@@ -198,8 +241,8 @@ describe('severity-scorer', () => {
         sink: 'script',
         payload: 'x',
       }));
-      // exec=1 + share=2 + sink=3 + payload=0 = 6 → HIGH already
       expect(r2.severity).toBe(VulnSeverity.HIGH);
+      expect(r2.appliedOverrides).not.toContain('EVAL_SINK_MINIMUM_HIGH');
     });
 
     it('CONFIRMED_SENSITIVE_EXEC: executed + document.cookie → CRITICAL', () => {
@@ -289,9 +332,9 @@ describe('severity-scorer', () => {
     it('returns explicit source when provided', () => {
       expect(deriveSource('location.hash')).toBe('location.hash');
     });
-    it('defaults to URLSearchParams', () => {
-      expect(deriveSource()).toBe('URLSearchParams');
-      expect(deriveSource(undefined)).toBe('URLSearchParams');
+    it('defaults to url_param (reflected XSS default)', () => {
+      expect(deriveSource()).toBe('url_param');
+      expect(deriveSource(undefined)).toBe('url_param');
     });
   });
 
