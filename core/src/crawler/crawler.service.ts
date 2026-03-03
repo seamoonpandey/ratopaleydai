@@ -25,6 +25,12 @@ export class CrawlerService implements OnModuleDestroy {
   }
 
   private async getBrowser(): Promise<Browser> {
+    // If we have a cached browser but it's disconnected (crashed or closed by
+    // a previous hot-reload cycle), clear the reference so we relaunch below.
+    if (this.browser && !this.browser.isConnected()) {
+      this.logger.warn('browser disconnected — relaunching');
+      this.browser = null;
+    }
     if (!this.browser) {
       this.browser = await chromium.launch({
         headless: true,
@@ -115,6 +121,7 @@ export class CrawlerService implements OnModuleDestroy {
         const page = await context.newPage();
         try {
           const response = await page.goto(item.url, {
+            // domcontentloaded is fast; we wait for individual frames below.
             waitUntil: 'domcontentloaded',
             timeout: 15000,
           });
@@ -147,6 +154,14 @@ export class CrawlerService implements OnModuleDestroy {
             // Mark the frame's own URL visited so the crawl queue doesn't
             // re-fetch it as a separate top-level page later.
             visited.add(this.normalizeForVisit(frameUrl));
+
+            // Wait for the frame to finish loading before reading its content.
+            // Without this, frame.content() on a slow iframe returns empty HTML.
+            try {
+              await frame.waitForLoadState('load', { timeout: 8000 });
+            } catch {
+              // frame timed out — read whatever is available
+            }
 
             let frameHtml: string;
             try {
