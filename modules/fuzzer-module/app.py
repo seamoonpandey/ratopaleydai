@@ -18,6 +18,7 @@ from http_sender import send_payloads, send_stored_payloads, fetch_url
 from reflection_checker import check_reflection_batch
 from browser_verifier import verify_payloads
 from dom_xss_scanner import scan_response_body, findings_to_results
+from training_collector import collect_batch_training_samples
 
 logging.basicConfig(
     level=logging.INFO,
@@ -174,6 +175,21 @@ async def test(request: FuzzRequest):
             f"stored fuzz complete: {len(final_results)} results, "
             f"{vuln_count} vulnerabilities confirmed"
         )
+        
+        # collect training samples for ranker model
+        try:
+            result_dicts = [r.model_dump() for r in final_results]
+            collect_batch_training_samples(
+                payloads=payloads,
+                results=result_dicts,
+                context=request.context or "generic",
+                waf=request.waf,
+                url=display_url,
+                allowed_chars=request.allowed_chars,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to collect training samples: {e}")
+        
         return FuzzResponse(results=final_results)
 
     # ── Regular reflected XSS pathway ────────────────────────────────
@@ -345,6 +361,20 @@ async def test(request: FuzzRequest):
         f"fuzz complete: {len(final_results)} results, "
         f"{vuln_count} vulnerabilities confirmed"
     )
+    
+    # collect training samples for ranker model
+    try:
+        result_dicts = [r.model_dump() for r in final_results]
+        collect_batch_training_samples(
+            payloads=payloads,
+            results=result_dicts,
+            context=request.context or "generic",
+            waf=request.waf,
+            url=url,
+            allowed_chars=request.allowed_chars,
+        )
+    except Exception as e:
+        logger.warning(f"Failed to collect training samples: {e}")
 
     return FuzzResponse(results=final_results)
 

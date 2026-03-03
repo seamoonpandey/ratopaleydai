@@ -18,7 +18,7 @@ from bank import PayloadBank
 from selector import select_payloads
 from mutator import mutate_payloads
 from obfuscator import obfuscate_payloads
-from ranker import rank_payloads
+from xgboost_ranker import rank_payloads
 
 logging.basicConfig(
     level=logging.INFO,
@@ -123,10 +123,11 @@ async def generate(request: GenerateRequest):
         else:
             obfuscated = mutated
 
-        # step 4: rank by execution probability
+        # step 4: rank by execution probability (uses XGBoost model with fallback to heuristic)
         ranked = rank_payloads(
             payloads=obfuscated,
             context=context_type,
+            waf=waf,
             allowed_chars=allowed_chars,
             limit=per_param,
         )

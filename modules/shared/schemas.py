@@ -62,6 +62,10 @@ class FuzzRequest(BaseModel):
     display_url: str = ""  # page to check for stored XSS output
     form_method: str = "GET"  # HTTP method for submission
     form_fields: dict[str, str] = Field(default_factory=dict)  # prefilled form fields (csrf, postId, etc.)
+    # metadata for training data collection
+    context: str | None = None  # context label (e.g., 'script_injection')
+    waf: str | None = None  # waf type detected (e.g., 'cloudflare')
+    allowed_chars: list[str] | None = None  # allowed special characters
 
 
 class FuzzResult(BaseModel):
