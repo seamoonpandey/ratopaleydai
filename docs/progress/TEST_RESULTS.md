@@ -159,14 +159,82 @@ Because the scanner uses **proximity matching** (±5 lines) without any data-flo
 
 | # | Issue | Component | Severity | Status |
 |---|-------|-----------|----------|--------|
-| 1 | DOM XSS false positive on static string sinks | `dom_xss_scanner.py` | HIGH | 🔴 Open — fix in progress |
+| 1 | DOM XSS false positive on static string sinks | `dom_xss_scanner.py` | HIGH | ✅ Fixed — static arg detection + concat awareness + tighter location pattern |
 | 2 | XGBoost ranker low accuracy (synthetic data) | `xgboost_ranker.py` | LOW | ⚠️ Will self-improve with real data |
 | 3 | No database persistence for scans | `scan.service.ts` | MEDIUM | 🔴 Open |
 | 4 | WebSocket has no heartbeat/ping | `scan.gateway.ts` | LOW | 🔴 Open |
 
 ---
 
-## 5. Test Coverage Gaps
+## 6. DOM XSS Scanner Fix Verification
+
+**Date:** March 3, 2026
+**Changes:** `dom_xss_scanner.py` — 3 targeted improvements
+
+### 6.1 Changes Made
+
+| Change | Description |
+|--------|-------------|
+| **Static arg concatenation** | `_has_static_argument()` now returns `False` when `+ '...'` or `'...' +` patterns exist (string concat = dynamic data) |
+| **Template literal interpolation** | Detects `${...}` in template literals — not static |
+| **location_assign pattern** | Tightened from `location\s*[=.]` (matched `location.hash` = source!) to explicit `location =`, `location.href =`, `location.assign()`, `location.replace()` |
+| **Finding creation** | Only creates `DomXssFinding` when tainted source is confirmed (cleaner counts) |
+
+### 6.2 Test Results
+
+| # | Test Case | Expected | Actual | Result |
+|---|-----------|----------|--------|--------|
+| 1 | Static string arg (`document.write('<script src=...')`) | 0 findings | 0 findings | ✅ PASS |
+| 2 | Variable tracing (`var x = location.hash; el.innerHTML = x`) | 1 finding (medium) | 1 finding (medium) | ✅ PASS |
+| 3 | Concatenated sink (`document.write('<h1>' + q + '</h1>')`) | ≥1 finding | 1 finding (medium) | ✅ PASS |
+| 4 | No tainted source (purely static code) | 0 findings | 0 findings | ✅ PASS |
+| 5 | Direct source in sink (`el.innerHTML = location.hash`) | 1 finding (high) | 1 finding (high) | ✅ PASS |
+| 6 | Feature detection (`typeof localStorage`) | 0 findings | 0 findings | ✅ PASS |
+
+### 6.3 Regression Check
+
+- `location.hash` no longer falsely matched as `location_assign` sink
+- Concatenated sinks (`'<h1>' + q`) no longer skipped as "static argument"
+- All true positives still detected with correct confidence levels
+
+---
+
+## 7. Payload Bank Enrichment
+
+**Date:** March 3, 2026
+**Source:** PortSwigger XSS Cheat Sheet (https://portswigger.net/web-security/cross-site-scripting/cheat-sheet)
+
+| Metric | Value |
+|--------|-------|
+| Code blocks found | 538 |
+| Unique payloads extracted | 526 |
+| Duplicates with existing bank | 163 |
+| **New payloads added** | **363** |
+| Bank before | 19,015 |
+| **Bank after** | **19,378** |
+
+**Context distribution of new payloads:**
+
+| Context | Count |
+|---------|-------|
+| event_handler | 143 |
+| script_injection | 82 |
+| attribute_escape | 68 |
+| template_injection | 67 |
+| attribute | 55 |
+| tag_injection | 34 |
+| generic | 29 |
+| dom_sink | 24 |
+| js_uri | 24 |
+
+**Updated dataset splits (after merge + finalize):**
+
+| Split | Samples |
+|-------|---------|
+| Train | 17,147 (70%) |
+| Val | 3,675 (15%) |
+| Test | 3,675 (15%) |
+| **Total valid** | **24,497** |
 
 | Area | Gap | Risk |
 |------|-----|------|

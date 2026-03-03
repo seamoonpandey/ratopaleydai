@@ -73,7 +73,11 @@ DOM_SINKS = {
         "type": "dom_xss",
     },
     "location_assign": {
-        "pattern": r"(location\s*[=.]|window\.location\s*=|document\.location\s*=)",
+        "pattern": (
+            r"(?:window\.|document\.)?location\s*="
+            r"|(?:window\.|document\.)?location\s*\.\s*(?:href|pathname)\s*="
+            r"|(?:window\.|document\.)?location\s*\.\s*(?:assign|replace)\s*\("
+        ),
         "severity": "medium",
         "type": "open_redirect",
     },
@@ -211,7 +215,16 @@ def _has_static_argument(sink_name: str, line: str) -> bool:
     check if the sink on this line has a hardcoded string literal argument.
     e.g. document.write('<p>hello</p>') or .innerHTML = '<div>static</div>'
     returns True if the argument is a static string (no tainted data).
+    returns False if there is string concatenation (+ operator) or
+    template literal interpolation (${...}).
     """
+    # reject if there's string concatenation (dynamic data mixed in)
+    # patterns like: write('...' + var), innerHTML = '...' + var
+    if re.search(r"""['"]\s*\+|\+\s*['"]""", line):
+        return False
+    # reject if there's template literal interpolation
+    if "${" in line:
+        return False
     # for function-call sinks: check if arg starts with a quote
     if _STATIC_ARG_CALL.search(line):
         return True
@@ -369,6 +382,10 @@ def _scan_single_script(content: str, script_url: str) -> list[DomXssFinding]:
                     lines, line_idx, sink_name
                 )
 
+                # only create findings when a tainted source is confirmed
+                if not has_source:
+                    continue
+
                 findings.append(DomXssFinding(
                     sink_name=sink_name,
                     sink_type=sink_info["type"],
@@ -377,10 +394,10 @@ def _scan_single_script(content: str, script_url: str) -> list[DomXssFinding]:
                         else sink_info["severity"],
                     line_number=line_idx + 1,
                     line_content=line.strip()[:200],
-                    has_tainted_source=has_source,
+                    has_tainted_source=True,
                     source_name=source_name,
                     script_url=script_url,
-                    confidence=confidence if has_source else "",
+                    confidence=confidence,
                 ))
 
     return findings

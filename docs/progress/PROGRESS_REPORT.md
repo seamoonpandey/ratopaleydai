@@ -43,7 +43,7 @@ Dashboard (Next.js) ←→ Core (NestJS) ←→ Python Microservices
 | HTTP payload injection | ✅ Done |
 | Reflection checking (exact + decoded) | ✅ Done |
 | Browser-verified execution (Playwright) | ✅ Done |
-| DOM XSS scanning (sink/source) | ⚠️ Has false positives — needs data-flow fix |
+| DOM XSS scanning (sink/source) | ✅ Done — data-flow analysis, static arg filtering |
 | Stored XSS detection | ✅ Done |
 | Report generation (HTML/JSON/PDF) | ✅ Done |
 | Real-time WebSocket streaming | ✅ Done |
@@ -176,9 +176,9 @@ Dashboard (Next.js) ←→ Core (NestJS) ←→ Python Microservices
 
 | File | Samples |
 |------|---------|
-| `dataset/splits/train.csv` | 16,946 |
-| `dataset/splits/test.csv` | 3,632 |
-| `dataset/splits/val.csv` | 3,631 |
+| `dataset/splits/train.csv` | 17,147 |
+| `dataset/splits/test.csv` | 3,675 |
+| `dataset/splits/val.csv` | 3,675 |
 | `dataset/ranker_training/ranker_training_samples.jsonl` | 5,001 |
 | `dataset/processed/all_payloads_raw.csv` | — |
 | `dataset/processed/payloads_labeled.csv` | — |
@@ -193,7 +193,7 @@ Dashboard (Next.js) ←→ Core (NestJS) ←→ Python Microservices
 
 | Issue | Severity | Status |
 |-------|----------|--------|
-| **DOM XSS false positives** — proximity-based sink/source matching without data-flow analysis reports static string sinks as vulnerable | HIGH | 🔴 Open |
+| **DOM XSS false positives** — proximity-based sink/source matching without data-flow analysis reports static string sinks as vulnerable | HIGH | ✅ Fixed — static arg filter + concatenation detection + location_assign pattern tightened |
 
 ### 3.2 Missing Features
 
@@ -213,7 +213,7 @@ Dashboard (Next.js) ←→ Core (NestJS) ←→ Python Microservices
 |------|-------|--------|
 | **Mutator/Obfuscator** | Use `random.choice()` — not deterministic/reproducible | Test reproducibility |
 | **XGBoost ranker** | Trained on synthetic data only (60% accuracy) | Will improve with real scan data |
-| **DOM XSS scanner** | No data-flow analysis — proximity matching causes false positives | False positive rate |
+| **DOM XSS scanner** | ✅ Fixed: 3-level data-flow (direct, variable trace, proximity skip) + static arg detection with concatenation awareness | Resolved |
 | **WebSocket protocol** | Missing `scan:started`, `scan:phase` events, no heartbeat | Client robustness |
 | **Error handling** | No structured error taxonomy or retry budgets | Reliability |
 
@@ -232,7 +232,7 @@ Dashboard (Next.js) ←→ Core (NestJS) ←→ Python Microservices
 | API endpoints (Python) | 8 |
 | ML models | 2 (DistilBERT classifier + XGBoost ranker) |
 | Dataset samples | ~29,000 |
-| Payload bank | 24,000+ |
+| Payload bank | 19,378 (incl. 363 PortSwigger curated payloads) |
 
 ---
 
