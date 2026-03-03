@@ -373,23 +373,18 @@ async def _verify_stored_one(
             try:
                 await page.goto(
                     page_url,
-                    wait_until="domcontentloaded",
+                    wait_until="load",
                     timeout=timeout_ms,
                 )
             except Exception as e:
                 nav_error = f"goto failed: {e}"
 
-            # wait for page scripts to initialise (localStorage, DB, etc.)
-            try:
-                await page.wait_for_load_state("networkidle", timeout=3000)
-            except Exception:
-                pass
-
-            # clear client-side storage so prior test runs don't interfere
-            await page.evaluate("""() => {
-                try { localStorage.clear(); } catch(e) {}
-                try { sessionStorage.clear(); } catch(e) {}
-            }""")
+            # NOTE: do NOT clear localStorage — PostDB (and similar client-side
+            # stores) initialise themselves on page load from existing localStorage.
+            # Clearing it after load corrupts the DB object already in memory and
+            # causes JSON.parse(null) errors when save() is called.
+            # Each verify gets its own fresh Playwright context (new_context()),
+            # so localStorage is already isolated and empty at navigate time.
 
             # fill non-target fields with their default values
             for field_name, field_value in (form_fields or {}).items():
