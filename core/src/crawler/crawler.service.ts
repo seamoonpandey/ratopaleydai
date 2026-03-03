@@ -135,74 +135,103 @@ export class CrawlerService implements OnModuleDestroy {
             wafChecked = true;
           }
 
-          const html = await page.content();
+          // Process every frame Playwright has already loaded — main frame,
+          // static iframes, dynamically injected iframes, nested iframes.
+          // This is more robust than parsing iframe[src] attributes because it
+          // works regardless of how the frame was created.
+          const frames = page.frames();
+          for (const frame of frames) {
+            const frameUrl = frame.url();
+            if (!frameUrl || frameUrl === 'about:blank') continue;
 
-          // extract params from this page
-          const pageParams = this.domAnalyzer.extractParams(item.url, html);
-          for (const p of pageParams) {
-            if (!paramNames.has(p.name) && paramNames.size < maxParams) {
-              paramNames.add(p.name);
-              allParams.push(p);
-            }
-          }
+            // Mark the frame's own URL visited so the crawl queue doesn't
+            // re-fetch it as a separate top-level page later.
+            visited.add(this.normalizeForVisit(frameUrl));
 
-          // extract forms from this page
-          const pageForms = this.domAnalyzer.extractForms(html, item.url);
-          for (const form of pageForms) {
-            const formKey = `${form.action}|${form.method}|${form.fields.sort().join(',')}`;
-            if (!formKeys.has(formKey)) {
-              formKeys.add(formKey);
-              allForms.push(form);
-            }
-          }
-
-          // extract inline scripts for dom sink analysis
-          const scripts = await page.evaluate(() => {
-            const els = document.querySelectorAll('script:not([src])');
-            return Array.from(els).map((el) => el.textContent ?? '');
-          });
-          allScripts.push(...scripts);
-
-          // extract external script urls for dom sink analysis
-          const externalScripts = await page.evaluate(() => {
-            const els = document.querySelectorAll('script[src]');
-            return Array.from(els).map((el) => el.getAttribute('src') ?? '');
-          });
-
-          // fetch external scripts content
-          for (const src of externalScripts) {
+            let frameHtml: string;
             try {
-              const absUrl = new URL(src, item.url).toString();
-              if (isSameDomain(url, absUrl)) {
-                const resp = await page.evaluate(async (scriptUrl: string) => {
-                  const r = await fetch(scriptUrl);
-                  return r.text();
-                }, absUrl);
-                allScripts.push(resp);
+              frameHtml = await frame.content();
+            } catch {
+              // cross-origin or detached frame — skip
+              continue;
+            }
+
+            const effectiveUrl = frameUrl || item.url;
+
+            // extract params
+            const frameParams = this.domAnalyzer.extractParams(effectiveUrl, frameHtml);
+            for (const p of frameParams) {
+              if (!paramNames.has(p.name) && paramNames.size < maxParams) {
+                paramNames.add(p.name);
+                allParams.push(p);
+              }
+            }
+
+            // extract forms
+            const frameForms = this.domAnalyzer.extractForms(frameHtml, effectiveUrl);
+            for (const form of frameForms) {
+              const formKey = `${form.action}|${form.method}|${form.fields.sort().join(',')}`;
+              if (!formKeys.has(formKey)) {
+                formKeys.add(formKey);
+                allForms.push(form);
+              }
+            }
+
+            // extract inline scripts for dom sink analysis
+            try {
+              const frameScripts = await frame.evaluate(() => {
+                const els = document.querySelectorAll('script:not([src])');
+                return Array.from(els).map((el) => el.textContent ?? '');
+              });
+              allScripts.push(...frameScripts);
+
+              // fetch same-domain external scripts
+              const externalSrcs = await frame.evaluate(() =>
+                Array.from(document.querySelectorAll('script[src]')).map(
+                  (el) => el.getAttribute('src') ?? '',
+                ),
+              );
+              for (const src of externalSrcs) {
+                try {
+                  const absUrl = new URL(src, effectiveUrl).toString();
+                  if (isSameDomain(url, absUrl)) {
+                    const text = await frame.evaluate(async (scriptUrl: string) => {
+                      const r = await fetch(scriptUrl);
+                      return r.text();
+                    }, absUrl);
+                    allScripts.push(text);
+                  }
+                } catch {
+                  // unreachable script
+                }
               }
             } catch {
-              // skip unreachable scripts
+              // frame became detached during script extraction
             }
           }
 
-          // discover links for further crawling
+          // discover links for further crawling — collect from all same-origin frames
           if (item.currentDepth < depth) {
-            const links = await page.evaluate(() =>
-              Array.from(document.querySelectorAll('a[href]')).map(
-                (a) => (a as HTMLAnchorElement).href,
-              ),
-            );
-
-            for (const link of links) {
-              if (
-                isAbsoluteUrl(link) &&
-                isSameDomain(url, link) &&
-                !visited.has(this.normalizeForVisit(link))
-              ) {
-                toVisit.push({
-                  url: link,
-                  currentDepth: item.currentDepth + 1,
-                });
+            for (const frame of frames) {
+              const frameUrl = frame.url();
+              if (!frameUrl || !isSameDomain(url, frameUrl)) continue;
+              try {
+                const links = await frame.evaluate(() =>
+                  Array.from(document.querySelectorAll('a[href]')).map(
+                    (a) => (a as HTMLAnchorElement).href,
+                  ),
+                );
+                for (const link of links) {
+                  if (
+                    isAbsoluteUrl(link) &&
+                    isSameDomain(url, link) &&
+                    !visited.has(this.normalizeForVisit(link))
+                  ) {
+                    toVisit.push({ url: link, currentDepth: item.currentDepth + 1 });
+                  }
+                }
+              } catch {
+                // cross-origin frame
               }
             }
           }
