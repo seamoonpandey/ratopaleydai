@@ -340,54 +340,129 @@ describe('severity-scorer', () => {
 
   // ── Real findings from the bug report ─────────────────────
   describe('real findings regression', () => {
-    it('Finding 1: /body reflected+URL+attribute+% → HIGH', () => {
+    it('Finding 1: /body reflected+url_param+attribute+% → HIGH', () => {
       const r = scoreFinding({
         reflected: true, executed: false,
-        source: 'URLSearchParams', sink: 'attribute',
+        source: 'url_param', sink: 'attribute',
         payload: '<a href="javascript://%0aself.alert(1)">XSS</a>',
         exactMatch: true, browserAlertTriggered: false,
       });
       expect(r.severity).toBe(VulnSeverity.HIGH);
     });
 
-    it('Finding 4: /script reflected+URL+script → CRITICAL', () => {
+    it('Finding 4: /script reflected+url_param+script → CRITICAL', () => {
       const r = scoreFinding({
         reflected: true, executed: false,
-        source: 'URLSearchParams', sink: 'script',
+        source: 'url_param', sink: 'script',
         payload: "$eval('x=alert(1)//');",
         exactMatch: true, browserAlertTriggered: false,
       });
       expect(r.severity).toBe(VulnSeverity.CRITICAL);
     });
 
-    it('Finding 6: /href reflected+URL+attribute+document.cookie → CRITICAL', () => {
+    it('Finding 6: /href reflected+url_param+attribute+document.cookie → CRITICAL', () => {
       const r = scoreFinding({
         reflected: true, executed: false,
-        source: 'URLSearchParams', sink: 'attribute',
+        source: 'url_param', sink: 'attribute',
         payload: 'window.name="javascript:alert`1`.document.cookie);";',
         exactMatch: true, browserAlertTriggered: false,
       });
       expect(r.severity).toBe(VulnSeverity.CRITICAL);
     });
 
-    it('Finding 8: /textarea reflected+URL+innerHTML → HIGH', () => {
+    it('Finding 8: /textarea reflected+url_param+innerHTML → HIGH', () => {
       const r = scoreFinding({
         reflected: true, executed: false,
-        source: 'URLSearchParams', sink: 'innerHTML',
+        source: 'url_param', sink: 'innerHTML',
         payload: '<meter src="#\\nalert(1)" codebase=javascript://>',
         exactMatch: true, browserAlertTriggered: false,
       });
       expect(r.severity).toBe(VulnSeverity.HIGH);
     });
 
-    it('Finding 9: /comment reflected+URL+attribute+cookie+% → CRITICAL', () => {
+    it('Finding 9: /comment reflected+url_param+attribute+cookie+% → CRITICAL', () => {
       const r = scoreFinding({
         reflected: true, executed: false,
-        source: 'URLSearchParams', sink: 'attribute',
+        source: 'url_param', sink: 'attribute',
         payload: "<!--><svg+onmouseover=%27top[%2fal%2f...](document.cookie)%27>",
         exactMatch: true, browserAlertTriggered: false,
       });
       expect(r.severity).toBe(VulnSeverity.CRITICAL);
+    });
+
+    // ── DOM XSS findings regression ─────────────────────────
+    it('DOM Finding 4: dom-only+URLSearchParams+document.write → MEDIUM', () => {
+      const r = scoreFinding({
+        reflected: false, executed: false,
+        source: 'URLSearchParams', sink: 'document.write',
+        payload: 'DOM-XSS: document.write <- URLSearchParams',
+        exactMatch: false, browserAlertTriggered: false,
+      });
+      // exec=1 + share=1 + sink=3 + payload=0(DOM-XSS prefix) = 5 → MEDIUM
+      expect(r.score).toBe(5);
+      expect(r.severity).toBe(VulnSeverity.MEDIUM);
+    });
+
+    it('DOM Finding 5: dom-only+URLSearchParams+innerHTML → MEDIUM', () => {
+      const r = scoreFinding({
+        reflected: false, executed: false,
+        source: 'URLSearchParams', sink: 'innerHTML',
+        payload: 'DOM-XSS: innerHTML <- URLSearchParams',
+        exactMatch: false, browserAlertTriggered: false,
+      });
+      // exec=1 + share=1 + sink=2 + payload=0 = 4 → MEDIUM
+      expect(r.score).toBe(4);
+      expect(r.severity).toBe(VulnSeverity.MEDIUM);
+    });
+
+    it('DOM Finding 8: dom-only+URLSearchParams+eval → HIGH (EVAL override)', () => {
+      const r = scoreFinding({
+        reflected: false, executed: false,
+        source: 'URLSearchParams', sink: 'eval',
+        payload: 'DOM-XSS: eval <- URLSearchParams',
+        exactMatch: false, browserAlertTriggered: false,
+      });
+      // exec=1 + share=1 + sink=3 + payload=0 = 5 → MEDIUM, override → HIGH
+      expect(r.score).toBe(5);
+      expect(r.severity).toBe(VulnSeverity.HIGH);
+      expect(r.appliedOverrides).toContain('EVAL_SINK_MINIMUM_HIGH');
+    });
+
+    it('DOM Finding 17: dom-only+document.cookie+innerHTML → MEDIUM', () => {
+      const r = scoreFinding({
+        reflected: false, executed: false,
+        source: 'document.cookie', sink: 'innerHTML',
+        payload: 'DOM-XSS: innerHTML <- document.cookie',
+        exactMatch: false, browserAlertTriggered: false,
+      });
+      // exec=1 + share=1 + sink=2 + payload=0(DOM-XSS prefix stops scoring) = 4 → MEDIUM
+      expect(r.score).toBe(4);
+      expect(r.severity).toBe(VulnSeverity.MEDIUM);
+    });
+
+    it('DOM Finding 2: executed+URLSearchParams+comment+alert → HIGH', () => {
+      const r = scoreFinding({
+        reflected: false, executed: true,
+        source: 'URLSearchParams', sink: 'comment',
+        payload: '<svg onload=alert()>',
+        exactMatch: false, browserAlertTriggered: true,
+      });
+      // exec=3 + share=1 + sink=2 + payload=1(alert) = 7 → HIGH
+      expect(r.score).toBe(7);
+      expect(r.severity).toBe(VulnSeverity.HIGH);
+    });
+
+    it('DOM Finding 20: dom-only+hash+document.write → LOW (hash cap)', () => {
+      const r = scoreFinding({
+        reflected: false, executed: false,
+        source: 'location.hash', sink: 'document.write',
+        payload: 'DOM-XSS: document.write <- location.hash',
+        exactMatch: false, browserAlertTriggered: false,
+      });
+      // exec=1 + share=1 + sink=3 + payload=0 = 5 → MEDIUM, hash cap → LOW
+      expect(r.score).toBe(5);
+      expect(r.severity).toBe(VulnSeverity.LOW);
+      expect(r.appliedOverrides).toContain('HASH_SOURCE_LOW_CAP');
     });
   });
 });
