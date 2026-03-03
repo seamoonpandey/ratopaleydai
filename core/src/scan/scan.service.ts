@@ -8,7 +8,7 @@ import {
   ScanStatus,
   ScanPhase,
 } from '../common/interfaces/scan.interface';
-import { Vuln, VulnType } from '../common/interfaces/vuln.interface';
+import { Vuln } from '../common/interfaces/vuln.interface';
 import {
   ScanNotFoundException,
   ScanAlreadyRunningException,
@@ -217,20 +217,10 @@ export class ScanService {
   }
 
   private buildVulnKey(v: Vuln): string {
-    const type = String(v.type ?? '').trim();
-    const url = this.normalizeUrlForDedup(String(v.url ?? '').trim());
-    const param = String(v.param ?? '').trim();
-    const payload = String(v.payload ?? '').trim();
-
-    if (type === VulnType.REFLECTED_XSS || type === VulnType.STORED_XSS) {
-      return `${type}|${url}|${param}`;
-    }
-
-    if (type === VulnType.DOM_XSS) {
-      return `${type}|${url}|${payload}`;
-    }
-
-    return `${type}|${url}|${param}|${payload}`;
+    const page = this.normalizeUrlForDedup(String(v.url ?? '').trim());
+    const source = String(v.evidence?.source ?? 'URLSearchParams').trim();
+    const sink = String(v.evidence?.sink ?? v.evidence?.reflectionPosition ?? 'attribute').trim();
+    return `${page}::${source}::${sink}`;
   }
 
   private normalizeUrlForDedup(rawUrl: string): string {

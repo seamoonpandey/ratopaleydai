@@ -11,6 +11,7 @@ import {
 } from '../common/interfaces/vuln.interface';
 import { FuzzResult } from '../modules-bridge/fuzzer-client.service';
 import { randomUUID as uuidv4 } from 'crypto';
+import { scoreFinding, deriveSink, deriveSource } from '../common/utils/severity-scorer';
 
 interface TemplateData {
   target: string;
@@ -87,6 +88,22 @@ export class ReportService implements OnModuleDestroy {
   }
 
   buildVuln(scanId: string, url: string, result: FuzzResult): Vuln {
+    const sink = deriveSink(
+      result.evidence.reflection_position,
+      result.evidence.sink,
+    );
+    const source = deriveSource(result.evidence.source);
+
+    const { severity } = scoreFinding({
+      reflected: result.reflected,
+      executed: result.executed,
+      payload: result.payload,
+      source,
+      sink,
+      exactMatch: result.evidence.exact_match ?? false,
+      browserAlertTriggered: result.evidence.browser_alert_triggered,
+    });
+
     return {
       id: uuidv4(),
       scanId,
@@ -94,15 +111,7 @@ export class ReportService implements OnModuleDestroy {
       param: result.target_param,
       payload: result.payload,
       type: this.mapType(result.type),
-      severity: result.evidence.browser_alert_triggered
-        ? VulnSeverity.HIGH
-        : result.executed
-          ? VulnSeverity.HIGH
-          : result.reflected && result.evidence.exact_match
-            ? VulnSeverity.MEDIUM
-            : result.reflected
-              ? VulnSeverity.LOW
-              : VulnSeverity.LOW,
+      severity,
       reflected: result.reflected,
       executed: result.executed,
       evidence: {
@@ -110,8 +119,8 @@ export class ReportService implements OnModuleDestroy {
         reflectionPosition: result.evidence.reflection_position,
         browserAlertTriggered: result.evidence.browser_alert_triggered,
         exactMatch: result.evidence.exact_match ?? false,
-        ...(result.evidence.sink !== undefined && { sink: result.evidence.sink }),
-        ...(result.evidence.source !== undefined && { source: result.evidence.source }),
+        sink,
+        source,
         ...(result.evidence.line !== undefined && { line: result.evidence.line }),
         ...(result.evidence.snippet !== undefined && { snippet: result.evidence.snippet }),
         ...(result.evidence.script_url !== undefined && { scriptUrl: result.evidence.script_url }),

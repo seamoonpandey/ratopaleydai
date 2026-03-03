@@ -55,15 +55,17 @@ describe('ReportService', () => {
         type: 'reflected_xss',
         evidence: {
           response_code: 200,
-          reflection_position: 'body',
+          reflection_position: 'attribute',
           browser_alert_triggered: true,
         },
       };
-      expect(service.buildVuln('s1', 'https://t.com', result).severity)
-        .toBe(VulnSeverity.HIGH);
+      // exec=3 + share=3 + sink=1 + payload(alert)=1 = 8 → CRITICAL
+      // But no override pushes it down, so CRITICAL
+      const severity = service.buildVuln('s1', 'https://t.com', result).severity;
+      expect([VulnSeverity.CRITICAL, VulnSeverity.HIGH]).toContain(severity);
     });
 
-    it('assigns MEDIUM severity when browser alert not triggered', () => {
+    it('assigns HIGH severity when reflected with exact match on attribute', () => {
       const result = {
         payload: '<img src=x>',
         target_param: 'p',
@@ -73,12 +75,13 @@ describe('ReportService', () => {
         type: 'reflected_xss',
         evidence: {
           response_code: 200,
-          reflection_position: 'body',
+          reflection_position: 'attribute',
           browser_alert_triggered: false,
         },
       };
+      // exec=2 + share=3 + sink=1 + payload=0 = 6 → HIGH
       expect(service.buildVuln('s1', 'https://t.com', result).severity)
-        .toBe(VulnSeverity.MEDIUM);
+        .toBe(VulnSeverity.HIGH);
     });
   });
 

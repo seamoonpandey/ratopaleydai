@@ -135,7 +135,7 @@ describe('ScanService', () => {
       expect(vulns[0].param).toBe('q');
     });
 
-    it('dedupes identical vulns', async () => {
+    it('dedupes identical vulns (same page::source::sink)', async () => {
       const scan = await service.create({ url: 'https://example.com' });
       const vuln = {
         id: 'v1',
@@ -151,6 +151,8 @@ describe('ScanService', () => {
           responseCode: 200,
           reflectionPosition: 'body',
           browserAlertTriggered: true,
+          source: 'URLSearchParams',
+          sink: 'innerHTML',
         },
         discoveredAt: new Date(),
       };
@@ -160,7 +162,7 @@ describe('ScanService', () => {
       expect(await service.getVulns(scan.id)).toHaveLength(1);
     });
 
-    it('dedupes reflected xss across different payload variants', async () => {
+    it('dedupes findings with same page::source::sink but different payloads', async () => {
       const scan = await service.create({ url: 'https://example.com' });
       const base = {
         scanId: scan.id,
@@ -174,6 +176,8 @@ describe('ScanService', () => {
           responseCode: 200,
           reflectionPosition: 'body',
           browserAlertTriggered: false,
+          source: 'URLSearchParams',
+          sink: 'innerHTML',
         },
         discoveredAt: new Date(),
       };
@@ -186,6 +190,7 @@ describe('ScanService', () => {
         } as any),
       ).toBe(true);
 
+      // Same page + source + sink → dedup
       expect(
         await service.addVuln(scan.id, {
           ...base,
@@ -195,6 +200,53 @@ describe('ScanService', () => {
       ).toBe(false);
 
       expect(await service.getVulns(scan.id)).toHaveLength(1);
+    });
+
+    it('keeps findings with different sinks as separate', async () => {
+      const scan = await service.create({ url: 'https://example.com' });
+      const base = {
+        scanId: scan.id,
+        url: 'https://example.com/search?q=hello',
+        param: 'q',
+        type: 'reflected_xss' as any,
+        severity: 'MEDIUM' as any,
+        reflected: true,
+        executed: false,
+        discoveredAt: new Date(),
+      };
+
+      expect(
+        await service.addVuln(scan.id, {
+          ...base,
+          id: 'v1',
+          payload: '<img src=x>',
+          evidence: {
+            responseCode: 200,
+            reflectionPosition: 'attribute',
+            browserAlertTriggered: false,
+            source: 'URLSearchParams',
+            sink: 'attribute',
+          },
+        } as any),
+      ).toBe(true);
+
+      // Different sink → kept
+      expect(
+        await service.addVuln(scan.id, {
+          ...base,
+          id: 'v2',
+          payload: '<script>alert(1)</script>',
+          evidence: {
+            responseCode: 200,
+            reflectionPosition: 'script',
+            browserAlertTriggered: false,
+            source: 'URLSearchParams',
+            sink: 'script',
+          },
+        } as any),
+      ).toBe(true);
+
+      expect(await service.getVulns(scan.id)).toHaveLength(2);
     });
   });
 
