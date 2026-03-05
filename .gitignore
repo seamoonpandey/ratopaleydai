@@ -72,3 +72,5 @@ core/coverage-e2e/
 
 # reports
 reports/
+
+.setup.log
