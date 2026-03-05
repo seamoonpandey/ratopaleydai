@@ -11,7 +11,7 @@ progress streaming.
 
 ## Architecture
 
-```
+```markdown
 ┌─────────────────┐      REST / WebSocket
 │    Dashboard     │ ◄──────────────────────┐
 │  (Next.js :8080) │                        │
@@ -125,7 +125,7 @@ unless `API_KEY_SECRET` is unset (dev mode = open).
 
 ## Project Structure
 
-```
+```bash
 red-sentinel/
 ├── core/                    # NestJS orchestration (TypeScript)
 │   └── src/
