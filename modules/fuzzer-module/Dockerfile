@@ -11,7 +11,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # when build context is ./modules, copy requirements from subdirectory
 COPY fuzzer-module/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# retry up to 3 times to handle transient PyPI CDN hash mismatches
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt || \
+    (sleep 15 && pip install --no-cache-dir -r requirements.txt) || \
+    (sleep 15 && pip install --no-cache-dir -r requirements.txt)
 
 # install playwright chromium browser
 RUN playwright install chromium
