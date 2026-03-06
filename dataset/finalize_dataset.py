@@ -6,9 +6,26 @@ from sklearn.model_selection import train_test_split
 real = pd.read_csv("processed/payloads_labeled.csv")
 synthetic = pd.read_csv("processed/synthetic_payloads.csv")
 
+# ── Assign severity to synthetic payloads from payload content ────────────────
+def get_severity(payload):
+    p = str(payload).lower()
+    if any(x in p for x in [
+        "document.cookie", "fetch(", "xmlhttp", ".src=",
+        "navigator.sendbeacon", "location=", "location.href=",
+        "localstorage", "sessionstorage", "opener.", "parent.",
+        "xmlhttprequest", "btoa(", "atob(", "fromcharcode",
+        "new function(", "setinterval(", "innerhtml",
+    ]):
+        return "high"
+    if any(x in p for x in ["alert(", "prompt(", "confirm(", "console.log("]):
+        return "medium"
+    return "low"
+
 if "technique" not in synthetic.columns: synthetic["technique"] = "synthetic"
-if "severity" not in synthetic.columns: synthetic["severity"] = "medium"
-if "length" not in synthetic.columns: synthetic["length"] = synthetic["payload"].str.len()
+if "length" not in synthetic.columns:    synthetic["length"] = synthetic["payload"].str.len()
+
+# Always recompute severity from content (never default to "medium")
+synthetic["severity"] = synthetic["payload"].apply(get_severity)
 
 real["source"] = "real"
 synthetic["source"] = "synthetic"
@@ -16,12 +33,20 @@ synthetic["source"] = "synthetic"
 df = pd.concat([real, synthetic], ignore_index=True)
 df = df.drop_duplicates(subset=["payload"])
 
+# ── Validity filter ───────────────────────────────────────────────────────────
 XSS_PATTERNS = [
-    r'<\s*script', r'on\w+\s*=', r'javascript\s*:',
-    r'<\s*svg', r'<\s*img', r'<\s*iframe',
+    # script / tag
+    r'<\s*script', r'on\w+\s*=', r'javascript\s*:', r'data\s*:\s*text/html',
+    r'<\s*svg', r'<\s*img', r'<\s*iframe', r'<\s*body',
+    # function calls
     r'alert\s*[\(`]', r'prompt\s*[\(`]', r'confirm\s*[\(`]',
-    r'document\.', r'eval\s*\(', r'window\.',
-    r'String\.fromCharCode', r'setTimeout', r'&#', r'%3[cC]'
+    # dom sinks
+    r'document\.', r'eval\s*\(', r'window\.', r'innerHTML',
+    r'String\.fromCharCode', r'setTimeout', r'location\s*=',
+    # encoding markers
+    r'&#', r'%3[cC]',
+    # template injection patterns
+    r'\{\{.*?\}\}', r'\$\{.*?\}', r'<%.*?%>', r'#\{.*?\}',
 ]
 
 def is_valid(p):
@@ -40,6 +65,17 @@ print(df["context"].value_counts())
 print(f"\n=== BY SEVERITY ===")
 print(df["severity"].value_counts())
 
+# ── Drop unknown context/severity labels ──────────────────────────────────────
+VALID_CONTEXTS  = {
+    "script_injection", "event_handler", "js_uri", "tag_injection",
+    "template_injection", "dom_sink", "attribute_escape", "attribute", "generic",
+}
+VALID_SEVERITIES = {"low", "medium", "high"}
+
+before = len(df)
+df = df[df["context"].isin(VALID_CONTEXTS) & df["severity"].isin(VALID_SEVERITIES)]
+print(f"\n[+] Dropped {before - len(df)} rows with unknown labels, kept {len(df)}")
+
 os.makedirs("splits", exist_ok=True)
 train, temp = train_test_split(df, test_size=0.30, random_state=42, stratify=df["context"])
 val, test = train_test_split(temp, test_size=0.50, random_state=42, stratify=temp["context"])
@@ -56,3 +92,4 @@ print(f"Train: {len(train)} ({len(train)/len(df)*100:.1f}%)")
 print(f"Val:   {len(val)} ({len(val)/len(df)*100:.1f}%)")
 print(f"Test:  {len(test)} ({len(test)/len(df)*100:.1f}%)")
 print(f"\n[DONE] All files saved to splits/")
+
