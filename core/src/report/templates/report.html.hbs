@@ -44,7 +44,12 @@
     }
 
     .header h1 { color: var(--accent); font-size: 1.8rem; font-weight: 700; }
-    .header .logo { font-size: 2rem; }
+    .header .logo {
+      width: 2rem;
+      height: 2rem;
+      object-fit: contain;
+      display: block;
+    }
     .subtitle { color: var(--muted); margin-bottom: 2rem; font-size: 0.9rem; }
 
     /* ── Risk banner ───────────────── */
@@ -334,7 +339,7 @@
 
   <!-- Header -->
   <div class="header">
-    <span class="logo">🔴</span>
+    {{#if logoSrc}}<img class="logo" src="{{logoSrc}}" alt="RedSentinel logo"/>{{/if}}
     <h1>RedSentinel Security Report</h1>
   </div>
   <p class="subtitle">Automated security scan results for <strong>{{target}}</strong></p>

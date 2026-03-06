@@ -310,7 +310,7 @@ def main():
     checkpoint_path = Path(args.checkpoint)
     
     print("\n" + "=" * 60)
-    print("  🔴 RedSentinel AI — Model Evaluation")
+    print("  [logo.png] RedSentinel AI — Model Evaluation")
     print("=" * 60)
     print(f"  Checkpoint: {checkpoint_path}")
     print(f"  Device:     {DEVICE}")

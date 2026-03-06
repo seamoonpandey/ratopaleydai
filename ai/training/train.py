@@ -317,7 +317,7 @@ def main():
 
     logger.info("")
     logger.info("=" * 60)
-    logger.info("  🔴 RedSentinel AI — Training Pipeline")
+    logger.info("  [logo.png] RedSentinel AI — Training Pipeline")
     logger.info("=" * 60)
     logger.info(f"  Device:       {DEVICE}")
     logger.info(f"  Epochs:       {args.epochs}")

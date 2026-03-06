@@ -14,6 +14,7 @@ import { randomUUID as uuidv4 } from 'crypto';
 import { scoreFinding, deriveSink, deriveSource } from '../common/utils/severity-scorer';
 
 interface TemplateData {
+  logoSrc: string;
   target: string;
   scanId: string;
   status: string;
@@ -64,6 +65,7 @@ export class ReportService implements OnModuleDestroy {
   private readonly logger = new Logger(ReportService.name);
   private readonly reportsDir = path.join(process.cwd(), 'reports');
   private readonly templatesDir = this.resolveTemplatesDir();
+  private readonly logoSrc = this.resolveLogoDataUri();
   private htmlTemplate!: Handlebars.TemplateDelegate;
   private pdfTemplate!: Handlebars.TemplateDelegate;
   private browser: puppeteer.Browser | null = null;
@@ -88,6 +90,28 @@ export class ReportService implements OnModuleDestroy {
     }
     // Return first candidate so the warning message is meaningful
     return candidates[0];
+  }
+
+  private resolveLogoDataUri(): string {
+    const candidates = [
+      path.join(process.cwd(), 'public', 'logo.png'),
+      path.join(process.cwd(), 'core', 'public', 'logo.png'),
+      path.join(this.templatesDir, '..', '..', '..', 'public', 'logo.png'),
+    ];
+
+    for (const logoPath of candidates) {
+      if (!fs.existsSync(logoPath)) continue;
+      try {
+        const logoBuffer = fs.readFileSync(logoPath);
+        return `data:image/png;base64,${logoBuffer.toString('base64')}`;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        this.logger.warn(`failed reading logo at ${logoPath}: ${msg}`);
+      }
+    }
+
+    this.logger.warn('logo.png not found; reports will render without logo image');
+    return '';
   }
 
   constructor() {
@@ -412,6 +436,7 @@ export class ReportService implements OnModuleDestroy {
     const affectedPages = [...new Set(vulns.map((v) => v.url))];
 
     return {
+      logoSrc: this.logoSrc,
       target: scan.url,
       scanId: scan.id,
       status: scan.status,

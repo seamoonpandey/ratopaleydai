@@ -132,6 +132,26 @@ function resolveTemplatesDir() {
   );
 }
 
+function resolveLogoDataUri() {
+  const scriptDir = __dirname;
+  const coreDir = path.join(scriptDir, '..');
+  const candidates = [
+    path.join(coreDir, 'public', 'logo.png'),
+    path.join(process.cwd(), 'public', 'logo.png'),
+    path.join(process.cwd(), 'core', 'public', 'logo.png'),
+  ];
+
+  for (const logoPath of candidates) {
+    if (!fs.existsSync(logoPath)) continue;
+    const buffer = fs.readFileSync(logoPath);
+    return `data:image/png;base64,${buffer.toString('base64')}`;
+  }
+
+  return '';
+}
+
+const LOGO_DATA_URI = resolveLogoDataUri();
+
 // ── Helper functions (mirrors report.service.ts) ──────────────────────────────
 
 function friendlyType(type) {
@@ -273,6 +293,7 @@ function buildTemplateData(report) {
   const affectedPages = [...new Set(vulnerabilities.map(v => v.url))];
 
   return {
+    logoSrc:          LOGO_DATA_URI,
     target:           meta.target,
     scanId:           meta.scanId,
     status:           meta.status,
