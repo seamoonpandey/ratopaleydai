@@ -168,6 +168,68 @@ Plus 5 override rules for edge cases (see ARCHITECTURE.md §5 for details).
 
 ---
 
+---
+
+## 9. Dataset Pipeline Overhaul — Class Imbalance & Mislabeling
+
+**Problem:** The training dataset had severe class imbalance and widespread mislabeling that would cause the model to be near-useless for most context classes.
+
+**Root Causes (4 compounding issues):**
+
+### 9a: Wrong regex priority in `label_contexts.py`
+The labeler checked `on\w+=` (event_handler) *before* checking for full HTML tags, template patterns, and DOM sinks. This caused `<img onerror=…>`, `<svg onload=…>`, `document.body.innerHTML=…`, and `{{template}}` payloads to all be classified as `event_handler`, inflating that class to 78% of the dataset.
+
+**Fix:** Reordered to 7-step priority: `template_injection → dom_sink → script_injection → js_uri → tag_injection → attribute_escape → event_handler`. More specific patterns win first.
+
+### 9b: Missing and underrepresented context classes in synthetic generator
+`template_injection` had only 88 samples, `attribute_escape` 370, `dom_sink` 194. The generator had no `event_handler` class, no template injection patterns, and a flat 600-combo budget shared across all classes with no per-class control.
+
+**Fix:** Rewrote `generate_synthetic.py` with:
+- Per-class budgets (200–400 combos/pattern for starved classes)
+- 14 `dom_sink` templates including `innerHTML`, `location.href`, `eval`, `Function`, `insertAdjacentHTML`
+- 12 `attribute_escape` templates including `&quot;` entity, double-backslash, backtick vectors
+- Standalone `event_handler` templates (no wrapping tag — distinct from `tag_injection`)
+- 31 `template_injection` patterns across 8 template engines: AngularJS, Jinja2/Twig, Mustache/Handlebars, ERB, Velocity, FreeMarker, Smarty, Pebble/Thymeleaf, Mako
+
+### 9c: No high-severity training examples
+Severity scoring in `label_contexts.py` only matched `document.cookie`, `fetch(`, `xmlhttp`, `.src=`, and `eval(` as `high` — mapping just 2% of data to `high`. The severity head was learning from near-zero signal.
+
+**Fix:** Expanded `get_severity()` to match 14 high-severity patterns: `navigator.sendBeacon`, `location.href=`, `localStorage`, `sessionStorage`, `opener.`, `parent.`, `btoa(`, `atob(`, `fromCharCode`, `new Function(`, `setInterval(`, `innerHTML`. Also added high-severity exfil args (`document.cookie`, `localStorage.getItem('token')`, `navigator.sendBeacon(…)`, etc.) to `dom_sink` templates in generator.
+
+**Fix in `finalize_dataset.py`:** Synthetic payloads were always assigned `severity: medium`. Changed to compute severity from payload content at merge time, not hardcode it.
+
+### 9d: Insufficient event/tag coverage
+Synthetic templates referenced only 8 events and 12 tags. Modern/uncommon event handlers (`onbeforetoggle`, `onpointerdown`, `onanimationend`, `ongestureend`, etc.) and tags (`audio`, `math`, `dialog`, `keygen`, `base`, `xss`, etc.) were absent, leaving the model blind to these bypass vectors.
+
+**Fix:** Extracted events and tags into dedicated modules:
+- `dataset/events.py` — 145 events across 16 categories + `HIGH_VALUE_EVENTS` subset of 87 + `SPECIAL_VARIANTS` dict for attribute-dependent triggers
+- `dataset/tags.py` — 149 tags across 11 categories + `HIGH_VALUE_TAGS` subset of 44
+
+**Final distribution after pipeline rerun:**
+
+| Class | Before | After |
+|---|---|---|
+| `event_handler` | 15,150 (78%) | 6,027 (10%) |
+| `tag_injection` | 276 | 23,157 |
+| `attribute_escape` | 370 | 16,774 |
+| `dom_sink` | 194 | 6,365 |
+| `script_injection` | 1,400 | 2,535 |
+| `js_uri` | 844 | 2,327 |
+| `template_injection` | 88 | 1,221 |
+| `generic` | 1,015 | 716 |
+| **Total** | **~19,378** | **59,122** |
+
+Severity `high` went from 2% → 15.5% of the dataset.
+
+**Affected Files:**
+- `dataset/events.py` (new — 145 events, 87 high-value, 4 special variants)
+- `dataset/tags.py` (new — 149 tags, 44 high-value)
+- `dataset/label_contexts.py` — 7-step priority ordering, expanded severity patterns
+- `dataset/generate_synthetic.py` — per-class budgets, 31 template injection patterns, high-severity args
+- `dataset/finalize_dataset.py` — per-payload severity computation, template patterns in validity filter
+
+---
+
 ## Summary
 
 | # | Problem | Category | Severity | Status |
@@ -180,5 +242,6 @@ Plus 5 override rules for edge cases (see ARCHITECTURE.md §5 for details).
 | 6 | DOM XSS false positives | Detection | Medium | ✅ Fixed |
 | 7 | Missing postMessage source | Detection | Medium | ✅ Fixed |
 | 8 | datetime column cross-DB issue | Persistence | Low | ✅ Fixed |
+| 9 | Dataset class imbalance + mislabeling (4 root causes) | ML/Data | Critical | ✅ Fixed |
 
 **Test coverage after all fixes:** 135/136 tests pass (62 severity scorer + 73 other). The single failing test (`bridge-clients.spec.ts`) is a pre-existing mock configuration issue unrelated to any of the above changes.

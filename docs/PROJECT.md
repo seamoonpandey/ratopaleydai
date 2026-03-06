@@ -42,7 +42,9 @@ RedSentinel is a full-stack, AI-driven XSS scanner built as a hybrid microservic
 ### High-Level Numbers
 
 - **42+ vulnerability endpoints** in the test application
-- **24,000+ curated payloads** with labeled context metadata
+- **59,000+ curated + synthetic payloads** with labeled context metadata (train: 41,385 / val: 8,868 / test: 8,869)
+- **145 event handlers** catalogued across 16 categories, 87 high-value subset used in generation
+- **149 HTML tags** catalogued across 11 categories, 44 high-value subset used in generation
 - **16 DOM sink patterns** × **12 tainted source patterns** for DOM-XSS detection
 - **8 WAF signatures** with per-WAF obfuscation preferences
 - **6 mutation strategies** + **9 encoding strategies** for payload transformation
@@ -506,31 +508,90 @@ Post-training temperature scaling is applied via `tools/inference/calibration.py
 
 ## 8. Dataset Pipeline
 
-The dataset is built through a 4-stage pipeline:
+The dataset is built through a 4-stage pipeline across 6 files:
 
-### Stage 1: Collection (`dataset/collect_payloads.py`)
-- Aggregates payloads from public sources (PayloadsAllTheThings, XSSGAI, AwesomeXSS)
-- Outputs: `processed/all_payloads_raw.csv`
+### Reference Data (`dataset/events.py` + `dataset/tags.py`)
+Two dedicated modules define the attack surface for synthetic generation:
+- **`events.py`** — 145 HTML event handlers across 16 categories (mouse, keyboard, focus, form, load, clipboard, drag, pointer, touch, gesture, media, animation, SVG/SMIL, fullscreen, WebKit vendor, misc). Exports `ALL_EVENTS`, `HIGH_VALUE_EVENTS` (87 entries), and `SPECIAL_VARIANTS` (events requiring an extra attribute to fire, e.g. `onfocus` + `autofocus`).
+- **`tags.py`** — 149 HTML tags across 11 categories (inline media, structure, text inline, embed, form, URL-bearing, scripting/raw-text, table, animation/SMIL, MathML, obsolete/quirk). Exports `ALL_TAGS` and `HIGH_VALUE_TAGS` (44 entries).
+
+Both files are the single source of truth — any additions automatically flow into the generator.
+
+### Stage 1: Collection (`dataset/collect_payloads.py` + `collect_portswigger.py`)
+- Aggregates payloads from public sources: PayloadsAllTheThings, XSSGAI, AwesomeXSS, PortSwigger labs
+- Filters lines containing known XSS keywords, deduplicates, length-bounds (5–2000 chars)
+- Outputs: `processed/all_payloads_raw.csv` (~19,000 rows)
 
 ### Stage 2: Labeling (`dataset/label_contexts.py`)
-- Regex-based automatic labeling:
-  - **Context** (8 classes): matches structural patterns in each payload
-  - **Technique**: tag injection, event handler, JS URI, template, etc.
-  - **Severity**: based on execution potential
+Regex-based automatic labeling with a strict 7-step priority order (most specific first):
+
+| Priority | Class | Trigger Pattern |
+|---|---|---|
+| 1 | `template_injection` | `{{…}}`, `${…}`, `<%…%>`, `#{…}` |
+| 2 | `dom_sink` | `document.`, `innerHTML`, `eval(`, `location=`, `.src=`, `Function(` |
+| 3 | `script_injection` | `<script` |
+| 4 | `js_uri` | `javascript:`, `data:text/html` |
+| 5 | `tag_injection` | `<tag … on\w+=` (full tag with event handler) |
+| 6 | `attribute_escape` | Starts with quote, or quote+`>`, or quote+event |
+| 7 | `event_handler` | Bare `on\w+=` (no surrounding tag) |
+
+Severity scoring matches 14 high-severity patterns (`document.cookie`, `navigator.sendBeacon`, `localStorage`, `btoa(`, etc.) → `high`; PoC functions (`alert`, `prompt`, `confirm`) → `medium`; everything else → `low`.
 - Outputs: `processed/payloads_labeled.csv`
 
 ### Stage 3: Synthetic Generation (`dataset/generate_synthetic.py`)
-- Template-based expansion:
-  - 5 context templates × multiple tags × events × functions × args × obfuscation variants
-  - Ensures underrepresented classes have sufficient training samples
-- Outputs: `processed/synthetic_payloads.csv`
+Template-based expansion with **per-class budgets** to prevent dominant classes from drowning out rare ones:
+
+| Class | Patterns | Budget/pattern | Templates |
+|---|---|---|---|
+| `script_injection` | 11 | 200 | `<script>`, encoded, `Function()`, `window['func']`, etc. |
+| `tag_injection` | 10 | 200 | full tag + event, tab/newline separator, `<!--><tag`, etc. |
+| `event_handler` | 6 | 300 | bare `event=func(arg)`, entity-encoded, JS URI form |
+| `attribute_escape` | 12 | 400 | quote breaks, `&quot;`, double-backslash, backtick vectors |
+| `js_uri` | 11 | 200 | `javascript:`, `data:`, unicode/entity encoded, comment-injected |
+| `dom_sink` | 14 | 400 | `innerHTML`, `eval`, `setTimeout`, `location`, `insertAdjacentHTML`, `__proto__` |
+| `template_injection` | 31 | all×all | AngularJS, Jinja2, Mustache, ERB, Velocity, FreeMarker, Smarty, Mako, polyglot |
+
+All payloads go through 6 obfuscation variants (HTML entity, unicode escape, URL encoding, quote encoding, tab-in-script, case variation).
+
+High-severity exfil args (`document.cookie`, `localStorage.getItem(…)`, `navigator.sendBeacon(…)`, etc.) are included in `dom_sink` templates to produce `high` severity training examples.
+
+- Outputs: `processed/synthetic_payloads.csv` (~42,000 rows)
 
 ### Stage 4: Finalization (`dataset/finalize_dataset.py`)
 - Merges real + synthetic payloads
-- Deduplication
-- Validation: 16 XSS-specific regex patterns to verify payload quality
-- **Stratified split** (70/15/15): ensures each context class is proportionally represented in train/val/test
-- Outputs: `splits/train.csv`, `splits/val.csv`, `splits/test.csv`
+- Deduplication by payload string
+- Severity recomputed from payload *content* for synthetic rows (not defaulted to `medium`)
+- Validation: 20 XSS/template-specific regex patterns verify payload quality
+- Drops rows with labels outside the known class sets
+- **Stratified split** (70/15/15): class proportions preserved in train/val/test
+- Outputs: `splits/train.csv` (41,385), `splits/val.csv` (8,868), `splits/test.csv` (8,869)
+
+### Dataset Stats
+
+| File | Rows |
+|---|---|
+| `processed/all_payloads_raw.csv` | ~19,015 |
+| `processed/payloads_labeled.csv` | ~19,015 |
+| `processed/synthetic_payloads.csv` | ~42,212 |
+| `splits/train.csv` | 41,385 |
+| `splits/val.csv` | 8,868 |
+| `splits/test.csv` | 8,869 |
+| **Total (splits)** | **59,122** |
+
+**Context distribution (final merged):**
+
+| Class | Count | % |
+|---|---|---|
+| `tag_injection` | 23,157 | 39% |
+| `attribute_escape` | 16,774 | 28% |
+| `dom_sink` | 6,365 | 11% |
+| `event_handler` | 6,027 | 10% |
+| `script_injection` | 2,535 | 4% |
+| `js_uri` | 2,327 | 4% |
+| `template_injection` | 1,221 | 2% |
+| `generic` | 716 | 1% |
+
+**Severity distribution:** `medium` 67% / `low` 17% / `high` 15.5%
 
 ---
 

@@ -1,8 +1,8 @@
 # RedSentinel — Progress Report
 
-> **Date:** March 3, 2026
+> **Date:** March 6, 2026
 > **Branch:** `main`
-> **Overall Completion:** ~70% of v1.0 scope
+> **Overall Completion:** ~75% of v1.0 scope
 
 ---
 
@@ -125,14 +125,15 @@ Dashboard (Next.js) ←→ Core (NestJS) ←→ Python Microservices
 | Metric | Value |
 |--------|-------|
 | Architecture | DistilBERT + dual classification heads (context + severity) |
-| Training data | 16,946 samples (train) + 3,632 (val) + 3,632 (test) |
-| Context accuracy | **99.53%** (test set) |
-| Severity accuracy | **99.56%** (test set) |
-| Context F1 (weighted) | **0.9953** |
+| Training data | **41,385 samples (train) + 8,868 (val) + 8,869 (test)** |
+| Context accuracy | 99.53% (previous run — retraining required with new dataset) |
+| Severity accuracy | 99.56% (previous run — retraining required with new dataset) |
+| Context F1 (weighted) | 0.9953 (previous run) |
 | Context classes | 8 (script_injection, event_handler, js_uri, tag_injection, attribute, template_injection, dom_sink, attribute_escape) |
 | Severity classes | 3 (high, medium, low) |
 | Epochs | 15 |
 | Inference | ~10ms per sample on CPU |
+| ⚠️ Status | **Dataset rebuilt — model pending retrain** |
 
 #### XGBoost Payload Ranker
 | Metric | Value |
@@ -176,14 +177,20 @@ Dashboard (Next.js) ←→ Core (NestJS) ←→ Python Microservices
 
 | File | Samples |
 |------|---------|
-| `dataset/splits/train.csv` | 17,147 |
-| `dataset/splits/test.csv` | 3,675 |
-| `dataset/splits/val.csv` | 3,675 |
+| `dataset/splits/train.csv` | **41,385** |
+| `dataset/splits/val.csv` | **8,868** |
+| `dataset/splits/test.csv` | **8,869** |
 | `dataset/ranker_training/ranker_training_samples.jsonl` | 5,001 |
-| `dataset/processed/all_payloads_raw.csv` | — |
-| `dataset/processed/payloads_labeled.csv` | — |
-| `dataset/processed/synthetic_payloads.csv` | — |
-| **Total labeled samples** | **~29,000** |
+| `dataset/processed/all_payloads_raw.csv` | ~19,015 |
+| `dataset/processed/payloads_labeled.csv` | ~19,015 |
+| `dataset/processed/synthetic_payloads.csv` | ~42,212 |
+| `dataset/events.py` | 145 events (87 high-value) |
+| `dataset/tags.py` | 149 tags (44 high-value) |
+| **Total (train+val+test)** | **59,122** |
+
+**Context breakdown (final splits):** `tag_injection` 39% / `attribute_escape` 28% / `dom_sink` 11% / `event_handler` 10% / `script_injection` 4% / `js_uri` 4% / `template_injection` 2% / `generic` 1%
+
+**Severity breakdown:** `medium` 67% / `low` 17% / `high` 15.5% — significant improvement from prior 2% high coverage.
 
 ---
 
@@ -231,8 +238,8 @@ Dashboard (Next.js) ←→ Core (NestJS) ←→ Python Microservices
 | API endpoints (Core) | ~15 |
 | API endpoints (Python) | 8 |
 | ML models | 2 (DistilBERT classifier + XGBoost ranker) |
-| Dataset samples | ~29,000 |
-| Payload bank | 19,378 (incl. 363 PortSwigger curated payloads) |
+| Dataset samples | **59,122** |
+| Payload bank | **59,122** (incl. ~19K real-world + ~42K synthetic; 363 PortSwigger curated) |
 
 ---
 
