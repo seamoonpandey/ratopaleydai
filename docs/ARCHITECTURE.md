@@ -112,7 +112,7 @@ Phase 2: CONTEXT        (Python — Context Module :5001)
          ▼
 Phase 3: PAYLOAD-GEN    (Python — Payload-Gen Module :5002)
          │
-         │  Selects from 24K payload bank by context
+         │  Selects from 59K+ payload bank by context
          │  Mutates + obfuscates for WAF bypass
          │  Ranks by success probability
          │  Output: [ { payload, confidence, target_param } ]
@@ -202,11 +202,11 @@ Total → Severity: 8+ CRITICAL, 6-7 HIGH, 4-5 MEDIUM, 0-3 LOW
 ### 5.3 Payload-Gen Module — Python :5002
 
 **Role:** Select and mutate payloads based on context + WAF
-**Payload Bank:** 24,000+ curated XSS payloads
+**Payload Bank:** 59,000+ curated + synthetic XSS payloads
 
 | File             | Purpose                                               |
 |------------------|-------------------------------------------------------|
-| `bank.py`        | Load + query the 24K payload database                 |
+| `bank.py`        | Load + query the 59K+ payload database                |
 | `selector.py`    | Filter payloads by context type                       |
 | `mutator.py`     | AI-driven payload mutation for novelty                |
 | `obfuscator.py`  | Encode payloads for WAF bypass (unicode, hex, etc.)   |
@@ -638,7 +638,7 @@ volumes:
 
 | Phase | Days   | Stack           | Deliverable                                    | Status   |
 |-------|--------|-----------------|------------------------------------------------|----------|
-| 1     | 1–2    | Python          | 24K XSS payload dataset built + labeled        | ✅ DONE  |
+| 1     | 1–2    | Python          | 59K+ XSS payload dataset built + labeled (59,122 samples) | ✅ DONE  |
 | 2     | 3      | Python          | DistilBERT model setup + tokenizer configured  | ✅ DONE  |
 | 3     | 4–5    | Python          | AI context classifier trained + evaluated      | ✅ DONE  |
 | 4     | 6–7    | NestJS          | Core scaffold: scan pipeline, queue, WebSocket | ✅ DONE  |

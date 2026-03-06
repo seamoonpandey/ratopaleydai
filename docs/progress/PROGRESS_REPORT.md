@@ -12,7 +12,7 @@ RedSentinel is an **AI-powered XSS vulnerability scanner** designed to:
 
 - **Crawl** target websites, discover parameterized URLs and forms
 - **Analyze** injection contexts using a fine-tuned DistilBERT model
-- **Generate** context-aware payloads from a 24K+ bank with mutation/obfuscation
+- **Generate** context-aware payloads from a 59K+ bank with mutation/obfuscation
 - **Rank** payloads using an XGBoost model trained on execution success data
 - **Fuzz** targets with HTTP injection + headless browser verification
 - **Detect** DOM-based XSS via static sink/source analysis
@@ -35,7 +35,7 @@ Dashboard (Next.js) ←→ Core (NestJS) ←→ Python Microservices
 | WAF fingerprinting (8 signatures) | ✅ Done |
 | AI context classification (DistilBERT) | ✅ Done |
 | Character fuzzing (allowed char detection) | ✅ Done |
-| Payload bank (24K+ payloads) | ✅ Done |
+| Payload bank (59K+ payloads) | ✅ Done |
 | Context-aware payload selection | ✅ Done |
 | Payload mutation (6 strategies) | ✅ Done |
 | WAF-specific obfuscation (9 strategies) | ✅ Done |
@@ -101,7 +101,7 @@ Dashboard (Next.js) ←→ Core (NestJS) ←→ Python Microservices
 | File | Purpose |
 |------|---------|
 | `app.py` | FastAPI service — `/generate` + `/ranker/info` endpoints |
-| `bank.py` | 24K+ payload bank with CSV loading |
+| `bank.py` | 59K+ payload bank with CSV loading |
 | `selector.py` | Context-aware payload selection |
 | `mutator.py` | 6 mutation strategies (tag swap, event swap, JS func swap, whitespace, etc.) |
 | `obfuscator.py` | 9 encoding strategies with per-WAF preferences |

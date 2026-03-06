@@ -32,7 +32,7 @@ RedSentinel is a full-stack, AI-driven XSS scanner built as a hybrid microservic
 
 | Traditional Scanner | RedSentinel |
 |---|---|
-| Static payload lists | Context-aware payload selection from a 24K+ bank, mutated and obfuscated per-context |
+| Static payload lists | Context-aware payload selection from a 59K+ bank, mutated and obfuscated per-context |
 | Regex-based detection | Multi-layer consensus: AI classification → DOM parsing → regex fallback |
 | Blind fuzzing | Reflection-aware: only tests payloads where input is confirmed to reflect |
 | Binary pass/fail | Headless Chromium verification — confirms actual JS execution via dialog interception |
@@ -80,7 +80,7 @@ RedSentinel is a full-stack, AI-driven XSS scanner built as a hybrid microservic
          │                │                │
          ▼                ▼                ▼
     DistilBERT       Payload Bank      Playwright
-    AI Model        (24K+ CSV)       Headless Browser
+    AI Model        (59K+ CSV)       Headless Browser
 ```
 
 ### Communication Pattern
@@ -206,7 +206,7 @@ The `reflects_in` value is one of: `html_body`, `attribute`, `js_string`, `js_bl
 Context data → Select from bank → Mutate → Obfuscate (if WAF) → Rank → Top N
 ```
 
-1. **Selection:** Maps the reflection context to a dataset label (e.g., `html_body` → `tag_injection`). Queries the 24K+ payload CSV bank filtered by matching context. Prioritizes payloads with auto-trigger mechanisms (no user interaction needed). Uses round-robin across parameters.
+1. **Selection:** Maps the reflection context to a dataset label (e.g., `html_body` → `tag_injection`). Queries the 59K+ payload CSV bank filtered by matching context. Prioritizes payloads with auto-trigger mechanisms (no user interaction needed). Uses round-robin across parameters.
 
 2. **Mutation (6 strategies):**
    - `swap_tag` — Swap `<img>` → 17 other tags (`svg`, `body`, `details`, `video`, etc.)
@@ -378,7 +378,7 @@ Key files:
 | `GET /health` | Service health |
 
 Key files:
-- `bank.py` — Loads 24K+ payloads from labeled CSV, indexes by context
+- `bank.py` — Loads 59K+ payloads from labeled CSV, indexes by context
 - `selector.py` — Context-to-label mapping, char filtering, round-robin, auto-trigger priority
 - `mutator.py` — 6 mutation strategies (tag/event/func swap, whitespace, case, null bytes)
 - `obfuscator.py` — 9 encoding strategies with WAF-specific preference ordering

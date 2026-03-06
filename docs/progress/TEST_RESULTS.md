@@ -39,7 +39,7 @@
 
 ### 2.1 DistilBERT Context Classifier
 
-**Test set:** 3,632 samples (held out from training)
+**Test set:** 8,869 samples (held out from training)
 
 | Metric | Value |
 |--------|-------|
@@ -231,10 +231,10 @@ Because the scanner uses **proximity matching** (±5 lines) without any data-flo
 
 | Split | Samples |
 |-------|---------|
-| Train | 17,147 (70%) |
-| Val | 3,675 (15%) |
-| Test | 3,675 (15%) |
-| **Total valid** | **24,497** |
+| Train | 41,385 (70%) |
+| Val | 8,868 (15%) |
+| Test | 8,869 (15%) |
+| **Total valid** | **59,122** |
 
 | Area | Gap | Risk |
 |------|-----|------|
