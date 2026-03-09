@@ -26,6 +26,7 @@ async function bootstrap() {
     .setTitle('RedSentinel API')
     .setDescription('AI-powered XSS scanner')
     .setVersion('2.0')
+    .addBearerAuth()
     .addApiKey({ type: 'apiKey', in: 'header', name: 'x-api-key' }, 'x-api-key')
     .build();
   const document = SwaggerModule.createDocument(app, doc);
