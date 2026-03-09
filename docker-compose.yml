@@ -149,6 +149,8 @@ services:
     build:
       context: ./dashboard
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://core:3000
     container_name: redsentinel-dashboard
     ports:
       - "8080:8080"
