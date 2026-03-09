@@ -11,11 +11,23 @@ async function request<T>(
     ...(init?.headers as Record<string, string> | undefined),
   };
 
-  const apiKey =
+  // Use JWT token for authentication
+  const token =
     typeof window !== "undefined"
-      ? localStorage.getItem("rs-api-key") ?? ""
+      ? localStorage.getItem("rs-auth-token") ?? ""
       : "";
-  if (apiKey) headers["x-api-key"] = apiKey;
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  // Fallback to API key for backwards compatibility
+  if (!token) {
+    const apiKey =
+      typeof window !== "undefined"
+        ? localStorage.getItem("rs-api-key") ?? ""
+        : "";
+    if (apiKey) headers["x-api-key"] = apiKey;
+  }
 
   const res = await fetch(`${BASE}${path}`, { ...init, headers });
   if (!res.ok) {
@@ -87,4 +99,22 @@ export async function regenerateReport(
   // Trigger backend regeneration then re-fetch the updated formats list
   await request<unknown>(`/reports/${scanId}/regenerate?formats=${fmtParam}`);
   return request<ReportFormats>(`/reports/${scanId}`);
+}
+
+/* ── auth ───────────────────────────────────────────────────── */
+
+export interface User {
+  id: string;
+  email: string;
+  name?: string;
+  avatar?: string;
+  provider: string;
+}
+
+export async function getCurrentUser(): Promise<User> {
+  return request<User>("/auth/me");
+}
+
+export async function getApiKey(): Promise<{ apiKey: string }> {
+  return request<{ apiKey: string }>("/auth/api-key");
 }
