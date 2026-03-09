@@ -5,9 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScanModule } from './scan/scan.module';
 import { ReportModule } from './report/report.module';
 import { HealthModule } from './health/health.module';
+import { AuthModule } from './auth/auth.module';
 import { ScanEntity } from './scan/entities/scan.entity';
 import { VulnEntity } from './scan/entities/vuln.entity';
+import { UserEntity } from './auth/entities/user.entity';
 import { InitialSchema1709420400000 } from './migrations/1709420400000-InitialSchema';
+import { AddUserEntity1710000000000 } from './migrations/1710000000000-AddUserEntity';
 
 @Module({
   imports: [
@@ -32,8 +35,8 @@ import { InitialSchema1709420400000 } from './migrations/1709420400000-InitialSc
         return {
           type: 'postgres' as const,
           ...base,
-          entities: [ScanEntity, VulnEntity],
-          migrations: [InitialSchema1709420400000],
+          entities: [ScanEntity, VulnEntity, UserEntity],
+          migrations: [InitialSchema1709420400000, AddUserEntity1710000000000],
           migrationsRun: true,               // auto-run pending migrations on boot
           migrationsTableName: 'typeorm_migrations',
           synchronize: !isProd,               // only in dev for convenience
@@ -41,6 +44,7 @@ import { InitialSchema1709420400000 } from './migrations/1709420400000-InitialSc
         };
       },
     }),
+    AuthModule,
     ScanModule,
     ReportModule,
     HealthModule,
